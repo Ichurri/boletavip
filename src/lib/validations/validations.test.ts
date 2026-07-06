@@ -87,14 +87,27 @@ describe("eventSchema", () => {
     expect(eventSchema.safeParse({ ...valid, time: "25:00" }).success).toBe(false);
   });
 
-  it("only accepts /uploads/ paths for images", () => {
+  it("only accepts /uploads/ paths or Vercel Blob URLs for images", () => {
     expect(
       eventSchema.safeParse({ ...valid, coverImage: "https://evil.com/x.png" })
         .success,
     ).toBe(false);
     expect(
+      eventSchema.safeParse({
+        ...valid,
+        coverImage: "https://evil.com/x.public.blob.vercel-storage.com/x.png",
+      }).success,
+    ).toBe(false);
+    expect(
       eventSchema.safeParse({ ...valid, coverImage: "/uploads/abc-123.png" })
         .success,
+    ).toBe(true);
+    expect(
+      eventSchema.safeParse({
+        ...valid,
+        coverImage:
+          "https://abc123xyz.public.blob.vercel-storage.com/uploads/a-1.png",
+      }).success,
     ).toBe(true);
   });
 });

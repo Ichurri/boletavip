@@ -2,10 +2,15 @@ import { NextResponse } from "next/server";
 import { mkdir, writeFile } from "node:fs/promises";
 import { randomUUID } from "node:crypto";
 import path from "node:path";
+import { put } from "@vercel/blob";
 import { requireRole } from "@/lib/api-auth";
 import { ALLOWED_IMAGE_TYPES, MAX_UPLOAD_BYTES } from "@/lib/constants";
 
 const UPLOAD_DIR = path.join(process.cwd(), "public", "uploads");
+
+// With a Blob token (production/Vercel) files go to Vercel Blob; without
+// one (local dev) they land on disk under /public/uploads.
+const useBlobStorage = Boolean(process.env.BLOB_READ_WRITE_TOKEN);
 
 export async function POST(request: Request) {
   const { error } = await requireRole("ORGANIZER", "ADMIN");
@@ -37,6 +42,15 @@ export async function POST(request: Request) {
   }
 
   const fileName = `${randomUUID()}.${extension}`;
+
+  if (useBlobStorage) {
+    const blob = await put(`uploads/${fileName}`, file, {
+      access: "public",
+      contentType: file.type,
+    });
+    return NextResponse.json({ url: blob.url }, { status: 201 });
+  }
+
   await mkdir(UPLOAD_DIR, { recursive: true });
   await writeFile(
     path.join(UPLOAD_DIR, fileName),

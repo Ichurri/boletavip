@@ -77,6 +77,21 @@ The seed also creates two venues (Teatro Municipal in La Paz with a numbered VIP
 4. There is no cron: `expireStaleOrders()` runs lazily before order reads/writes, cancelling overdue orders and releasing their seats.
 5. The organizer confirms the payment from the dashboard; seats become `SOLD` and one ticket per seat/quantity is generated with a unique UUID code rendered as a QR data URL.
 
+## Deployment (Vercel + Neon + Vercel Blob)
+
+1. **Database**: create a project on [Neon](https://neon.tech) and copy the **pooled** connection string. Apply migrations from your machine:
+   ```bash
+   DATABASE_URL="postgresql://...-pooler...neon.tech/neondb?sslmode=require" pnpm prisma migrate deploy
+   ```
+2. **Vercel**: import the GitHub repo. In the project settings add the env vars:
+   - `DATABASE_URL` — the pooled Neon string
+   - `AUTH_SECRET` — a fresh one (`openssl rand -base64 32`), never the dev one
+   - `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` — optional; add `https://<domain>/api/auth/callback/google` as an authorized redirect URI in Google Cloud Console
+3. **Uploads**: in the Vercel project go to *Storage → Create → Blob*. This injects `BLOB_READ_WRITE_TOKEN` automatically; the upload endpoint detects it and stores images in Blob instead of the local filesystem (which is ephemeral on Vercel).
+4. Deploy. `postinstall` runs `prisma generate`; run step 1 again whenever you add migrations.
+
+Avoid seeding demo users in production — the seed passwords are public in this repo.
+
 ## Project structure
 
 ```

@@ -1,9 +1,17 @@
 import { z } from "zod";
 import { EVENT_CATEGORIES } from "@/lib/constants";
 
+const LOCAL_UPLOAD_PATTERN = /^\/uploads\/[\w.-]+$/;
+const BLOB_UPLOAD_PATTERN =
+  /^https:\/\/[\w-]+\.public\.blob\.vercel-storage\.com\/[\w./-]+$/;
+
 const uploadPath = z
   .string()
-  .regex(/^\/uploads\/[\w.-]+$/, "Ruta de imagen inválida")
+  .refine(
+    (value) =>
+      LOCAL_UPLOAD_PATTERN.test(value) || BLOB_UPLOAD_PATTERN.test(value),
+    "Ruta de imagen inválida",
+  )
   .nullable()
   .optional();
 
