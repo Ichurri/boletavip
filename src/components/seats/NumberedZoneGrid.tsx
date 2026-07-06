@@ -16,11 +16,16 @@ export function NumberedZoneGrid({
 }) {
   const hydrated = useHydrated();
   const toggleSeat = useCartStore((state) => state.toggleSeat);
-  const selectedKeys = useCartStore((state) =>
-    state.eventId === eventId
-      ? state.items.filter((item) => item.seatId).map((item) => item.key)
-      : [],
-  );
+  // Select stable references and derive outside: selectors must not build
+  // fresh arrays or useSyncExternalStore loops ("getSnapshot should be cached")
+  const cartEventId = useCartStore((state) => state.eventId);
+  const cartItems = useCartStore((state) => state.items);
+  const selectedKeys =
+    cartEventId === eventId
+      ? new Set(
+          cartItems.filter((item) => item.seatId).map((item) => item.key),
+        )
+      : new Set<string>();
 
   const rows = new Map<string, SeatDto[]>();
   for (const seat of zone.seats) {
@@ -64,7 +69,7 @@ export function NumberedZoneGrid({
                 .slice()
                 .sort((a, b) => a.number - b.number)
                 .map((seat) => {
-                  const selected = hydrated && selectedKeys.includes(seat.id);
+                  const selected = hydrated && selectedKeys.has(seat.id);
                   const disabled = seat.status !== "AVAILABLE";
                   return (
                     <button

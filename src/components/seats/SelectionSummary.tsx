@@ -9,16 +9,25 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/Card";
-import { useCartStore, cartTotal, cartCount } from "@/stores/cart-store";
+import {
+  useCartStore,
+  cartTotal,
+  cartCount,
+  type CartItem,
+} from "@/stores/cart-store";
 import { useHydrated } from "@/lib/use-hydrated";
+
+const NO_ITEMS: CartItem[] = [];
 
 export function SelectionSummary({ eventId }: { eventId: string }) {
   const hydrated = useHydrated();
-  const items = useCartStore((state) =>
-    state.eventId === eventId ? state.items : [],
-  );
+  // Selectors must return stable references (no fresh arrays) for
+  // useSyncExternalStore; derive the event filter outside the selector
+  const cartEventId = useCartStore((state) => state.eventId);
+  const cartItems = useCartStore((state) => state.items);
+  const items = cartEventId === eventId ? cartItems : NO_ITEMS;
 
-  const shownItems = hydrated ? items : [];
+  const shownItems = hydrated ? items : NO_ITEMS;
   const total = cartTotal(shownItems);
   const count = cartCount(shownItems);
 
