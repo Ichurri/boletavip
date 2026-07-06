@@ -1,0 +1,103 @@
+import { NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+import { requireRole } from "@/lib/api-auth";
+import { verifyTicketSchema } from "@/lib/validations/ticket";
+
+function ticketSummary(ticket: {
+  code: string;
+  event: { title: string; date: Date; time: string };
+  seat: { row: string; number: number } | null;
+  zone: { name: string } | null;
+  order: { buyer: { name: string | null; email: string | null } };
+}) {
+  return {
+    code: ticket.code,
+    eventTitle: ticket.event.title,
+    eventDate: ticket.event.date.toISOString(),
+    eventTime: ticket.event.time,
+    label: ticket.seat
+      ? `${ticket.zone?.name ?? ""} · Asiento ${ticket.seat.row}${ticket.seat.number}`
+      : (ticket.zone?.name ?? "Entrada general"),
+    buyerName: ticket.order.buyer.name ?? ticket.order.buyer.email ?? "—",
+  };
+}
+
+export async function POST(request: Request) {
+  const { session, error } = await requireRole("ORGANIZER", "ADMIN");
+  if (error) return error;
+
+  const body = await request.json().catch(() => null);
+  const parsed = verifyTicketSchema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json(
+      { result: "INVALID_CODE", error: "El código escaneado no es un boleto válido" },
+      { status: 400 },
+    );
+  }
+
+  const ticket = await prisma.ticket.findUnique({
+    where: { code: parsed.data.code },
+    include: {
+      event: { select: { title: true, date: true, time: true, organizerId: true } },
+      seat: { select: { row: true, number: true } },
+      zone: { select: { name: true } },
+      order: { select: { buyer: { select: { name: true, email: true } } } },
+    },
+  });
+
+  if (!ticket) {
+    return NextResponse.json(
+      { result: "NOT_FOUND", error: "Este boleto no existe" },
+      { status: 404 },
+    );
+  }
+
+  if (
+    ticket.event.organizerId !== session.user.id &&
+    session.user.role !== "ADMIN"
+  ) {
+    return NextResponse.json(
+      { result: "FORBIDDEN", error: "Este boleto pertenece a un evento de otro organizador" },
+      { status: 403 },
+    );
+  }
+
+  if (ticket.status === "CANCELLED") {
+    return NextResponse.json(
+      {
+        result: "CANCELLED",
+        error: "Este boleto fue cancelado",
+        ticket: ticketSummary(ticket),
+      },
+      { status: 409 },
+    );
+  }
+
+  // Atomic check-in: flip to USED only if still VALID, so a duplicated QR
+  // scanned twice (or on two devices at once) is accepted exactly once.
+  const accepted = await prisma.ticket.updateMany({
+    where: { id: ticket.id, status: "VALID" },
+    data: { status: "USED", usedAt: new Date() },
+  });
+
+  if (accepted.count === 0) {
+    const current = await prisma.ticket.findUnique({
+      where: { id: ticket.id },
+      select: { usedAt: true },
+    });
+    return NextResponse.json(
+      {
+        result: "ALREADY_USED",
+        error: "Este boleto ya fue utilizado",
+        usedAt: current?.usedAt?.toISOString() ?? null,
+        ticket: ticketSummary(ticket),
+      },
+      { status: 409 },
+    );
+  }
+
+  return NextResponse.json({
+    result: "ACCEPTED",
+    ticket: ticketSummary(ticket),
+  });
+}

@@ -9,6 +9,7 @@ const links = [
   { href: "/dashboard/orders", label: "Pedidos", exact: false },
   { href: "/dashboard/events", label: "Mis eventos", exact: false },
   { href: "/dashboard/venues", label: "Mis venues", exact: false },
+  { href: "/dashboard/verificar", label: "Verificar boletos", exact: false },
 ];
 
 export function DashboardNav() {

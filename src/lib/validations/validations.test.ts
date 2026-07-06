@@ -3,6 +3,7 @@ import { registerSchema, loginSchema } from "@/lib/validations/auth";
 import { venueSchema } from "@/lib/validations/venue";
 import { eventSchema } from "@/lib/validations/event";
 import { createOrderSchema } from "@/lib/validations/order";
+import { verifyTicketSchema } from "@/lib/validations/ticket";
 
 describe("registerSchema", () => {
   it("accepts valid data and defaults wantsOrganizer to false", () => {
@@ -109,6 +110,21 @@ describe("eventSchema", () => {
           "https://abc123xyz.public.blob.vercel-storage.com/uploads/a-1.png",
       }).success,
     ).toBe(true);
+  });
+});
+
+describe("verifyTicketSchema", () => {
+  it("accepts a UUID ticket code", () => {
+    expect(
+      verifyTicketSchema.safeParse({
+        code: "3f2504e0-4f89-41d3-9a0c-0305e82c3301",
+      }).success,
+    ).toBe(true);
+  });
+
+  it("rejects arbitrary strings", () => {
+    expect(verifyTicketSchema.safeParse({ code: "hola-mundo" }).success).toBe(false);
+    expect(verifyTicketSchema.safeParse({ code: "" }).success).toBe(false);
   });
 });
 
