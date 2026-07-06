@@ -3,33 +3,47 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-  --background: #fafafa;
+  --background: #faf9fc;
   --foreground: #18181b;
   --card: #ffffff;
   --card-foreground: #18181b;
-  --muted: #f4f4f5;
-  --muted-foreground: #71717a;
-  --border: #e4e4e7;
+  --muted: #f2f0f7;
+  --muted-foreground: #6d6878;
+  --border: #e7e3ef;
   --primary: #7c3aed;
   --primary-hover: #6d28d9;
   --primary-foreground: #ffffff;
+  --primary-soft: #f3eefd;
   --accent: #f59e0b;
+  --accent-foreground: #451a03;
   --danger: #dc2626;
+  --ring: #8b5cf6;
+  --elevation-card: 0 1px 2px rgb(24 24 27 / 0.04), 0 1px 3px rgb(24 24 27 / 0.06);
+  --elevation-card-hover:
+    0 4px 6px -1px rgb(24 24 27 / 0.06), 0 12px 24px -8px rgb(124 58 237 / 0.18);
+  --elevation-glow: 0 4px 20px -4px rgb(124 58 237 / 0.4);
 }
 
 .dark {
   --background: #0d0b14;
   --foreground: #f4f4f5;
-  --card: #171321;
+  --card: #16121f;
   --card-foreground: #f4f4f5;
-  --muted: #221c30;
-  --muted-foreground: #a1a1aa;
+  --muted: #211b30;
+  --muted-foreground: #a8a3b4;
   --border: #2b2438;
   --primary: #8b5cf6;
   --primary-hover: #a78bfa;
   --primary-foreground: #ffffff;
+  --primary-soft: #221a37;
   --accent: #fbbf24;
+  --accent-foreground: #451a03;
   --danger: #f87171;
+  --ring: #a78bfa;
+  --elevation-card: 0 1px 2px rgb(0 0 0 / 0.3), 0 1px 3px rgb(0 0 0 / 0.25);
+  --elevation-card-hover:
+    0 4px 6px -1px rgb(0 0 0 / 0.35), 0 12px 24px -8px rgb(139 92 246 / 0.3);
+  --elevation-glow: 0 4px 20px -4px rgb(139 92 246 / 0.5);
 }
 
 @theme inline {
@@ -43,13 +57,45 @@
   --color-primary: var(--primary);
   --color-primary-hover: var(--primary-hover);
   --color-primary-foreground: var(--primary-foreground);
+  --color-primary-soft: var(--primary-soft);
   --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
   --color-danger: var(--danger);
+  --color-ring: var(--ring);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-display: var(--font-outfit), var(--font-geist-sans), sans-serif;
+  --shadow-card: var(--elevation-card);
+  --shadow-card-hover: var(--elevation-card-hover);
+  --shadow-glow: var(--elevation-glow);
 }
 
 body {
   background: var(--color-background);
   color: var(--color-foreground);
+}
+
+@layer base {
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-outfit), var(--font-geist-sans), sans-serif;
+    letter-spacing: -0.02em;
+  }
+
+  ::selection {
+    background: var(--primary);
+    color: var(--primary-foreground);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

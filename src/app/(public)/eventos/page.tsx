@@ -7,6 +7,7 @@ import {
   EventFilters,
   type EventFilterValues,
 } from "@/components/events/EventFilters";
+import { SearchIcon } from "@/components/ui/icons";
 
 export const metadata: Metadata = {
   title: "Eventos",
@@ -85,7 +86,9 @@ export default async function EventsPage({
 
       {cards.length === 0 ? (
         <div className="flex flex-1 flex-col items-center justify-center gap-3 py-16 text-center">
-          <span className="text-5xl">🔍</span>
+          <span className="flex h-16 w-16 items-center justify-center rounded-full bg-muted text-muted-foreground">
+            <SearchIcon className="h-7 w-7" />
+          </span>
           <p className="font-medium">No encontramos eventos</p>
           <p className="max-w-sm text-sm text-muted-foreground">
             Probá con otros filtros o volvé pronto: siempre hay eventos nuevos.

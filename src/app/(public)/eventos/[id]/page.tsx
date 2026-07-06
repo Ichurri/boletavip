@@ -3,7 +3,7 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { formatDate } from "@/lib/utils";
-import { CATEGORY_EMOJIS } from "@/lib/constants";
+import { TicketIcon } from "@/components/ui/icons";
 import { Badge } from "@/components/ui/Badge";
 import {
   Card,
@@ -113,8 +113,8 @@ export default async function EventDetailPage({ params }: PageProps) {
                 className="object-cover"
               />
             ) : (
-              <div className="flex h-full items-center justify-center text-7xl">
-                {CATEGORY_EMOJIS[event.category] ?? "🎟️"}
+              <div className="flex h-full items-center justify-center">
+                <TicketIcon className="h-20 w-20 text-primary/40" />
               </div>
             )}
           </div>

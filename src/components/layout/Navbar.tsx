@@ -4,6 +4,7 @@ import { Button, buttonVariants } from "@/components/ui/Button";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { CartButton } from "@/components/layout/CartButton";
 import { MobileMenu } from "@/components/layout/MobileMenu";
+import { TicketIcon } from "@/components/ui/icons";
 
 export async function Navbar() {
   const session = await auth();
@@ -14,8 +15,13 @@ export async function Navbar() {
     <header className="sticky top-0 z-40 border-b border-border bg-background/80 backdrop-blur">
       <nav className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4">
         <div className="flex items-center gap-6">
-          <Link href="/" className="text-xl font-bold tracking-tight">
-            🎟️ Boleta<span className="text-primary">VIP</span>
+          <Link href="/" className="flex items-center gap-2 text-xl font-bold tracking-tight">
+            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-sm">
+              <TicketIcon className="h-5 w-5" />
+            </span>
+            <span className="font-display">
+              Boleta<span className="text-primary">VIP</span>
+            </span>
           </Link>
           <div className="hidden items-center gap-4 text-sm text-muted-foreground sm:flex">
             <Link href="/eventos" className="transition-colors hover:text-foreground">
