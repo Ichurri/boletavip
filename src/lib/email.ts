@@ -1,4 +1,5 @@
 const RESEND_API_URL = "https://api.resend.com/emails";
+const BREVO_API_URL = "https://api.brevo.com/v3/smtp/email";
 
 interface SendEmailInput {
   to: string;
@@ -6,37 +7,80 @@ interface SendEmailInput {
   html: string;
 }
 
+/** Splits EMAIL_FROM ("Name <a@b.c>" or plain address) into name + email. */
+export function parseSender(raw: string) {
+  const match = raw.match(/^(.*?)\s*<(.+)>$/);
+  return match
+    ? { name: match[1] || "Üticket", email: match[2] }
+    : { name: "Üticket", email: raw };
+}
+
 /**
- * Sends an email through Resend. Without RESEND_API_KEY (local dev) the
- * email is logged to the console instead. Never throws: notification
- * failures must not break the API response that triggered them.
+ * Sends a transactional email. Provider selection by env:
+ * - BREVO_API_KEY set → Brevo (no own domain needed; EMAIL_FROM must be the
+ *   sender verified in Brevo). Takes priority while we have no domain.
+ * - else RESEND_API_KEY set → Resend (needs a verified domain to reach
+ *   recipients other than the account owner).
+ * - else (local dev) → logged to the console.
+ * Never throws: notification failures must not break the API response.
  */
 export async function sendEmail({ to, subject, html }: SendEmailInput) {
-  const apiKey = process.env.RESEND_API_KEY;
+  const brevoKey = process.env.BREVO_API_KEY;
+  const resendKey = process.env.RESEND_API_KEY;
   const from = process.env.EMAIL_FROM ?? "Üticket <onboarding@resend.dev>";
 
-  if (!apiKey) {
+  try {
+    if (brevoKey) {
+      if (!process.env.EMAIL_FROM) {
+        console.error(
+          "[email] BREVO_API_KEY is set but EMAIL_FROM is missing — set it to the sender verified in Brevo",
+        );
+        return { ok: false as const };
+      }
+      const sender = parseSender(from);
+      const response = await fetch(BREVO_API_URL, {
+        method: "POST",
+        headers: {
+          "api-key": brevoKey,
+          "Content-Type": "application/json",
+          accept: "application/json",
+        },
+        body: JSON.stringify({
+          sender,
+          to: [{ email: to }],
+          subject,
+          htmlContent: html,
+        }),
+      });
+      if (!response.ok) {
+        const body = await response.text().catch(() => "");
+        console.error(`[email] Brevo ${response.status} for "${subject}": ${body}`);
+        return { ok: false as const };
+      }
+      return { ok: true as const };
+    }
+
+    if (resendKey) {
+      const response = await fetch(RESEND_API_URL, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${resendKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ from, to, subject, html }),
+      });
+      if (!response.ok) {
+        const body = await response.text().catch(() => "");
+        console.error(`[email] Resend ${response.status} for "${subject}": ${body}`);
+        return { ok: false as const };
+      }
+      return { ok: true as const };
+    }
+
     console.info(
       `[email:dev] to=${to} subject="${subject}"\n${html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim()}`,
     );
     return { ok: true as const, dev: true as const };
-  }
-
-  try {
-    const response = await fetch(RESEND_API_URL, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ from, to, subject, html }),
-    });
-    if (!response.ok) {
-      const body = await response.text().catch(() => "");
-      console.error(`[email] Resend ${response.status} for "${subject}": ${body}`);
-      return { ok: false as const };
-    }
-    return { ok: true as const };
   } catch (error) {
     console.error(`[email] failed to send "${subject}"`, error);
     return { ok: false as const };

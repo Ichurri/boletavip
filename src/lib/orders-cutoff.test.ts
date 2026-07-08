@@ -1,6 +1,23 @@
 import { describe, expect, it } from "vitest";
 import { eventStartsAt, eventDate } from "@/lib/utils";
 import { platformSettingsSchema } from "@/lib/validations/settings";
+import { parseSender } from "@/lib/email";
+
+describe("parseSender", () => {
+  it("splits 'Name <email>' format", () => {
+    expect(parseSender("Üticket <hola@uticket.me>")).toEqual({
+      name: "Üticket",
+      email: "hola@uticket.me",
+    });
+  });
+
+  it("falls back to brand name for plain addresses", () => {
+    expect(parseSender("santiago@example.com")).toEqual({
+      name: "Üticket",
+      email: "santiago@example.com",
+    });
+  });
+});
 
 describe("eventStartsAt", () => {
   it("combines the noon-UTC date with the time in Bolivia (UTC-4)", () => {
