@@ -56,8 +56,8 @@ async function seedUsers() {
   for (const user of users) {
     await prisma.user.upsert({
       where: { email: user.email },
-      update: { role: user.role },
-      create: { ...user, password },
+      update: { role: user.role, emailVerified: new Date() },
+      create: { ...user, password, emailVerified: new Date() },
     });
     console.log(`Seeded user ${user.email} (${user.role})`);
   }

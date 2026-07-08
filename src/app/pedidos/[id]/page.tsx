@@ -18,6 +18,7 @@ import {
 import { OrderCountdown } from "@/components/orders/OrderCountdown";
 import { CancelOrderButton } from "@/components/orders/CancelOrderButton";
 import { TicketCard } from "@/components/orders/TicketCard";
+import { UploadProofForm } from "@/components/orders/UploadProofForm";
 
 export const metadata: Metadata = {
   title: "Pedido",
@@ -148,14 +149,18 @@ export default async function OrderDetailPage({ params }: PageProps) {
                   .
                 </li>
                 <li>
-                  El organizador verá tu pedido y confirmará el pago
-                  manualmente.
+                  Sacale captura al comprobante de la transferencia y subilo
+                  acá abajo.
                 </li>
                 <li>
-                  Al confirmarse, tus boletos con QR aparecerán en esta misma
-                  página.
+                  El organizador verificará tu comprobante y tus boletos con
+                  QR aparecerán en esta misma página.
                 </li>
               </ol>
+
+              <div className="border-t border-border pt-4">
+                <UploadProofForm orderId={order.id} />
+              </div>
 
               <div className="border-t border-border pt-4">
                 <h3 className="mb-2 text-sm font-semibold">Tu pedido</h3>
@@ -171,6 +176,81 @@ export default async function OrderDetailPage({ params }: PageProps) {
                     </li>
                   ))}
                 </ul>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {order.status === "PAYMENT_SUBMITTED" && (
+        <div className="grid gap-6 md:grid-cols-2">
+          <Card>
+            <CardHeader>
+              <CardTitle>Comprobante en revisión</CardTitle>
+            </CardHeader>
+            <CardContent className="flex flex-col gap-4">
+              <p className="text-sm text-muted-foreground">
+                Recibimos tu comprobante y el organizador lo está revisando.
+                Te avisaremos por correo cuando tus boletos estén listos — no
+                hace falta que te quedes en esta página.
+              </p>
+              {order.paymentProof && (
+                <a
+                  href={order.paymentProof}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block overflow-hidden rounded-md border border-border"
+                >
+                  <Image
+                    src={order.paymentProof}
+                    alt="Comprobante de pago enviado"
+                    width={480}
+                    height={320}
+                    className="max-h-72 w-full bg-white object-contain"
+                  />
+                </a>
+              )}
+              {order.paymentSubmittedAt && (
+                <p className="text-xs text-muted-foreground">
+                  Enviado el{" "}
+                  {new Intl.DateTimeFormat("es-BO", {
+                    dateStyle: "short",
+                    timeStyle: "short",
+                  }).format(order.paymentSubmittedAt)}
+                </p>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>¿Te equivocaste de imagen?</CardTitle>
+            </CardHeader>
+            <CardContent className="flex flex-col gap-4">
+              <p className="text-sm text-muted-foreground">
+                Podés reemplazar el comprobante mientras el organizador no lo
+                haya revisado.
+              </p>
+              <UploadProofForm orderId={order.id} replacing />
+
+              <div className="border-t border-border pt-4">
+                <h3 className="mb-2 text-sm font-semibold">Tu pedido</h3>
+                <ul className="flex flex-col gap-1.5 text-sm">
+                  {order.items.map((item) => (
+                    <li key={item.id} className="flex justify-between gap-2">
+                      <span className="text-muted-foreground">
+                        {itemLabel(item)}
+                      </span>
+                      <span className="tabular-nums">
+                        {formatCurrency(Number(item.unitPrice) * item.quantity)}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+                <div className="mt-2 flex justify-between border-t border-border pt-2 text-sm font-semibold">
+                  <span>Total</span>
+                  <span className="tabular-nums">{formatCurrency(total)}</span>
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -217,9 +297,10 @@ export default async function OrderDetailPage({ params }: PageProps) {
           <span className="text-5xl">😕</span>
           <p className="font-medium">Este pedido fue cancelado</p>
           <p className="max-w-sm text-sm text-muted-foreground">
-            Puede haber expirado el tiempo de pago o haberse cancelado
-            manualmente. Los asientos fueron liberados; podés intentar de
-            nuevo.
+            {order.rejectionReason
+              ? `El organizador rechazó el comprobante. Motivo: ${order.rejectionReason}`
+              : "Puede haber expirado el tiempo de pago o haberse cancelado manualmente."}{" "}
+            Los asientos fueron liberados; podés intentar de nuevo.
           </p>
           <Link
             href={`/eventos/${order.event.id}`}

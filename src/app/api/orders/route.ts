@@ -3,6 +3,8 @@ import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/api-auth";
 import { createOrderSchema } from "@/lib/validations/order";
 import { expireStaleOrders, ORDER_EXPIRY_MINUTES } from "@/lib/orders";
+import { getPlatformSettings } from "@/lib/settings";
+import { salesAreClosed } from "@/lib/utils";
 import { Prisma } from "@/generated/prisma/client";
 
 class OrderError extends Error {}
@@ -23,6 +25,20 @@ export async function POST(request: Request) {
   const { eventId, zones: zoneItems } = parsed.data;
   const seatIds = [...new Set(parsed.data.seatIds)];
 
+  const buyer = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: { emailVerified: true },
+  });
+  if (!buyer?.emailVerified) {
+    return NextResponse.json(
+      {
+        error:
+          "Verificá tu correo antes de comprar. Revisá tu bandeja de entrada o reenviá el correo desde el aviso superior.",
+      },
+      { status: 403 },
+    );
+  }
+
   // Free capacity being held by expired orders before validating availability
   await expireStaleOrders();
 
@@ -32,6 +48,7 @@ export async function POST(request: Request) {
       id: true,
       title: true,
       date: true,
+      time: true,
       price: true,
       venueId: true,
       paymentQrImage: true,
@@ -43,9 +60,16 @@ export async function POST(request: Request) {
       { status: 404 },
     );
   }
-  if (event.date < new Date()) {
+
+  const { orderCutoffHours } = await getPlatformSettings();
+  if (salesAreClosed(event, orderCutoffHours)) {
     return NextResponse.json(
-      { error: "Este evento ya pasó" },
+      {
+        error:
+          orderCutoffHours > 0
+            ? `Las ventas para este evento cerraron (se cierran ${orderCutoffHours} h antes del inicio)`
+            : "Este evento ya comenzó",
+      },
       { status: 409 },
     );
   }
@@ -120,7 +144,11 @@ export async function POST(request: Request) {
             where: {
               zoneId: zone.id,
               seatId: null,
-              order: { status: { in: ["PENDING_PAYMENT", "CONFIRMED"] } },
+              order: {
+                status: {
+                  in: ["PENDING_PAYMENT", "PAYMENT_SUBMITTED", "CONFIRMED"],
+                },
+              },
             },
           });
           const taken = committed._sum.quantity ?? 0;

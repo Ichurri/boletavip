@@ -45,8 +45,12 @@ Local DB: PostgreSQL 17, db `boletavip`, role `ichurri` / `boletavip_dev`. Seed 
 - Roles: BUYER | ORGANIZER | ADMIN. Registration offers buyer/organizer; ADMIN only via DB.
 - Event lifecycle: DRAFT → submit (requires `paymentQrImage`) → PENDING → admin approves → APPROVED (public) / rejects → back to DRAFT. Approved events can only be cancelled, not edited/deleted.
 - Venues own zones; a zone is either numbered (rows × seatsPerRow, `Seat` rows generated, `Zone.rows != null`) or free-capacity. Venue structure is locked once it has sales.
-- Orders: created in a **serializable transaction** — seats flip AVAILABLE→RESERVED atomically, free-zone capacity checked against PENDING_PAYMENT/CONFIRMED orders. 15-min expiry. **No cron**: `expireStaleOrders()` (`src/lib/orders.ts`) runs lazily before order reads/writes and releases seats.
-- Confirmation (organizer): order→CONFIRMED, seats→SOLD, one ticket per seat/quantity with UUID `code` + QR data URL.
+- Orders: created in a **serializable transaction** — seats flip AVAILABLE→RESERVED atomically, free-zone capacity checked against PENDING_PAYMENT/PAYMENT_SUBMITTED/CONFIRMED orders. 15-min expiry applies only to PENDING_PAYMENT. **No cron**: `expireStaleOrders()` (`src/lib/orders.ts`) runs lazily before order reads/writes and releases seats.
+- Order flow: `PENDING_PAYMENT` → buyer uploads bank receipt (`POST /api/orders/[id]/proof`, image ≤5 MB) → `PAYMENT_SUBMITTED` ("En revisión", no longer expires; proof replaceable) → organizer verifies (confirm) or rejects (cancel with optional `rejectionReason`, seats released, buyer emailed). Buyers may self-cancel only PENDING_PAYMENT.
+- **Purchase requires a verified email** (403 otherwise). Verification: hashed token in `VerificationToken` (24 h), link `/verificar-correo?token=`, resend via `POST /api/verify-email/resend`, banner in root layout. Google sign-ins auto-verified (`events.signIn`); seed users verified; migration grandfathered existing users.
+- **Sales cutoff**: `PlatformSettings` singleton (`orderCutoffHours`, default 2, admin-editable on `/admin`). Enforced in `POST /api/orders` via `salesAreClosed()` (`src/lib/utils.ts`, event start = noon-UTC date + `time` at fixed UTC-4); event page shows "Venta cerrada".
+- Emails (`src/lib/email.ts`): Resend via fetch; **without `RESEND_API_KEY` they log to console** (dev). Templates escape user input. Sent on: registration (verification), order confirmed, order rejected. Failures never break API responses.
+- Confirmation (organizer): order→CONFIRMED, seats→SOLD, one ticket per seat/quantity with UUID `code` + QR data URL, buyer notified by email.
 - Ticket check-in (`/api/tickets/verify`): atomic `updateMany where status=VALID` → USED + `usedAt`; a QR is accepted exactly once. Only the event's organizer or admin can verify.
 - Cart (client-only, Zustand + localStorage): single event at a time, max 10 tickets per zone.
 
@@ -56,7 +60,7 @@ Local DB: PostgreSQL 17, db `boletavip`, role `ichurri` / `boletavip_dev`. Seed 
 - **Migrations to prod BEFORE pushing code that needs them**:
   `DATABASE_URL="<neon-pooled-string>" pnpm prisma migrate deploy` (ask the user for the string; it's not stored in the repo). Never `migrate dev` and never seed against Neon.
 - Uploads: `/api/upload` uses Vercel Blob when `BLOB_READ_WRITE_TOKEN` is set, local `/public/uploads` otherwise. The Blob store must be **Public**; image URL validation accepts `/uploads/...` or `*.public.blob.vercel-storage.com` only.
-- Env vars on Vercel: `DATABASE_URL` (Neon pooled), `AUTH_SECRET`, `BLOB_READ_WRITE_TOKEN` (added manually from the store's Getting Started page — connecting the store does NOT inject it). Env changes require a redeploy; failed builds keep serving the previous deployment.
+- Env vars on Vercel: `DATABASE_URL` (Neon pooled), `AUTH_SECRET`, `BLOB_READ_WRITE_TOKEN` (added manually from the store's Getting Started page — connecting the store does NOT inject it), `RESEND_API_KEY` + optional `EMAIL_FROM` (without the key, prod sends nothing and new users can't verify/buy; resend.dev sandbox only delivers to the account owner). Env changes require a redeploy; failed builds keep serving the previous deployment.
 
 ## Verification habits
 

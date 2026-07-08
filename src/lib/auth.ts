@@ -55,4 +55,15 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       return true;
     },
   },
+  events: {
+    // Google already verified the address; runs after the adapter created the user
+    async signIn({ user, account }) {
+      if (account?.provider === "google" && user.id) {
+        await prisma.user.updateMany({
+          where: { id: user.id, emailVerified: null },
+          data: { emailVerified: new Date() },
+        });
+      }
+    },
+  },
 });

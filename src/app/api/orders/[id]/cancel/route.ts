@@ -1,10 +1,16 @@
 import { NextResponse } from "next/server";
+import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/api-auth";
+import { orderRejectedEmail, sendEmail } from "@/lib/email";
 
 type RouteContext = { params: Promise<{ id: string }> };
 
-export async function POST(_request: Request, { params }: RouteContext) {
+const bodySchema = z.object({
+  reason: z.string().trim().max(300).optional(),
+});
+
+export async function POST(request: Request, { params }: RouteContext) {
   const { session, error } = await requireRole("BUYER", "ORGANIZER", "ADMIN");
   if (error) return error;
 
@@ -13,7 +19,8 @@ export async function POST(_request: Request, { params }: RouteContext) {
     where: { id },
     include: {
       items: { select: { seatId: true } },
-      event: { select: { organizerId: true } },
+      event: { select: { id: true, title: true, organizerId: true } },
+      buyer: { select: { name: true, email: true } },
     },
   });
   if (!order) {
@@ -21,19 +28,33 @@ export async function POST(_request: Request, { params }: RouteContext) {
   }
 
   const isBuyer = order.buyerId === session.user.id;
-  const isOrganizer = order.event.organizerId === session.user.id;
-  if (!isBuyer && !isOrganizer && session.user.role !== "ADMIN") {
+  const isOrganizer =
+    order.event.organizerId === session.user.id ||
+    session.user.role === "ADMIN";
+  if (!isBuyer && !isOrganizer) {
     return NextResponse.json(
       { error: "No tenés permisos sobre este pedido" },
       { status: 403 },
     );
   }
-  if (order.status !== "PENDING_PAYMENT") {
+
+  // Buyers may only abandon unpaid orders; once a proof is submitted the
+  // review outcome belongs to the organizer (verify or reject).
+  const cancellable: string[] = isOrganizer
+    ? ["PENDING_PAYMENT", "PAYMENT_SUBMITTED"]
+    : ["PENDING_PAYMENT"];
+  if (!cancellable.includes(order.status)) {
     return NextResponse.json(
-      { error: "Solo se pueden cancelar pedidos pendientes de pago" },
+      { error: "Este pedido ya no se puede cancelar" },
       { status: 409 },
     );
   }
+
+  const parsed = bodySchema.safeParse(await request.json().catch(() => ({})));
+  const reason =
+    isOrganizer && parsed.success && parsed.data.reason
+      ? parsed.data.reason
+      : null;
 
   const seatIds = order.items
     .map((item) => item.seatId)
@@ -42,13 +63,25 @@ export async function POST(_request: Request, { params }: RouteContext) {
   await prisma.$transaction([
     prisma.order.update({
       where: { id: order.id },
-      data: { status: "CANCELLED" },
+      data: { status: "CANCELLED", rejectionReason: reason },
     }),
     prisma.seat.updateMany({
       where: { id: { in: seatIds }, status: "RESERVED" },
       data: { status: "AVAILABLE" },
     }),
   ]);
+
+  // Notify the buyer only when the organizer rejected a submitted proof
+  if (isOrganizer && !isBuyer && order.status === "PAYMENT_SUBMITTED") {
+    const origin = new URL(request.url).origin;
+    const { subject, html } = orderRejectedEmail(
+      order.buyer.name,
+      order.event.title,
+      reason,
+      `${origin}/eventos/${order.event.id}`,
+    );
+    await sendEmail({ to: order.buyer.email, subject, html });
+  }
 
   return NextResponse.json({ ok: true });
 }

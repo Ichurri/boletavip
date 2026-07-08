@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { formatDate } from "@/lib/utils";
+import { getPlatformSettings } from "@/lib/settings";
+import { formatDate, salesAreClosed } from "@/lib/utils";
 import { TicketIcon } from "@/components/ui/icons";
 import { Badge } from "@/components/ui/Badge";
 import {
@@ -47,7 +48,9 @@ async function getZoneSoldCounts(zoneIds: string[]) {
     where: {
       zoneId: { in: zoneIds },
       seatId: null,
-      order: { status: { in: ["PENDING_PAYMENT", "CONFIRMED"] } },
+      order: {
+        status: { in: ["PENDING_PAYMENT", "PAYMENT_SUBMITTED", "CONFIRMED"] },
+      },
     },
     _sum: { quantity: true },
   });
@@ -69,6 +72,9 @@ export default async function EventDetailPage({ params }: PageProps) {
   const { id } = await params;
   const event = await getApprovedEvent(id);
   if (!event) notFound();
+
+  const { orderCutoffHours } = await getPlatformSettings();
+  const salesClosed = salesAreClosed(event, orderCutoffHours);
 
   const basePrice = Number(event.price);
   const freeZoneIds = event.venue.zones
@@ -131,10 +137,21 @@ export default async function EventDetailPage({ params }: PageProps) {
 
           <Card>
             <CardHeader>
-              <CardTitle>Elegí tus boletos</CardTitle>
+              <CardTitle>
+                {salesClosed ? "Venta cerrada" : "Elegí tus boletos"}
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <SeatMap seatMap={seatMap} />
+              {salesClosed ? (
+                <p className="text-sm text-muted-foreground">
+                  Las ventas para este evento ya cerraron
+                  {orderCutoffHours > 0 &&
+                    ` (se cierran ${orderCutoffHours} h antes del inicio)`}
+                  . Si ya tenés tu boleto, presentalo en la entrada.
+                </p>
+              ) : (
+                <SeatMap seatMap={seatMap} />
+              )}
             </CardContent>
           </Card>
 
@@ -175,9 +192,11 @@ export default async function EventDetailPage({ params }: PageProps) {
             </CardContent>
           </Card>
 
-          <div className="lg:sticky lg:top-20">
-            <SelectionSummary eventId={event.id} />
-          </div>
+          {!salesClosed && (
+            <div className="lg:sticky lg:top-20">
+              <SelectionSummary eventId={event.id} />
+            </div>
+          )}
         </div>
       </div>
     </div>

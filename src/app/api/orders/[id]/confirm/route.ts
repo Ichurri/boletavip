@@ -4,11 +4,12 @@ import QRCode from "qrcode";
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/api-auth";
 import { expireStaleOrders } from "@/lib/orders";
+import { orderConfirmedEmail, sendEmail } from "@/lib/email";
 import type { TicketStatus } from "@/generated/prisma/enums";
 
 type RouteContext = { params: Promise<{ id: string }> };
 
-export async function POST(_request: Request, { params }: RouteContext) {
+export async function POST(request: Request, { params }: RouteContext) {
   const { session, error } = await requireRole("ORGANIZER", "ADMIN");
   if (error) return error;
 
@@ -19,7 +20,8 @@ export async function POST(_request: Request, { params }: RouteContext) {
     where: { id },
     include: {
       items: true,
-      event: { select: { id: true, organizerId: true } },
+      event: { select: { id: true, title: true, organizerId: true } },
+      buyer: { select: { name: true, email: true } },
     },
   });
   if (!order) {
@@ -34,7 +36,7 @@ export async function POST(_request: Request, { params }: RouteContext) {
       { status: 403 },
     );
   }
-  if (order.status !== "PENDING_PAYMENT") {
+  if (order.status !== "PENDING_PAYMENT" && order.status !== "PAYMENT_SUBMITTED") {
     return NextResponse.json(
       { error: "Este pedido ya no está pendiente de pago" },
       { status: 409 },
@@ -84,6 +86,15 @@ export async function POST(_request: Request, { params }: RouteContext) {
     }),
     prisma.ticket.createMany({ data: ticketsData }),
   ]);
+
+  const origin = new URL(request.url).origin;
+  const { subject, html } = orderConfirmedEmail(
+    order.buyer.name,
+    order.event.title,
+    ticketsData.length,
+    `${origin}/pedidos/${order.id}`,
+  );
+  await sendEmail({ to: order.buyer.email, subject, html });
 
   return NextResponse.json({ ok: true, tickets: ticketsData.length });
 }

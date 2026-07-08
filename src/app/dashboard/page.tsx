@@ -39,7 +39,10 @@ export default async function DashboardPage() {
       where: { organizerId, status: "APPROVED", date: { gte: startOfToday } },
     }),
     prisma.order.count({
-      where: { status: "PENDING_PAYMENT", event: { organizerId } },
+      where: {
+        status: { in: ["PENDING_PAYMENT", "PAYMENT_SUBMITTED"] },
+        event: { organizerId },
+      },
     }),
     prisma.order.aggregate({
       _sum: { totalAmount: true },

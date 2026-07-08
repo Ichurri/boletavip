@@ -2,9 +2,16 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { expireStaleOrders } from "@/lib/orders";
+import { getPlatformSettings } from "@/lib/settings";
 import { formatCurrency } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/Button";
-import { Card, CardContent } from "@/components/ui/Card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/Card";
+import { SettingsForm } from "@/components/admin/SettingsForm";
 
 export const metadata: Metadata = {
   title: "Administración",
@@ -12,6 +19,7 @@ export const metadata: Metadata = {
 
 export default async function AdminPage() {
   await expireStaleOrders();
+  const settings = await getPlatformSettings();
 
   const [
     userCount,
@@ -91,6 +99,15 @@ export default async function AdminPage() {
           </CardContent>
         </Card>
       )}
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Configuración de la plataforma</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <SettingsForm orderCutoffHours={settings.orderCutoffHours} />
+        </CardContent>
+      </Card>
     </div>
   );
 }

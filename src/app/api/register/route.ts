@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { registerSchema } from "@/lib/validations/auth";
+import { sendVerificationEmail } from "@/lib/verification";
 
 export async function POST(request: Request) {
   let body: unknown;
@@ -39,6 +40,11 @@ export async function POST(request: Request) {
     },
     select: { id: true, name: true, email: true, role: true },
   });
+
+  await sendVerificationEmail(
+    { name: user.name, email: user.email },
+    new URL(request.url).origin,
+  );
 
   return NextResponse.json({ user }, { status: 201 });
 }

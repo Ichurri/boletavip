@@ -34,6 +34,7 @@ enum SeatStatus {
 
 enum OrderStatus {
   PENDING_PAYMENT
+  PAYMENT_SUBMITTED
   CONFIRMED
   CANCELLED
 }
@@ -97,6 +98,13 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+/// Singleton row (id = "main") with platform-wide configuration.
+model PlatformSettings {
+  id               String   @id @default("main")
+  orderCutoffHours Int      @default(2)
+  updatedAt        DateTime @updatedAt
 }
 
 model Venue {
@@ -169,14 +177,17 @@ model Event {
 }
 
 model Order {
-  id           String      @id @default(cuid())
-  totalAmount  Decimal     @db.Decimal(10, 2)
-  status       OrderStatus @default(PENDING_PAYMENT)
-  paymentQrUrl String?
-  buyerId      String
-  eventId      String
-  createdAt    DateTime    @default(now())
-  expiresAt    DateTime
+  id                 String      @id @default(cuid())
+  totalAmount        Decimal     @db.Decimal(10, 2)
+  status             OrderStatus @default(PENDING_PAYMENT)
+  paymentQrUrl       String?
+  paymentProof       String?
+  paymentSubmittedAt DateTime?
+  rejectionReason    String?
+  buyerId            String
+  eventId            String
+  createdAt          DateTime    @default(now())
+  expiresAt          DateTime
 
   buyer   User        @relation(fields: [buyerId], references: [id], onDelete: Cascade)
   event   Event       @relation(fields: [eventId], references: [id], onDelete: Cascade)

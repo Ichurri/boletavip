@@ -34,9 +34,13 @@ export const EVENT_STATUS_LABELS: Record<
 
 export const ORDER_STATUS_LABELS: Record<
   OrderStatus,
-  { label: string; variant: "default" | "success" | "warning" | "danger" }
+  {
+    label: string;
+    variant: "default" | "success" | "warning" | "danger" | "primary";
+  }
 > = {
   PENDING_PAYMENT: { label: "Esperando pago", variant: "warning" },
+  PAYMENT_SUBMITTED: { label: "En revisión", variant: "primary" },
   CONFIRMED: { label: "Confirmado", variant: "success" },
   CANCELLED: { label: "Cancelado", variant: "danger" },
 };
