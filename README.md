@@ -1,6 +1,8 @@
-# 🎟️ BoletaVIP
+# 🎟️ Üticket
 
-Event ticketing platform (initially focused on comedy shows, generic for any event type) with a Bolivian-style payment flow: buyers pay via static bank QR and the organizer confirms payments manually.
+> Formerly **BoletaVIP** — internal identifiers (repo, database, seed emails) keep the old name.
+
+Event ticketing platform (initially focused on comedy shows, generic for any event type) with a Bolivian-style payment flow: buyers pay via static bank QR and the organizer confirms payments manually. Brand: purple identity, Plus Jakarta Sans, "Ü" wordmark — *Tu entrada en un clic.*
 
 ## Features
 

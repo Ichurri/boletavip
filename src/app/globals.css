@@ -2,48 +2,52 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* Üticket brand palette (brand guidelines v1.0):
+   Primary Purple #6D2BFF · Secondary Purple #4B14D1 · Lavender #879CFF
+   Dark Gray #2B2B2B · Light Gray #F5F5F7 · White #FFFFFF */
 :root {
-  --background: #faf9fc;
-  --foreground: #18181b;
+  --background: #f5f5f7;
+  --foreground: #2b2b2b;
   --card: #ffffff;
-  --card-foreground: #18181b;
-  --muted: #f2f0f7;
-  --muted-foreground: #6d6878;
-  --border: #e7e3ef;
-  --primary: #7c3aed;
-  --primary-hover: #6d28d9;
+  --card-foreground: #2b2b2b;
+  --muted: #efeef4;
+  --muted-foreground: #6b6580;
+  --border: #e5e2ef;
+  --primary: #6d2bff;
+  --primary-hover: #4b14d1;
   --primary-foreground: #ffffff;
-  --primary-soft: #f3eefd;
-  --accent: #f59e0b;
-  --accent-foreground: #451a03;
+  --primary-soft: #f1ebff;
+  --accent: #879cff;
+  --accent-foreground: #1e1b4b;
   --danger: #dc2626;
-  --ring: #8b5cf6;
-  --elevation-card: 0 1px 2px rgb(24 24 27 / 0.04), 0 1px 3px rgb(24 24 27 / 0.06);
+  --ring: #879cff;
+  --elevation-card: 0 1px 2px rgb(43 43 43 / 0.04), 0 1px 3px rgb(43 43 43 / 0.06);
   --elevation-card-hover:
-    0 4px 6px -1px rgb(24 24 27 / 0.06), 0 12px 24px -8px rgb(124 58 237 / 0.18);
-  --elevation-glow: 0 4px 20px -4px rgb(124 58 237 / 0.4);
+    0 4px 6px -1px rgb(43 43 43 / 0.06), 0 12px 24px -8px rgb(109 43 255 / 0.18);
+  --elevation-glow: 0 4px 20px -4px rgb(109 43 255 / 0.4);
 }
 
+/* "Negativo sobre oscuro": primary lightened for ≥4.5:1 contrast on near-black */
 .dark {
-  --background: #0d0b14;
-  --foreground: #f4f4f5;
-  --card: #16121f;
-  --card-foreground: #f4f4f5;
-  --muted: #211b30;
-  --muted-foreground: #a8a3b4;
-  --border: #2b2438;
-  --primary: #8b5cf6;
-  --primary-hover: #a78bfa;
+  --background: #0f0b1c;
+  --foreground: #f5f5f7;
+  --card: #171128;
+  --card-foreground: #f5f5f7;
+  --muted: #221a38;
+  --muted-foreground: #a9a3bc;
+  --border: #2c2344;
+  --primary: #8e5cff;
+  --primary-hover: #a583ff;
   --primary-foreground: #ffffff;
-  --primary-soft: #221a37;
-  --accent: #fbbf24;
-  --accent-foreground: #451a03;
+  --primary-soft: #241a44;
+  --accent: #879cff;
+  --accent-foreground: #10123a;
   --danger: #f87171;
-  --ring: #a78bfa;
+  --ring: #879cff;
   --elevation-card: 0 1px 2px rgb(0 0 0 / 0.3), 0 1px 3px rgb(0 0 0 / 0.25);
   --elevation-card-hover:
-    0 4px 6px -1px rgb(0 0 0 / 0.35), 0 12px 24px -8px rgb(139 92 246 / 0.3);
-  --elevation-glow: 0 4px 20px -4px rgb(139 92 246 / 0.5);
+    0 4px 6px -1px rgb(0 0 0 / 0.35), 0 12px 24px -8px rgb(142 92 255 / 0.3);
+  --elevation-glow: 0 4px 20px -4px rgb(142 92 255 / 0.5);
 }
 
 @theme inline {
@@ -62,9 +66,9 @@
   --color-accent-foreground: var(--accent-foreground);
   --color-danger: var(--danger);
   --color-ring: var(--ring);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-jakarta), system-ui, sans-serif;
   --font-mono: var(--font-geist-mono);
-  --font-display: var(--font-outfit), var(--font-geist-sans), sans-serif;
+  --font-display: var(--font-jakarta), system-ui, sans-serif;
   --shadow-card: var(--elevation-card);
   --shadow-card-hover: var(--elevation-card-hover);
   --shadow-glow: var(--elevation-glow);
@@ -79,7 +83,7 @@ body {
   h1,
   h2,
   h3 {
-    font-family: var(--font-outfit), var(--font-geist-sans), sans-serif;
+    font-family: var(--font-jakarta), system-ui, sans-serif;
     letter-spacing: -0.02em;
   }
 

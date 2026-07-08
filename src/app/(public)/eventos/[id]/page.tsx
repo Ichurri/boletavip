@@ -123,7 +123,7 @@ export default async function EventDetailPage({ params }: PageProps) {
             <div className="flex flex-wrap items-center gap-2">
               <Badge variant="primary">{event.category}</Badge>
               <span className="text-sm text-muted-foreground">
-                Organiza: {event.organizer.name ?? "BoletaVIP"}
+                Organiza: {event.organizer.name ?? "Üticket"}
               </span>
             </div>
             <h1 className="mt-2 text-3xl font-bold">{event.title}</h1>

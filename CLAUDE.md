@@ -1,6 +1,8 @@
 # CLAUDE.md
 
-BoletaVIP: event ticketing platform (Bolivia). Buyers pay via the organizer's static bank QR; the organizer confirms payments manually and tickets are issued with unique QR codes, validated at the door with an in-app scanner.
+Üticket (formerly BoletaVIP; internal identifiers — repo, DB, seed emails, localStorage keys — keep `boletavip`): event ticketing platform (Bolivia). Buyers pay via the organizer's static bank QR; the organizer confirms payments manually and tickets are issued with unique QR codes, validated at the door with an in-app scanner.
+
+**Brand (guidelines v1.0)**: user-facing name **Üticket**. Palette: Primary Purple `#6D2BFF`, Secondary Purple `#4B14D1` (hover), Lavender `#879CFF` (accent/ring), Dark Gray `#2B2B2B`, Light Gray `#F5F5F7` — tokens in `globals.css` (dark mode uses lightened `#8E5CFF` primary for contrast). Typography: Plus Jakarta Sans (`--font-jakarta`). Logo: `src/components/layout/Logo.tsx` (Ü glyph SVG + wordmark) and `src/app/icon.svg`. Tagline: "Tu entrada en un clic." Tone: cercano, claro y emocionante.
 
 ## Language conventions
 

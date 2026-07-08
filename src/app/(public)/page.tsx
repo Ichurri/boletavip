@@ -92,16 +92,16 @@ export default async function HomePage() {
             </span>
             La boletería digital de Bolivia
           </span>
-          <h1 className="max-w-3xl text-4xl font-bold tracking-tight sm:text-6xl lg:text-7xl">
-            Los mejores eventos, a un{" "}
+          <h1 className="max-w-3xl text-4xl font-extrabold tracking-tight sm:text-6xl lg:text-7xl">
+            Tu entrada en{" "}
             <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-              QR
-            </span>{" "}
-            de distancia
+              un clic
+            </span>
+            .
           </h1>
           <p className="max-w-xl text-lg text-muted-foreground">
-            Descubre shows de comedia y eventos en vivo, elige tu asiento y
-            recibe tu boleto digital al instante.
+            Conectamos personas con experiencias mediante boletos digitales
+            rápidos, seguros y simples.
           </p>
           <div className="flex flex-col gap-3 sm:flex-row">
             <Link href="/eventos" className={buttonVariants({ size: "lg" })}>

@@ -1,13 +1,14 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Outfit } from "next/font/google";
+import { Geist_Mono, Plus_Jakarta_Sans } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const jakarta = Plus_Jakarta_Sans({
+  variable: "--font-jakarta",
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
 });
 
 const geistMono = Geist_Mono({
@@ -15,19 +16,13 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const outfit = Outfit({
-  variable: "--font-outfit",
-  subsets: ["latin"],
-  weight: ["500", "600", "700", "800"],
-});
-
 export const metadata: Metadata = {
   title: {
-    default: "BoletaVIP — Boletos para eventos",
-    template: "%s | BoletaVIP",
+    default: "Üticket — Tu entrada en un clic",
+    template: "%s | Üticket",
   },
   description:
-    "Compra boletos digitales para shows de comedia, conciertos y más. Paga con QR y recibe tu entrada al instante.",
+    "Compra boletos digitales para shows de comedia, conciertos y más. Paga con QR y recibe tu entrada al instante. Rápido, seguro y simple.",
 };
 
 export default function RootLayout({
@@ -39,7 +34,7 @@ export default function RootLayout({
     <html
       lang="es"
       suppressHydrationWarning
-      className={`${geistSans.variable} ${geistMono.variable} ${outfit.variable} h-full antialiased`}
+      className={`${jakarta.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="flex min-h-screen flex-col font-sans">
         <ThemeProvider>
