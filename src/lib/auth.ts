@@ -11,7 +11,7 @@ export const googleEnabled = Boolean(
   process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET,
 );
 
-export const { handlers, auth, signIn, signOut } = NextAuth({
+export const { handlers, auth, signIn, signOut, unstable_update } = NextAuth({
   ...authConfig,
   adapter: PrismaAdapter(prisma),
   providers: [
@@ -44,6 +44,23 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   ],
   callbacks: {
     ...authConfig.callbacks,
+    // On session updates (unstable_update after a role change) re-read the
+    // role from the DB — never trust the update payload, which a logged-in
+    // client could also send via POST /api/auth/session.
+    async jwt({ token, user, trigger }) {
+      if (user) {
+        token.id = user.id;
+        token.role = user.role;
+      }
+      if (trigger === "update" && token.id) {
+        const dbUser = await prisma.user.findUnique({
+          where: { id: token.id as string },
+          select: { role: true },
+        });
+        if (dbUser) token.role = dbUser.role;
+      }
+      return token;
+    },
     async signIn({ user, account }) {
       if (account?.provider === "google" && user.email) {
         const existing = await prisma.user.findUnique({

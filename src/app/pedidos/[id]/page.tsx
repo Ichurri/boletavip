@@ -118,7 +118,7 @@ export default async function OrderDetailPage({ params }: PageProps) {
                   alt="QR de pago del organizador"
                   width={260}
                   height={260}
-                  className="rounded-md border border-border bg-white p-2"
+                  className="h-auto max-w-full rounded-md border border-border bg-white p-2"
                 />
               ) : (
                 <p className="text-sm text-muted-foreground">

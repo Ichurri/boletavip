@@ -11,6 +11,9 @@ const UUID_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 const SCAN_INTERVAL_MS = 300;
+/** Ignore re-reads of the same QR for this long so a ticket held in front of
+ * the camera doesn't flip from "válida" to "ya utilizado" instantly. */
+const SAME_CODE_COOLDOWN_MS = 5000;
 
 interface TicketSummary {
   code: string;
@@ -45,8 +48,8 @@ export function TicketScanner() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const pausedRef = useRef(false);
   const verifyingRef = useRef(false);
+  const lastScanRef = useRef<{ code: string; at: number } | null>(null);
 
   const [cameraActive, setCameraActive] = useState(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
@@ -57,7 +60,7 @@ export function TicketScanner() {
   const verify = useCallback(async (code: string) => {
     if (verifyingRef.current) return;
     verifyingRef.current = true;
-    pausedRef.current = true;
+    lastScanRef.current = { code, at: Date.now() };
     setVerifying(true);
 
     try {
@@ -77,6 +80,7 @@ export function TicketScanner() {
     } finally {
       setVerifying(false);
       verifyingRef.current = false;
+      setManualCode("");
     }
   }, []);
 
@@ -102,12 +106,11 @@ export function TicketScanner() {
         videoRef.current.srcObject = stream;
         await videoRef.current.play();
       }
-      pausedRef.current = false;
       setCameraActive(true);
 
       intervalRef.current = setInterval(() => {
         const video = videoRef.current;
-        if (!video || pausedRef.current || video.readyState < 2) return;
+        if (!video || verifyingRef.current || video.readyState < 2) return;
 
         canvasRef.current ??= document.createElement("canvas");
         const canvas = canvasRef.current;
@@ -121,7 +124,16 @@ export function TicketScanner() {
         const qr = jsQR(imageData.data, imageData.width, imageData.height);
 
         if (qr && UUID_PATTERN.test(qr.data.trim())) {
-          verify(qr.data.trim());
+          const code = qr.data.trim();
+          const last = lastScanRef.current;
+          if (
+            last &&
+            last.code === code &&
+            Date.now() - last.at < SAME_CODE_COOLDOWN_MS
+          ) {
+            return;
+          }
+          verify(code);
         }
       }, SCAN_INTERVAL_MS);
     } catch {
@@ -132,12 +144,6 @@ export function TicketScanner() {
   }, [verify]);
 
   useEffect(() => stopCamera, [stopCamera]);
-
-  function scanNext() {
-    setOutcome(null);
-    setManualCode("");
-    pausedRef.current = false;
-  }
 
   const outcomeStyles: Record<
     VerifyOutcome["result"],
@@ -212,9 +218,7 @@ export function TicketScanner() {
               {cameraActive
                 ? verifying
                   ? "Verificando..."
-                  : outcome
-                    ? "Escaneo en pausa"
-                    : "Buscando QR..."
+                  : "Buscando QR..."
                 : "Cámara apagada"}
             </p>
             {cameraActive && (
@@ -278,10 +282,6 @@ export function TicketScanner() {
                 </code>
               </div>
             )}
-
-            <Button type="button" onClick={scanNext} className="self-start">
-              Escanear siguiente
-            </Button>
           </CardContent>
         </Card>
       )}

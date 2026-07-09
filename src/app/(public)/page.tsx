@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { buttonVariants } from "@/components/ui/Button";
 import { Card, CardContent } from "@/components/ui/Card";
@@ -70,7 +71,16 @@ async function getFeaturedEvents(): Promise<EventCardData[]> {
 }
 
 export default async function HomePage() {
-  const featured = await getFeaturedEvents();
+  const [featured, session] = await Promise.all([getFeaturedEvents(), auth()]);
+  const role = session?.user?.role;
+  const isOrganizer = role === "ORGANIZER" || role === "ADMIN";
+  // Guests land on register (it offers the organizer option); buyers get the
+  // upgrade form; organizers go straight to creating an event.
+  const organizeHref = !session?.user
+    ? "/register"
+    : isOrganizer
+      ? "/dashboard/events/new"
+      : "/ser-organizador";
 
   return (
     <>
@@ -109,10 +119,10 @@ export default async function HomePage() {
               <ArrowRightIcon className="h-4 w-4" />
             </Link>
             <Link
-              href="/register"
+              href={organizeHref}
               className={buttonVariants({ variant: "outline", size: "lg" })}
             >
-              Quiero organizar un evento
+              {isOrganizer ? "Crear un evento" : "Quiero organizar un evento"}
             </Link>
           </div>
         </div>

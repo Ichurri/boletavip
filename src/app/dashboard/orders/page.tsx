@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { expireStaleOrders } from "@/lib/orders";
@@ -8,6 +7,7 @@ import { ORDER_STATUS_LABELS } from "@/lib/constants";
 import { Badge } from "@/components/ui/Badge";
 import { Card, CardContent } from "@/components/ui/Card";
 import { OrderActions } from "@/components/dashboard/OrderActions";
+import { ProofImage } from "@/components/dashboard/ProofImage";
 
 export const metadata: Metadata = {
   title: "Pedidos",
@@ -88,40 +88,23 @@ export default async function DashboardOrdersPage() {
         ) : (
           inReview.map((order) => (
             <Card key={order.id}>
-              <CardContent className="flex flex-wrap items-center justify-between gap-4 p-6">
-                <div className="flex min-w-0 flex-wrap items-center gap-4">
-                  {order.paymentProof && (
-                    <a
-                      href={order.paymentProof}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      title="Ver comprobante completo"
-                      className="block shrink-0 overflow-hidden rounded-md border border-border transition-opacity hover:opacity-80"
-                    >
-                      <Image
-                        src={order.paymentProof}
-                        alt="Comprobante de pago"
-                        width={96}
-                        height={96}
-                        className="h-24 w-24 bg-white object-cover"
-                      />
-                    </a>
-                  )}
-                  <div className="min-w-0">
-                    <p className="font-semibold">
-                      {order.buyer.name ?? order.buyer.email} ·{" "}
-                      {formatCurrency(Number(order.totalAmount))}
-                    </p>
-                    <p className="mt-1 text-sm text-muted-foreground">
-                      {order.event.title} · {itemsSummary(order.items)}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      Comprobante subido{" "}
-                      {order.paymentSubmittedAt
-                        ? dateTimeFormatter.format(order.paymentSubmittedAt)
-                        : "—"}
-                    </p>
-                  </div>
+              <CardContent className="flex flex-wrap items-center justify-between gap-4 p-4 sm:p-6">
+                {order.paymentProof && <ProofImage url={order.paymentProof} />}
+                <div className="min-w-0 flex-1 basis-48">
+                  <p className="font-semibold">
+                    {order.buyer.name ?? order.buyer.email} ·{" "}
+                    {formatCurrency(Number(order.totalAmount))}
+                  </p>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    {order.event.title} · {itemsSummary(order.items)}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Comprobante subido{" "}
+                    {order.paymentSubmittedAt
+                      ? dateTimeFormatter.format(order.paymentSubmittedAt)
+                      : "—"}{" "}
+                    · tocá la miniatura para ampliarlo
+                  </p>
                 </div>
                 <OrderActions orderId={order.id} hasProof />
               </CardContent>
@@ -145,7 +128,7 @@ export default async function DashboardOrdersPage() {
         ) : (
           pending.map((order) => (
             <Card key={order.id}>
-              <CardContent className="flex flex-wrap items-center justify-between gap-4 p-6">
+              <CardContent className="flex flex-wrap items-center justify-between gap-4 p-4 sm:p-6">
                 <div className="min-w-0">
                   <p className="font-semibold">
                     {order.buyer.name ?? order.buyer.email} ·{" "}
@@ -179,7 +162,7 @@ export default async function DashboardOrdersPage() {
             const statusInfo = ORDER_STATUS_LABELS[order.status];
             return (
               <Card key={order.id}>
-                <CardContent className="flex flex-wrap items-center justify-between gap-4 p-6">
+                <CardContent className="flex flex-wrap items-center justify-between gap-4 p-4 sm:p-6">
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
                       <p className="font-semibold">
