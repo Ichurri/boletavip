@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { expireStaleOrders } from "@/lib/orders";
-import { formatCurrency } from "@/lib/utils";
+import { formatCurrency, formatDateTime } from "@/lib/utils";
 import { ORDER_STATUS_LABELS } from "@/lib/constants";
 import { Badge } from "@/components/ui/Badge";
 import { Card, CardContent } from "@/components/ui/Card";
@@ -13,11 +13,6 @@ import { AutoRefresh } from "@/components/layout/AutoRefresh";
 export const metadata: Metadata = {
   title: "Pedidos",
 };
-
-const dateTimeFormatter = new Intl.DateTimeFormat("es-BO", {
-  dateStyle: "short",
-  timeStyle: "short",
-});
 
 function itemsSummary(
   items: {
@@ -112,7 +107,7 @@ export default async function DashboardOrdersPage() {
                   <p className="text-xs text-muted-foreground">
                     Comprobante subido{" "}
                     {order.paymentSubmittedAt
-                      ? dateTimeFormatter.format(order.paymentSubmittedAt)
+                      ? formatDateTime(order.paymentSubmittedAt)
                       : "—"}{" "}
                     · tocá la miniatura para ampliarlo
                   </p>
@@ -149,8 +144,8 @@ export default async function DashboardOrdersPage() {
                     {order.event.title} · {itemsSummary(order.items)}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    Creado {dateTimeFormatter.format(order.createdAt)} · expira{" "}
-                    {dateTimeFormatter.format(order.expiresAt)}
+                    Creado {formatDateTime(order.createdAt)} · expira{" "}
+                    {formatDateTime(order.expiresAt)}
                   </p>
                 </div>
                 <OrderActions orderId={order.id} />
@@ -190,7 +185,7 @@ export default async function DashboardOrdersPage() {
                         ` · ${order._count.tickets} boleto${order._count.tickets === 1 ? "" : "s"} emitido${order._count.tickets === 1 ? "" : "s"}`}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      Creado {dateTimeFormatter.format(order.createdAt)}
+                      Creado {formatDateTime(order.createdAt)}
                     </p>
                   </div>
                 </CardContent>

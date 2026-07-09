@@ -5,7 +5,7 @@ import { notFound } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { expireStaleOrders } from "@/lib/orders";
-import { formatCurrency, formatDate } from "@/lib/utils";
+import { formatCurrency, formatDate, formatDateTime } from "@/lib/utils";
 import { ORDER_STATUS_LABELS } from "@/lib/constants";
 import { buttonVariants } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
@@ -212,11 +212,7 @@ export default async function OrderDetailPage({ params }: PageProps) {
               )}
               {order.paymentSubmittedAt && (
                 <p className="text-xs text-muted-foreground">
-                  Enviado el{" "}
-                  {new Intl.DateTimeFormat("es-BO", {
-                    dateStyle: "short",
-                    timeStyle: "short",
-                  }).format(order.paymentSubmittedAt)}
+                  Enviado el {formatDateTime(order.paymentSubmittedAt)}
                 </p>
               )}
             </CardContent>

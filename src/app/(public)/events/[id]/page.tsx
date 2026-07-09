@@ -110,14 +110,25 @@ export default async function EventDetailPage({ params }: PageProps) {
         <div className="flex flex-col gap-6 lg:col-span-2">
           <div className="relative aspect-video overflow-hidden rounded-xl border border-border bg-gradient-to-br from-primary/25 via-primary/10 to-accent/20">
             {event.coverImage ? (
-              <Image
-                src={event.coverImage}
-                alt={event.title}
-                fill
-                priority
-                sizes="(max-width: 1024px) 100vw, 66vw"
-                className="object-contain"
-              />
+              <>
+                {/* Blurred cover of the same image fills the letterbox area */}
+                <Image
+                  src={event.coverImage}
+                  alt=""
+                  aria-hidden
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 66vw"
+                  className="scale-110 object-cover opacity-60 blur-lg"
+                />
+                <Image
+                  src={event.coverImage}
+                  alt={event.title}
+                  fill
+                  priority
+                  sizes="(max-width: 1024px) 100vw, 66vw"
+                  className="object-contain"
+                />
+              </>
             ) : (
               <div className="flex h-full items-center justify-center">
                 <TicketIcon className="h-20 w-20 text-primary/40" />

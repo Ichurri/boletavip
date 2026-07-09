@@ -23,13 +23,24 @@ export function EventCard({ event }: { event: EventCardData }) {
       <Card className="h-full overflow-hidden transition-all duration-300 group-hover:-translate-y-1 group-hover:border-primary/30 group-hover:shadow-card-hover">
         <div className="relative aspect-video overflow-hidden bg-gradient-to-br from-primary/25 via-primary/10 to-accent/20">
           {event.coverImage ? (
-            <Image
-              src={event.coverImage}
-              alt={event.title}
-              fill
-              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-              className="object-contain transition-transform duration-300 group-hover:scale-105"
-            />
+            <>
+              {/* Blurred cover of the same image fills the letterbox area */}
+              <Image
+                src={event.coverImage}
+                alt=""
+                aria-hidden
+                fill
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                className="scale-110 object-cover opacity-60 blur-lg"
+              />
+              <Image
+                src={event.coverImage}
+                alt={event.title}
+                fill
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                className="object-contain transition-transform duration-300 group-hover:scale-105"
+              />
+            </>
           ) : (
             <div className="flex h-full items-center justify-center">
               <TicketIcon className="h-14 w-14 text-primary/40" />

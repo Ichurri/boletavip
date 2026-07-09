@@ -37,10 +37,25 @@ export function salesAreClosed(
   return Date.now() > eventStartsAt(event).getTime() - cutoffHours * 3_600_000;
 }
 
+/** All user-facing times are Bolivia time (fixed UTC-4) regardless of where
+ * the server runs — Vercel renders in UTC, so formatters must pin this. */
+export const BOLIVIA_TZ = "America/La_Paz";
+
 const dateFormatter = new Intl.DateTimeFormat("es-BO", {
   dateStyle: "long",
+  timeZone: BOLIVIA_TZ,
 });
 
 export function formatDate(date: Date | string) {
   return dateFormatter.format(new Date(date));
+}
+
+const dateTimeFormatter = new Intl.DateTimeFormat("es-BO", {
+  dateStyle: "short",
+  timeStyle: "short",
+  timeZone: BOLIVIA_TZ,
+});
+
+export function formatDateTime(date: Date | string) {
+  return dateTimeFormatter.format(new Date(date));
 }

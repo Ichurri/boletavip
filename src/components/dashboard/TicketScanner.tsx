@@ -41,6 +41,7 @@ interface VerifyOutcome {
 const usedAtFormatter = new Intl.DateTimeFormat("es-BO", {
   dateStyle: "short",
   timeStyle: "medium",
+  timeZone: "America/La_Paz",
 });
 
 export function TicketScanner() {

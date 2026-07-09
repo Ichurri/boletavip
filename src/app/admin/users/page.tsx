@@ -25,7 +25,10 @@ const roleLabels: Record<Role, { label: string; variant: "default" | "primary" |
   ADMIN: { label: "Admin", variant: "warning" },
 };
 
-const dateFormatter = new Intl.DateTimeFormat("es-BO", { dateStyle: "medium" });
+const dateFormatter = new Intl.DateTimeFormat("es-BO", {
+  dateStyle: "medium",
+  timeZone: "America/La_Paz",
+});
 
 export default async function AdminUsersPage({
   searchParams,

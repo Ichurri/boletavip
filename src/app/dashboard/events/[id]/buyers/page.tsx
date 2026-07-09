@@ -4,20 +4,16 @@ import { notFound } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { expireStaleOrders } from "@/lib/orders";
-import { formatCurrency, formatDate } from "@/lib/utils";
+import { formatCurrency, formatDate, formatDateTime } from "@/lib/utils";
 import { ORDER_STATUS_LABELS } from "@/lib/constants";
 import { buttonVariants } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { Card, CardContent } from "@/components/ui/Card";
+import { ProofImage } from "@/components/dashboard/ProofImage";
 
 export const metadata: Metadata = {
   title: "Compradores",
 };
-
-const dateTimeFormatter = new Intl.DateTimeFormat("es-BO", {
-  dateStyle: "short",
-  timeStyle: "short",
-});
 
 export default async function EventBuyersPage({
   params,
@@ -112,12 +108,13 @@ export default async function EventBuyersPage({
         </Card>
       ) : (
         <div className="overflow-x-auto rounded-xl border border-border">
-          <table className="w-full min-w-[560px] text-sm">
+          <table className="w-full min-w-[640px] text-sm">
             <thead className="border-b border-border bg-muted/50 text-left text-muted-foreground">
               <tr>
                 <th className="px-4 py-3 font-medium">Comprador</th>
                 <th className="px-4 py-3 font-medium">Correo</th>
                 <th className="px-4 py-3 font-medium">Estado</th>
+                <th className="px-4 py-3 font-medium">Comprobante</th>
                 <th className="px-4 py-3 text-right font-medium">Boletos</th>
                 <th className="px-4 py-3 text-right font-medium">Monto</th>
                 <th className="px-4 py-3 font-medium">Fecha</th>
@@ -147,6 +144,13 @@ export default async function EventBuyersPage({
                         {statusInfo.label}
                       </Badge>
                     </td>
+                    <td className="px-4 py-3">
+                      {order.paymentProof ? (
+                        <ProofImage url={order.paymentProof} expand="overlay" />
+                      ) : (
+                        <span className="text-muted-foreground">—</span>
+                      )}
+                    </td>
                     <td className="px-4 py-3 text-right tabular-nums">
                       {order.status === "CONFIRMED" ? order._count.tickets : "—"}
                     </td>
@@ -154,7 +158,7 @@ export default async function EventBuyersPage({
                       {formatCurrency(Number(order.totalAmount))}
                     </td>
                     <td className="px-4 py-3 text-muted-foreground">
-                      {dateTimeFormatter.format(order.createdAt)}
+                      {formatDateTime(order.createdAt)}
                     </td>
                   </tr>
                 );
