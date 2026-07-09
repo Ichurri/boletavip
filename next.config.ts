@@ -9,6 +9,11 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  // Never reuse a dynamic page's client cache across navigations, so freshly
+  // changed data always shows (paired with RefreshOnFocus for open tabs).
+  experimental: {
+    staleTimes: { dynamic: 0 },
+  },
   // Legacy Spanish routes (pre-rename) — keep old shared links working
   async redirects() {
     return [

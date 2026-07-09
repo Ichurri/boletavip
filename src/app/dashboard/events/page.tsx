@@ -74,6 +74,12 @@ export default async function DashboardEventsPage() {
                         Ver pública
                       </Link>
                     )}
+                    <Link
+                      href={`/dashboard/events/${event.id}/buyers`}
+                      className={buttonVariants({ variant: "ghost", size: "sm" })}
+                    >
+                      Compradores
+                    </Link>
                     {editable && (
                       <Link
                         href={`/dashboard/events/${event.id}/edit`}

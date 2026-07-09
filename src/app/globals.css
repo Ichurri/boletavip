@@ -6,6 +6,7 @@
    Primary Purple #6D2BFF · Secondary Purple #4B14D1 · Lavender #879CFF
    Dark Gray #2B2B2B · Light Gray #F5F5F7 · White #FFFFFF */
 :root {
+  color-scheme: light;
   --background: #f5f5f7;
   --foreground: #2b2b2b;
   --card: #ffffff;
@@ -29,6 +30,7 @@
 
 /* "Negativo sobre oscuro": primary lightened for ≥4.5:1 contrast on near-black */
 .dark {
+  color-scheme: dark;
   --background: #0f0b1c;
   --foreground: #f5f5f7;
   --card: #171128;
@@ -90,6 +92,30 @@ body {
   ::selection {
     background: var(--primary);
     color: var(--primary-foreground);
+  }
+
+  /* Tint native date/time controls with the Üticket purple: accent-color
+     colours the selected day in the calendar popup, and the picker icon
+     gets a branded hover. color-scheme (set on :root/.dark) keeps the
+     popup matching the current theme. */
+  input[type="date"],
+  input[type="time"] {
+    accent-color: var(--primary);
+  }
+
+  input[type="date"]::-webkit-calendar-picker-indicator,
+  input[type="time"]::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    padding: 3px;
+    border-radius: 6px;
+    opacity: 0.6;
+    transition: opacity 0.2s, background-color 0.2s;
+  }
+
+  input[type="date"]:hover::-webkit-calendar-picker-indicator,
+  input[type="time"]:hover::-webkit-calendar-picker-indicator {
+    opacity: 1;
+    background-color: var(--primary-soft);
   }
 }
 

@@ -116,7 +116,7 @@ export default async function EventDetailPage({ params }: PageProps) {
                 fill
                 priority
                 sizes="(max-width: 1024px) 100vw, 66vw"
-                className="object-cover"
+                className="object-contain"
               />
             ) : (
               <div className="flex h-full items-center justify-center">
