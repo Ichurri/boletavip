@@ -92,7 +92,7 @@ export async function POST(request: Request, { params }: RouteContext) {
     order.buyer.name,
     order.event.title,
     ticketsData.length,
-    `${origin}/pedidos/${order.id}`,
+    `${origin}/orders/${order.id}`,
   );
   await sendEmail({ to: order.buyer.email, subject, html });
 

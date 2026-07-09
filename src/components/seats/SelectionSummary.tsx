@@ -64,7 +64,7 @@ export function SelectionSummary({ eventId }: { eventId: string }) {
               <span className="tabular-nums">{formatCurrency(total)}</span>
             </div>
 
-            <Link href="/carrito" className={buttonVariants({ className: "w-full" })}>
+            <Link href="/cart" className={buttonVariants({ className: "w-full" })}>
               Ver resumen del pedido
             </Link>
           </>

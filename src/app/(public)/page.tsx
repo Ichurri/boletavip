@@ -80,7 +80,7 @@ export default async function HomePage() {
     ? "/register"
     : isOrganizer
       ? "/dashboard/events/new"
-      : "/ser-organizador";
+      : "/become-organizer";
 
   return (
     <>
@@ -114,7 +114,7 @@ export default async function HomePage() {
             rápidos, seguros y simples.
           </p>
           <div className="flex flex-col gap-3 sm:flex-row">
-            <Link href="/eventos" className={buttonVariants({ size: "lg" })}>
+            <Link href="/events" className={buttonVariants({ size: "lg" })}>
               Explorar eventos
               <ArrowRightIcon className="h-4 w-4" />
             </Link>
@@ -133,7 +133,7 @@ export default async function HomePage() {
           <div className="mb-6 flex items-center justify-between">
             <h2 className="text-2xl font-bold">Próximos eventos</h2>
             <Link
-              href="/eventos"
+              href="/events"
               className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline"
             >
               Ver todos

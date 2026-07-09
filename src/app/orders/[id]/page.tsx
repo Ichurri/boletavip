@@ -98,7 +98,7 @@ export default async function OrderDetailPage({ params }: PageProps) {
           </p>
         </div>
         <Link
-          href="/pedidos"
+          href="/orders"
           className={buttonVariants({ variant: "ghost", size: "sm" })}
         >
           ← Mis pedidos
@@ -303,7 +303,7 @@ export default async function OrderDetailPage({ params }: PageProps) {
             Los asientos fueron liberados; podés intentar de nuevo.
           </p>
           <Link
-            href={`/eventos/${order.event.id}`}
+            href={`/events/${order.event.id}`}
             className={buttonVariants({ size: "sm" })}
           >
             Volver al evento

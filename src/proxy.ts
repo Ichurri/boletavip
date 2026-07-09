@@ -12,7 +12,7 @@ export default auth((request) => {
 
   const isDashboard = nextUrl.pathname.startsWith("/dashboard");
   const isAdmin = nextUrl.pathname.startsWith("/admin");
-  const isOrders = nextUrl.pathname.startsWith("/pedidos");
+  const isOrders = nextUrl.pathname.startsWith("/orders");
   const isAuthPage =
     nextUrl.pathname === "/login" || nextUrl.pathname === "/register";
 
@@ -41,7 +41,7 @@ export const config = {
   matcher: [
     "/dashboard/:path*",
     "/admin/:path*",
-    "/pedidos/:path*",
+    "/orders/:path*",
     "/login",
     "/register",
   ],

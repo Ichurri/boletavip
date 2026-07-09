@@ -78,7 +78,7 @@ export async function POST(request: Request, { params }: RouteContext) {
       order.buyer.name,
       order.event.title,
       reason,
-      `${origin}/eventos/${order.event.id}`,
+      `${origin}/events/${order.event.id}`,
     );
     await sendEmail({ to: order.buyer.email, subject, html });
   }

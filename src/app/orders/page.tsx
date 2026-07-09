@@ -38,7 +38,7 @@ export default async function OrdersPage() {
             Cuando compres boletos, vas a poder seguir el estado de tus pedidos
             y descargar tus entradas desde acá.
           </p>
-          <Link href="/eventos" className={buttonVariants({ size: "sm" })}>
+          <Link href="/events" className={buttonVariants({ size: "sm" })}>
             Explorar eventos
           </Link>
         </div>
@@ -64,7 +64,7 @@ export default async function OrdersPage() {
                     </p>
                   </div>
                   <Link
-                    href={`/pedidos/${order.id}`}
+                    href={`/orders/${order.id}`}
                     className={buttonVariants({ variant: "outline", size: "sm" })}
                   >
                     Ver pedido

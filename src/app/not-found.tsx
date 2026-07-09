@@ -13,7 +13,7 @@ export default function NotFound() {
         <Link href="/" className={buttonVariants({ variant: "outline" })}>
           Ir al inicio
         </Link>
-        <Link href="/eventos" className={buttonVariants()}>
+        <Link href="/events" className={buttonVariants()}>
           Explorar eventos
         </Link>
       </div>

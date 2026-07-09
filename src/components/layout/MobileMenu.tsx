@@ -48,11 +48,11 @@ export function MobileMenu({ user }: { user: MobileMenuUser | null }) {
       {open && (
         <div className="absolute inset-x-0 top-16 z-50 border-b border-border bg-background shadow-lg">
           <nav className="mx-auto flex max-w-6xl flex-col gap-1 px-4 py-4">
-            <Link href="/eventos" className={linkClass} onClick={close}>
+            <Link href="/events" className={linkClass} onClick={close}>
               Eventos
             </Link>
             {user && (
-              <Link href="/pedidos" className={linkClass} onClick={close}>
+              <Link href="/orders" className={linkClass} onClick={close}>
                 Mis pedidos
               </Link>
             )}

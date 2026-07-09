@@ -43,7 +43,7 @@ export default async function VerifyEmailPage({ searchParams }: PageProps) {
       <span className="text-5xl">{copy.emoji}</span>
       <h1 className="text-2xl font-bold">{copy.title}</h1>
       <p className="text-sm text-muted-foreground">{copy.detail}</p>
-      <Link href="/eventos" className={buttonVariants({ size: "sm" })}>
+      <Link href="/events" className={buttonVariants({ size: "sm" })}>
         Explorar eventos
       </Link>
     </div>

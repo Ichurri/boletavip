@@ -29,7 +29,7 @@ export async function sendVerificationEmail(
     }),
   ]);
 
-  const verifyUrl = `${origin}/verificar-correo?token=${token}`;
+  const verifyUrl = `${origin}/verify-email?token=${token}`;
   const { subject, html } = verificationEmail(user.name, verifyUrl);
   await sendEmail({ to: user.email, subject, html });
 }

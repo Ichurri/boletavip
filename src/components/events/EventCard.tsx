@@ -19,7 +19,7 @@ export interface EventCardData {
 
 export function EventCard({ event }: { event: EventCardData }) {
   return (
-    <Link href={`/eventos/${event.id}`} className="group">
+    <Link href={`/events/${event.id}`} className="group">
       <Card className="h-full overflow-hidden transition-all duration-300 group-hover:-translate-y-1 group-hover:border-primary/30 group-hover:shadow-card-hover">
         <div className="relative aspect-video overflow-hidden bg-gradient-to-br from-primary/25 via-primary/10 to-accent/20">
           {event.coverImage ? (

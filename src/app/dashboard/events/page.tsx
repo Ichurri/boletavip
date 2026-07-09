@@ -68,7 +68,7 @@ export default async function DashboardEventsPage() {
                   <div className="flex flex-wrap items-center gap-2">
                     {event.status === "APPROVED" && (
                       <Link
-                        href={`/eventos/${event.id}`}
+                        href={`/events/${event.id}`}
                         className={buttonVariants({ variant: "ghost", size: "sm" })}
                       >
                         Ver pública

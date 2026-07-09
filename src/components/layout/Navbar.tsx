@@ -19,12 +19,12 @@ export async function Navbar() {
             <Logo />
           </Link>
           <div className="hidden items-center gap-4 text-sm text-muted-foreground sm:flex">
-            <Link href="/eventos" className="transition-colors hover:text-foreground">
+            <Link href="/events" className="transition-colors hover:text-foreground">
               Eventos
             </Link>
             {user && (
               <Link
-                href="/pedidos"
+                href="/orders"
                 className="transition-colors hover:text-foreground"
               >
                 Mis pedidos

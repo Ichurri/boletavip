@@ -47,7 +47,7 @@ export function CartView() {
     });
 
     if (response.status === 401) {
-      router.push("/login?callbackUrl=/carrito");
+      router.push("/login?callbackUrl=/cart");
       return;
     }
     if (!response.ok) {
@@ -59,7 +59,7 @@ export function CartView() {
 
     const data = await response.json();
     clear();
-    router.push(`/pedidos/${data.order.id}`);
+    router.push(`/orders/${data.order.id}`);
   }
 
   if (shownItems.length === 0 || !eventId) {
@@ -70,7 +70,7 @@ export function CartView() {
         <p className="max-w-sm text-sm text-muted-foreground">
           Explorá los eventos disponibles y elegí tus asientos o zonas.
         </p>
-        <Link href="/eventos" className={buttonVariants({ size: "sm" })}>
+        <Link href="/events" className={buttonVariants({ size: "sm" })}>
           Explorar eventos
         </Link>
       </div>
@@ -90,7 +90,7 @@ export function CartView() {
           <p className="mt-1 text-muted-foreground">{eventTitle}</p>
         </div>
         <Link
-          href={`/eventos/${eventId}`}
+          href={`/events/${eventId}`}
           className={buttonVariants({ variant: "outline", size: "sm" })}
         >
           ← Seguir eligiendo

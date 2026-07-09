@@ -36,7 +36,7 @@ export function EventFilters({
     if (fecha) params.set("fecha", fecha);
     if (precio) params.set("precio", precio);
     const query = params.toString();
-    router.push(query ? `/eventos?${query}` : "/eventos");
+    router.push(query ? `/events?${query}` : "/events");
   }
 
   function clearFilters() {
@@ -44,7 +44,7 @@ export function EventFilters({
     setCiudad("");
     setFecha("");
     setPrecio("");
-    router.push("/eventos");
+    router.push("/events");
   }
 
   return (
