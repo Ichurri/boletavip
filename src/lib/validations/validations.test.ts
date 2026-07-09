@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { registerSchema, loginSchema } from "@/lib/validations/auth";
+import {
+  registerSchema,
+  loginSchema,
+  forgotPasswordSchema,
+  resetPasswordSchema,
+  changePasswordSchema,
+} from "@/lib/validations/auth";
 import { venueSchema } from "@/lib/validations/venue";
 import { eventSchema } from "@/lib/validations/event";
 import { createOrderSchema } from "@/lib/validations/order";
@@ -24,6 +30,50 @@ describe("registerSchema", () => {
       loginSchema.safeParse({ email: "juan@test.com", password: "short" })
         .success,
     ).toBe(false);
+  });
+});
+
+describe("password schemas", () => {
+  it("forgot requires a valid email", () => {
+    expect(forgotPasswordSchema.safeParse({ email: "no" }).success).toBe(false);
+    expect(forgotPasswordSchema.safeParse({ email: "a@b.com" }).success).toBe(
+      true,
+    );
+  });
+
+  it("reset requires token and 8+ char password", () => {
+    expect(
+      resetPasswordSchema.safeParse({ token: "", password: "12345678" })
+        .success,
+    ).toBe(false);
+    expect(
+      resetPasswordSchema.safeParse({ token: "t", password: "short" }).success,
+    ).toBe(false);
+    expect(
+      resetPasswordSchema.safeParse({ token: "t", password: "12345678" })
+        .success,
+    ).toBe(true);
+  });
+
+  it("change requires current password and 8+ char new one", () => {
+    expect(
+      changePasswordSchema.safeParse({
+        currentPassword: "",
+        newPassword: "12345678",
+      }).success,
+    ).toBe(false);
+    expect(
+      changePasswordSchema.safeParse({
+        currentPassword: "old-pass",
+        newPassword: "short",
+      }).success,
+    ).toBe(false);
+    expect(
+      changePasswordSchema.safeParse({
+        currentPassword: "old-pass",
+        newPassword: "12345678",
+      }).success,
+    ).toBe(true);
   });
 });
 

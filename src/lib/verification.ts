@@ -1,8 +1,13 @@
 import { createHash, randomBytes } from "node:crypto";
 import { prisma } from "@/lib/prisma";
-import { sendEmail, verificationEmail } from "@/lib/email";
+import { passwordResetEmail, sendEmail, verificationEmail } from "@/lib/email";
 
 export const VERIFICATION_TOKEN_TTL_HOURS = 24;
+export const PASSWORD_RESET_TTL_HOURS = 1;
+
+/** Reset tokens share the VerificationToken table; the identifier prefix
+ * keeps the two flows from consuming each other's tokens. */
+const RESET_PREFIX = "password-reset:";
 
 /** Only the SHA-256 hash is stored; the raw token travels in the email link. */
 function hashToken(token: string) {
@@ -32,6 +37,43 @@ export async function sendVerificationEmail(
   const verifyUrl = `${origin}/verify-email?token=${token}`;
   const { subject, html } = verificationEmail(user.name, verifyUrl);
   await sendEmail({ to: user.email, subject, html });
+}
+
+/** Creates a reset token (invalidating previous ones) and emails the link. */
+export async function sendPasswordResetEmail(
+  user: { name: string | null; email: string },
+  origin: string,
+) {
+  const token = randomBytes(32).toString("hex");
+  const identifier = `${RESET_PREFIX}${user.email}`;
+
+  await prisma.$transaction([
+    prisma.verificationToken.deleteMany({ where: { identifier } }),
+    prisma.verificationToken.create({
+      data: {
+        identifier,
+        token: hashToken(token),
+        expires: new Date(Date.now() + PASSWORD_RESET_TTL_HOURS * 60 * 60 * 1000),
+      },
+    }),
+  ]);
+
+  const resetUrl = `${origin}/reset-password?token=${token}`;
+  const { subject, html } = passwordResetEmail(user.name, resetUrl);
+  await sendEmail({ to: user.email, subject, html });
+}
+
+/** Consumes a reset token and returns the email it belongs to, or null. */
+export async function consumePasswordResetToken(rawToken: string) {
+  const record = await prisma.verificationToken.findUnique({
+    where: { token: hashToken(rawToken) },
+  });
+  if (!record || !record.identifier.startsWith(RESET_PREFIX)) return null;
+
+  await prisma.verificationToken.delete({ where: { token: record.token } });
+  if (record.expires < new Date()) return null;
+
+  return record.identifier.slice(RESET_PREFIX.length);
 }
 
 export type VerifyEmailResult = "verified" | "already-verified" | "invalid";

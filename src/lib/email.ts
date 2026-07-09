@@ -140,6 +140,26 @@ export function verificationEmail(rawName: string | null, verifyUrl: string) {
   };
 }
 
+export function passwordResetEmail(rawName: string | null, resetUrl: string) {
+  const name = rawName ? escapeHtml(rawName) : null;
+  return {
+    subject: "Restablecé tu contraseña de Üticket",
+    html: layout(
+      `Hola${name ? ` ${name}` : ""}, restablecé tu contraseña`,
+      `<p style="margin:0 0 16px;font-size:14px;line-height:1.6;">
+        Recibimos un pedido para restablecer la contraseña de tu cuenta.
+        El enlace vence en 1 hora. Si no fuiste vos, ignorá este correo —
+        tu contraseña actual sigue siendo válida.
+      </p>
+      ${button(resetUrl, "Crear nueva contraseña")}
+      <p style="margin:0;font-size:12px;color:#6b6580;">
+        Si el botón no funciona, copiá este enlace en tu navegador:<br/>
+        <a href="${resetUrl}" style="color:${BRAND_PURPLE};word-break:break-all;">${resetUrl}</a>
+      </p>`,
+    ),
+  };
+}
+
 export function orderConfirmedEmail(
   rawName: string | null,
   rawEventTitle: string,

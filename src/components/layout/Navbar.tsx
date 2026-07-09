@@ -54,9 +54,13 @@ export async function Navbar() {
           <ThemeToggle />
           {user ? (
             <div className="hidden items-center gap-2 sm:flex">
-              <span className="hidden max-w-40 truncate text-sm text-muted-foreground md:inline">
+              <Link
+                href="/account"
+                title="Mi cuenta"
+                className="hidden max-w-40 truncate text-sm text-muted-foreground transition-colors hover:text-foreground md:inline"
+              >
                 {user.name ?? user.email}
-              </span>
+              </Link>
               <form
                 action={async () => {
                   "use server";

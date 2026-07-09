@@ -13,10 +13,11 @@ export default auth((request) => {
   const isDashboard = nextUrl.pathname.startsWith("/dashboard");
   const isAdmin = nextUrl.pathname.startsWith("/admin");
   const isOrders = nextUrl.pathname.startsWith("/orders");
+  const isAccount = nextUrl.pathname.startsWith("/account");
   const isAuthPage =
     nextUrl.pathname === "/login" || nextUrl.pathname === "/register";
 
-  if ((isDashboard || isAdmin || isOrders) && !isLoggedIn) {
+  if ((isDashboard || isAdmin || isOrders || isAccount) && !isLoggedIn) {
     const loginUrl = new URL("/login", nextUrl);
     loginUrl.searchParams.set("callbackUrl", nextUrl.pathname);
     return NextResponse.redirect(loginUrl);
@@ -42,6 +43,7 @@ export const config = {
     "/dashboard/:path*",
     "/admin/:path*",
     "/orders/:path*",
+    "/account/:path*",
     "/login",
     "/register",
   ],

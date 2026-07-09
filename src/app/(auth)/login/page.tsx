@@ -52,6 +52,14 @@ export default async function LoginPage({
             Registrate
           </Link>
         </p>
+        <p className="text-center text-sm text-muted-foreground">
+          <Link
+            href="/forgot-password"
+            className="text-primary hover:underline"
+          >
+            ¿Olvidaste tu contraseña?
+          </Link>
+        </p>
       </CardContent>
     </Card>
   );

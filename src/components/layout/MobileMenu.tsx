@@ -66,6 +66,11 @@ export function MobileMenu({ user }: { user: MobileMenuUser | null }) {
                 Admin
               </Link>
             )}
+            {user && (
+              <Link href="/account" className={linkClass} onClick={close}>
+                Mi cuenta
+              </Link>
+            )}
 
             <div className="my-2 h-px bg-border" />
 
