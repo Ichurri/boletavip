@@ -41,6 +41,9 @@ yarn-error.log*
 /public/uploads/*
 !/public/uploads/.gitkeep
 
+# payment proofs (never publicly served)
+/private-uploads/
+
 # vercel
 .vercel
 

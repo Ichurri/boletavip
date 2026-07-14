@@ -95,7 +95,9 @@ export default async function DashboardOrdersPage() {
           inReview.map((order) => (
             <Card key={order.id}>
               <CardContent className="flex flex-wrap items-center justify-between gap-4 p-4 sm:p-6">
-                {order.paymentProof && <ProofImage url={order.paymentProof} />}
+                {order.paymentProof && (
+                  <ProofImage url={`/api/orders/${order.id}/proof`} />
+                )}
                 <div className="min-w-0 flex-1 basis-48">
                   <p className="font-semibold">
                     {order.buyer.name ?? order.buyer.email} ·{" "}

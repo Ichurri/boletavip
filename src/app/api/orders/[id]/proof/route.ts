@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { randomUUID } from "node:crypto";
 import path from "node:path";
-import { put } from "@vercel/blob";
+import { get, put } from "@vercel/blob";
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/api-auth";
 import { expireStaleOrders } from "@/lib/orders";
@@ -10,8 +10,15 @@ import { proofSubmittedEmail, sendEmail } from "@/lib/email";
 import { formatCurrency } from "@/lib/utils";
 import { ALLOWED_IMAGE_TYPES, MAX_UPLOAD_BYTES } from "@/lib/constants";
 
-const UPLOAD_DIR = path.join(process.cwd(), "public", "uploads");
+// Proofs are bank receipts: stored privately (Vercel Blob private access in
+// prod, a non-served local dir in dev) and streamed back only via the GET
+// below. Legacy proofs predate this and were stored as public URLs.
+const PRIVATE_UPLOAD_DIR = path.join(process.cwd(), "private-uploads", "proofs");
 const useBlobStorage = Boolean(process.env.BLOB_READ_WRITE_TOKEN);
+
+const EXTENSION_CONTENT_TYPES: Record<string, string> = Object.fromEntries(
+  Object.entries(ALLOWED_IMAGE_TYPES).map(([mime, ext]) => [ext, mime]),
+);
 
 type RouteContext = { params: Promise<{ id: string }> };
 
@@ -77,20 +84,18 @@ export async function POST(request: Request, { params }: RouteContext) {
   }
 
   const fileName = `${randomUUID()}.${extension}`;
-  let url: string;
+  const storedPath = `proofs/${fileName}`;
   if (useBlobStorage) {
-    const blob = await put(`proofs/${fileName}`, file, {
-      access: "public",
+    await put(storedPath, file, {
+      access: "private",
       contentType: file.type,
     });
-    url = blob.url;
   } else {
-    await mkdir(UPLOAD_DIR, { recursive: true });
+    await mkdir(PRIVATE_UPLOAD_DIR, { recursive: true });
     await writeFile(
-      path.join(UPLOAD_DIR, fileName),
+      path.join(PRIVATE_UPLOAD_DIR, fileName),
       Buffer.from(await file.arrayBuffer()),
     );
-    url = `/uploads/${fileName}`;
   }
 
   // Guard on status again so an expiry/confirmation that raced us can't be overwritten
@@ -100,7 +105,7 @@ export async function POST(request: Request, { params }: RouteContext) {
       status: { in: ["PENDING_PAYMENT", "PAYMENT_SUBMITTED"] },
     },
     data: {
-      paymentProof: url,
+      paymentProof: storedPath,
       paymentSubmittedAt: new Date(),
       status: "PAYMENT_SUBMITTED",
     },
@@ -126,5 +131,71 @@ export async function POST(request: Request, { params }: RouteContext) {
     await sendEmail({ to: order.event.organizer.email, subject, html });
   }
 
-  return NextResponse.json({ ok: true, url }, { status: 201 });
+  return NextResponse.json({ ok: true }, { status: 201 });
+}
+
+/** Streams the proof image to the buyer, the event's organizer, or an admin. */
+export async function GET(request: Request, { params }: RouteContext) {
+  const { session, error } = await requireRole("BUYER", "ORGANIZER", "ADMIN");
+  if (error) return error;
+
+  const { id } = await params;
+  const order = await prisma.order.findUnique({
+    where: { id },
+    select: {
+      paymentProof: true,
+      buyerId: true,
+      event: { select: { organizerId: true } },
+    },
+  });
+  if (
+    !order?.paymentProof ||
+    (order.buyerId !== session.user.id &&
+      order.event.organizerId !== session.user.id &&
+      session.user.role !== "ADMIN")
+  ) {
+    return NextResponse.json(
+      { error: "Comprobante no encontrado" },
+      { status: 404 },
+    );
+  }
+
+  // Legacy proofs were stored as public URLs/paths — just point at them
+  if (
+    order.paymentProof.startsWith("http") ||
+    order.paymentProof.startsWith("/uploads/")
+  ) {
+    return NextResponse.redirect(new URL(order.paymentProof, request.url));
+  }
+
+  if (useBlobStorage) {
+    const result = await get(order.paymentProof, { access: "private" });
+    if (!result) {
+      return NextResponse.json(
+        { error: "Comprobante no encontrado" },
+        { status: 404 },
+      );
+    }
+    const headers = new Headers(result.headers as HeadersInit);
+    headers.set("Cache-Control", "private, no-store");
+    return new Response(result.stream, { headers });
+  }
+
+  const fileName = path.basename(order.paymentProof);
+  const extension = fileName.split(".").pop() ?? "jpg";
+  const bytes = await readFile(path.join(PRIVATE_UPLOAD_DIR, fileName)).catch(
+    () => null,
+  );
+  if (!bytes) {
+    return NextResponse.json(
+      { error: "Comprobante no encontrado" },
+      { status: 404 },
+    );
+  }
+  return new Response(new Uint8Array(bytes), {
+    headers: {
+      "Content-Type": EXTENSION_CONTENT_TYPES[extension] ?? "image/jpeg",
+      "Cache-Control": "private, no-store",
+    },
+  });
 }

@@ -196,16 +196,17 @@ export default async function OrderDetailPage({ params }: PageProps) {
               </p>
               {order.paymentProof && (
                 <a
-                  href={order.paymentProof}
+                  href={`/api/orders/${order.id}/proof`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="block overflow-hidden rounded-md border border-border"
                 >
                   <Image
-                    src={order.paymentProof}
+                    src={`/api/orders/${order.id}/proof`}
                     alt="Comprobante de pago enviado"
                     width={480}
                     height={320}
+                    unoptimized
                     className="max-h-72 w-full bg-white object-contain"
                   />
                 </a>

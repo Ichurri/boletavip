@@ -44,6 +44,7 @@ export function ProofImage({
           alt="Comprobante de pago"
           width={96}
           height={96}
+          unoptimized
           className={cn(
             "bg-white object-cover",
             isOverlay ? "h-12 w-12" : "h-20 w-20 sm:h-24 sm:w-24",
@@ -63,6 +64,7 @@ export function ProofImage({
             alt="Comprobante de pago ampliado"
             width={960}
             height={720}
+            unoptimized
             className="max-h-[85vh] w-auto max-w-full rounded-lg bg-white object-contain shadow-2xl"
           />
         </button>
@@ -80,6 +82,7 @@ export function ProofImage({
             alt="Comprobante de pago ampliado"
             width={960}
             height={720}
+            unoptimized
             className="max-h-[70vh] w-full rounded-md border border-border bg-white object-contain"
           />
         </button>

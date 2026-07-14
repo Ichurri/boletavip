@@ -146,7 +146,10 @@ export default async function EventBuyersPage({
                     </td>
                     <td className="px-4 py-3">
                       {order.paymentProof ? (
-                        <ProofImage url={order.paymentProof} expand="overlay" />
+                        <ProofImage
+                          url={`/api/orders/${order.id}/proof`}
+                          expand="overlay"
+                        />
                       ) : (
                         <span className="text-muted-foreground">—</span>
                       )}
