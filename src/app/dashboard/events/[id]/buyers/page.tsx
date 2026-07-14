@@ -10,6 +10,7 @@ import { buttonVariants } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { Card, CardContent } from "@/components/ui/Card";
 import { ProofImage } from "@/components/dashboard/ProofImage";
+import { ScanAccessButton } from "@/components/dashboard/ScanAccessButton";
 
 export const metadata: Metadata = {
   title: "Compradores",
@@ -26,7 +27,14 @@ export default async function EventBuyersPage({
 
   const event = await prisma.event.findUnique({
     where: { id },
-    select: { id: true, title: true, date: true, time: true, organizerId: true },
+    select: {
+      id: true,
+      title: true,
+      date: true,
+      time: true,
+      organizerId: true,
+      status: true,
+    },
   });
   if (
     !event ||
@@ -89,6 +97,8 @@ export default async function EventBuyersPage({
           </Link>
         </div>
       </div>
+
+      {event.status === "APPROVED" && <ScanAccessButton eventId={event.id} />}
 
       <div className="grid grid-cols-3 gap-4">
         {stats.map((stat) => (

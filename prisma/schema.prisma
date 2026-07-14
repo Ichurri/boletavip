@@ -162,6 +162,8 @@ model Event {
   time           String
   coverImage     String?
   paymentQrImage String?
+  /// Bearer code for the public door-scanner page (/scan/[code]); rotatable
+  scanCode       String?     @unique
   status         EventStatus @default(DRAFT)
   price          Decimal     @db.Decimal(10, 2)
   venueId        String

@@ -44,7 +44,7 @@ const usedAtFormatter = new Intl.DateTimeFormat("es-BO", {
   timeZone: "America/La_Paz",
 });
 
-export function TicketScanner() {
+export function TicketScanner({ scanCode }: { scanCode?: string } = {}) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -68,7 +68,7 @@ export function TicketScanner() {
       const response = await fetch("/api/tickets/verify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code }),
+        body: JSON.stringify(scanCode ? { code, scanCode } : { code }),
       });
       const data = await response.json().catch(() => null);
       setOutcome(
@@ -83,7 +83,7 @@ export function TicketScanner() {
       verifyingRef.current = false;
       setManualCode("");
     }
-  }, []);
+  }, [scanCode]);
 
   const stopCamera = useCallback(() => {
     if (intervalRef.current) {

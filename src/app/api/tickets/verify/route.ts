@@ -23,9 +23,6 @@ function ticketSummary(ticket: {
 }
 
 export async function POST(request: Request) {
-  const { session, error } = await requireRole("ORGANIZER", "ADMIN");
-  if (error) return error;
-
   const body = await request.json().catch(() => null);
   const parsed = verifyTicketSchema.safeParse(body);
   if (!parsed.success) {
@@ -33,6 +30,30 @@ export async function POST(request: Request) {
       { result: "INVALID_CODE", error: "El código escaneado no es un boleto válido" },
       { status: 400 },
     );
+  }
+
+  // Door staff authenticate with the event's scan code instead of a session
+  let scanEventId: string | null = null;
+  let sessionUserId: string | null = null;
+  let isAdmin = false;
+
+  if (parsed.data.scanCode) {
+    const scanEvent = await prisma.event.findUnique({
+      where: { scanCode: parsed.data.scanCode },
+      select: { id: true },
+    });
+    if (!scanEvent) {
+      return NextResponse.json(
+        { result: "FORBIDDEN", error: "El código de acceso de puerta no es válido" },
+        { status: 403 },
+      );
+    }
+    scanEventId = scanEvent.id;
+  } else {
+    const { session, error } = await requireRole("ORGANIZER", "ADMIN");
+    if (error) return error;
+    sessionUserId = session.user.id;
+    isAdmin = session.user.role === "ADMIN";
   }
 
   const ticket = await prisma.ticket.findUnique({
@@ -52,12 +73,12 @@ export async function POST(request: Request) {
     );
   }
 
-  if (
-    ticket.event.organizerId !== session.user.id &&
-    session.user.role !== "ADMIN"
-  ) {
+  const allowed = scanEventId
+    ? ticket.eventId === scanEventId
+    : isAdmin || ticket.event.organizerId === sessionUserId;
+  if (!allowed) {
     return NextResponse.json(
-      { result: "FORBIDDEN", error: "Este boleto pertenece a un evento de otro organizador" },
+      { result: "FORBIDDEN", error: "Este boleto pertenece a otro evento" },
       { status: 403 },
     );
   }
