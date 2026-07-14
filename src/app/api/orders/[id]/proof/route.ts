@@ -13,8 +13,19 @@ import { ALLOWED_IMAGE_TYPES, MAX_UPLOAD_BYTES } from "@/lib/constants";
 // Proofs are bank receipts: stored privately (Vercel Blob private access in
 // prod, a non-served local dir in dev) and streamed back only via the GET
 // below. Legacy proofs predate this and were stored as public URLs.
+//
+// A Vercel Blob store's access mode (public/private) is fixed at store
+// creation — it can't be mixed per-blob. The store used for public event
+// images is Public, so proofs need a SEPARATE, dedicated Private store with
+// its own token (BLOB_PROOFS_READ_WRITE_TOKEN), passed explicitly to put/get.
 const PRIVATE_UPLOAD_DIR = path.join(process.cwd(), "private-uploads", "proofs");
-const useBlobStorage = Boolean(process.env.BLOB_READ_WRITE_TOKEN);
+const proofsBlobToken = process.env.BLOB_PROOFS_READ_WRITE_TOKEN;
+const useBlobStorage = Boolean(proofsBlobToken);
+// Deployed (some Blob token is set for the rest of the app) but the
+// dedicated private store isn't configured yet: writing to local disk here
+// would silently vanish (serverless filesystem), so fail loudly instead.
+const blobConfiguredButNotPrivate =
+  !useBlobStorage && Boolean(process.env.BLOB_READ_WRITE_TOKEN);
 
 const EXTENSION_CONTENT_TYPES: Record<string, string> = Object.fromEntries(
   Object.entries(ALLOWED_IMAGE_TYPES).map(([mime, ext]) => [ext, mime]),
@@ -83,12 +94,23 @@ export async function POST(request: Request, { params }: RouteContext) {
     );
   }
 
+  if (blobConfiguredButNotPrivate) {
+    return NextResponse.json(
+      {
+        error:
+          "El almacenamiento privado de comprobantes no está configurado en este entorno.",
+      },
+      { status: 500 },
+    );
+  }
+
   const fileName = `${randomUUID()}.${extension}`;
   const storedPath = `proofs/${fileName}`;
   if (useBlobStorage) {
     await put(storedPath, file, {
       access: "private",
       contentType: file.type,
+      token: proofsBlobToken,
     });
   } else {
     await mkdir(PRIVATE_UPLOAD_DIR, { recursive: true });
@@ -169,7 +191,10 @@ export async function GET(request: Request, { params }: RouteContext) {
   }
 
   if (useBlobStorage) {
-    const result = await get(order.paymentProof, { access: "private" });
+    const result = await get(order.paymentProof, {
+      access: "private",
+      token: proofsBlobToken,
+    });
     if (!result) {
       return NextResponse.json(
         { error: "Comprobante no encontrado" },
