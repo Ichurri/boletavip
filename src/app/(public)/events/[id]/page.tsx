@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import { expireStaleOrders } from "@/lib/orders";
 import { getPlatformSettings } from "@/lib/settings";
 import { formatDate, salesAreClosed } from "@/lib/utils";
 import { TicketIcon } from "@/components/ui/icons";
@@ -70,6 +71,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function EventDetailPage({ params }: PageProps) {
   const { id } = await params;
+  await expireStaleOrders();
   const event = await getApprovedEvent(id);
   if (!event) notFound();
 
