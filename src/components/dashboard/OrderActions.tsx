@@ -13,10 +13,12 @@ export function OrderActions({
 }) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
   const [loading, setLoading] = useState<string | null>(null);
 
   async function run(action: "confirm" | "cancel", body?: { reason?: string }) {
     setError(null);
+    setNotice(null);
     setLoading(action);
     const response = await fetch(`/api/orders/${orderId}/${action}`, {
       method: "POST",
@@ -29,10 +31,15 @@ export function OrderActions({
     });
     setLoading(null);
 
+    const data = await response.json().catch(() => null);
     if (!response.ok) {
-      const data = await response.json().catch(() => null);
       setError(data?.error ?? "La acción falló");
       return;
+    }
+    if (data?.emailSent === false) {
+      setNotice(
+        "Listo, pero el correo al comprador falló — avisale por otro medio.",
+      );
     }
     router.refresh();
   }
@@ -76,6 +83,9 @@ export function OrderActions({
         </Button>
       </div>
       {error && <p className="text-xs text-danger">{error}</p>}
+      {notice && (
+        <p className="text-xs text-amber-600 dark:text-amber-400">{notice}</p>
+      )}
     </div>
   );
 }

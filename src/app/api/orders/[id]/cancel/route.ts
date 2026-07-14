@@ -72,6 +72,7 @@ export async function POST(request: Request, { params }: RouteContext) {
   ]);
 
   // Notify the buyer only when the organizer rejected a submitted proof
+  let emailSent: boolean | null = null;
   if (isOrganizer && !isBuyer && order.status === "PAYMENT_SUBMITTED") {
     const origin = new URL(request.url).origin;
     const { subject, html } = orderRejectedEmail(
@@ -80,8 +81,12 @@ export async function POST(request: Request, { params }: RouteContext) {
       reason,
       `${origin}/events/${order.event.id}`,
     );
-    await sendEmail({ to: order.buyer.email, subject, html });
+    const emailResult = await sendEmail({ to: order.buyer.email, subject, html });
+    emailSent = emailResult.ok;
+    if (!emailResult.ok) {
+      console.error(`[email] rejection email failed for order ${order.id}`);
+    }
   }
 
-  return NextResponse.json({ ok: true });
+  return NextResponse.json({ ok: true, emailSent });
 }

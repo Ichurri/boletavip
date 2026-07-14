@@ -111,7 +111,14 @@ export async function POST(request: Request, { params }: RouteContext) {
     ticketsData.length,
     `${origin}/orders/${order.id}`,
   );
-  await sendEmail({ to: order.buyer.email, subject, html });
+  const emailResult = await sendEmail({ to: order.buyer.email, subject, html });
+  if (!emailResult.ok) {
+    console.error(`[email] confirmation email failed for order ${order.id}`);
+  }
 
-  return NextResponse.json({ ok: true, tickets: ticketsData.length });
+  return NextResponse.json({
+    ok: true,
+    tickets: ticketsData.length,
+    emailSent: emailResult.ok,
+  });
 }
