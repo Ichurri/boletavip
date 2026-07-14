@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { expireStaleOrders } from "@/lib/orders";
 import { formatCurrency, formatDateTime } from "@/lib/utils";
 import { ORDER_STATUS_LABELS } from "@/lib/constants";
+import { orderItemsSummary } from "@/lib/order-items";
 import { Badge } from "@/components/ui/Badge";
 import { Card, CardContent } from "@/components/ui/Card";
 import { OrderActions } from "@/components/dashboard/OrderActions";
@@ -13,22 +14,6 @@ import { AutoRefresh } from "@/components/layout/AutoRefresh";
 export const metadata: Metadata = {
   title: "Pedidos",
 };
-
-function itemsSummary(
-  items: {
-    quantity: number;
-    seat: { row: string; number: number } | null;
-    zone: { name: string } | null;
-  }[],
-) {
-  return items
-    .map((item) =>
-      item.seat
-        ? `${item.zone?.name ?? ""} ${item.seat.row}${item.seat.number}`
-        : `${item.zone?.name ?? "Zona"} × ${item.quantity}`,
-    )
-    .join(", ");
-}
 
 export default async function DashboardOrdersPage() {
   const session = await auth();
@@ -104,7 +89,7 @@ export default async function DashboardOrdersPage() {
                     {formatCurrency(Number(order.totalAmount))}
                   </p>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    {order.event.title} · {itemsSummary(order.items)}
+                    {order.event.title} · {orderItemsSummary(order.items)}
                   </p>
                   <p className="text-xs text-muted-foreground">
                     Comprobante subido{" "}
@@ -143,7 +128,7 @@ export default async function DashboardOrdersPage() {
                     {formatCurrency(Number(order.totalAmount))}
                   </p>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    {order.event.title} · {itemsSummary(order.items)}
+                    {order.event.title} · {orderItemsSummary(order.items)}
                   </p>
                   <p className="text-xs text-muted-foreground">
                     Creado {formatDateTime(order.createdAt)} · expira{" "}
@@ -182,7 +167,7 @@ export default async function DashboardOrdersPage() {
                       </Badge>
                     </div>
                     <p className="mt-1 text-sm text-muted-foreground">
-                      {order.event.title} · {itemsSummary(order.items)}
+                      {order.event.title} · {orderItemsSummary(order.items)}
                       {order._count.tickets > 0 &&
                         ` · ${order._count.tickets} boleto${order._count.tickets === 1 ? "" : "s"} emitido${order._count.tickets === 1 ? "" : "s"}`}
                     </p>
