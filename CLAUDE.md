@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-Üticket (formerly BoletaVIP; internal identifiers — repo, DB, seed emails, localStorage keys — keep `boletavip`): event ticketing platform (Bolivia). Buyers pay via the organizer's static bank QR; the organizer confirms payments manually and tickets are issued with unique QR codes, validated at the door with an in-app scanner.
+Üticket (formerly BoletaVIP; folder and package renamed to `uticket` on 2026-07-14 — the local DB name and seed emails still use `boletavip`, and the GitHub remote may still point at `Ichurri/boletavip`): event ticketing platform (Bolivia). Buyers pay via the organizer's static bank QR; the organizer confirms payments manually and tickets are issued with unique QR codes, validated at the door with an in-app scanner.
 
 **Brand (guidelines v1.0)**: user-facing name **Üticket**. Palette: Primary Purple `#6D2BFF`, Secondary Purple `#4B14D1` (hover), Lavender `#879CFF` (accent/ring), Dark Gray `#2B2B2B`, Light Gray `#F5F5F7` — tokens in `globals.css` (dark mode uses lightened `#8E5CFF` primary for contrast). Typography: Plus Jakarta Sans (`--font-jakarta`). Logo: `src/components/layout/Logo.tsx` (Ü glyph SVG + wordmark) and `src/app/icon.svg`. Tagline: "Tu entrada en un clic." Tone: cercano, claro y emocionante.
 
@@ -32,6 +32,8 @@ Local DB: PostgreSQL 17, db `boletavip`, role `ichurri` / `boletavip_dev`. Seed 
 - **NextAuth v5 beta**: JWT strategy; `id` and `role` are injected into the session. Edge-safe config split: `src/lib/auth.config.ts` (no Prisma, used by proxy) vs `src/lib/auth.ts` (full, with adapter + credentials + conditional Google). Google provider only activates when `GOOGLE_CLIENT_ID/SECRET` are set.
 - **Tailwind v4**: tokens defined in `globals.css` via CSS vars + `@theme inline`; class-based dark mode (`next-themes`). No `tailwind.config`.
 - **Zustand selectors must return stable references** (primitives or direct state refs). Never `state.items.filter(...)` or `: []` inside a selector — it breaks `useSyncExternalStore` ("getSnapshot should be cached"). Derive outside the selector.
+- After renaming/moving routes, `pnpm typecheck` may fail on stale generated route types — fix with `rm -rf .next/dev`.
+- Backgrounding the dev server from a tool call: plain `&` dies when the shell exits — use `nohup pnpm dev > /tmp/uticket-dev.log 2>&1 &`.
 
 ## Architecture
 
@@ -40,6 +42,8 @@ Local DB: PostgreSQL 17, db `boletavip`, role `ichurri` / `boletavip_dev`. Seed 
 - Ownership checks: organizers may only touch their own venues/events/orders; ADMIN bypasses.
 - Prices are ALWAYS computed server-side: `event.price × zone.priceMultiplier`. Money fields are `Decimal` — convert with `Number()` before passing to client components.
 - Event dates are stored at **noon UTC** (`eventDate()` in `src/lib/utils.ts`) so the calendar date is timezone-stable.
+- **Displayed times are always Bolivia time**: use `formatDate`/`formatDateTime` from `src/lib/utils.ts`. Never create an `Intl.DateTimeFormat` without `timeZone: BOLIVIA_TZ` — Vercel renders in UTC and times show 4 h ahead otherwise.
+- Data freshness without websockets: `RefreshOnFocus` in the root layout (router.refresh on tab focus), `AutoRefresh` interval polling on the organizer orders page, and `experimental.staleTimes.dynamic: 0` in `next.config.ts`.
 
 ## Business rules
 

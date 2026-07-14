@@ -104,7 +104,7 @@ export const useCartStore = create<CartState>()(
 
       clear: () => set({ eventId: null, eventTitle: null, items: [] }),
     }),
-    { name: "boletavip-cart" },
+    { name: "uticket-cart" },
   ),
 );
 

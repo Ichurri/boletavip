@@ -1,6 +1,6 @@
 # 🎟️ Üticket
 
-> Formerly **BoletaVIP** — internal identifiers (repo, database, seed emails) keep the old name.
+> Formerly **BoletaVIP** — the local database name and seed emails keep the old name.
 
 Event ticketing platform (initially focused on comedy shows, generic for any event type) with a Bolivian-style payment flow: buyers pay via static bank QR and the organizer confirms payments manually. Brand: purple identity, Plus Jakarta Sans, "Ü" wordmark — *Tu entrada en un clic.*
 
@@ -89,7 +89,7 @@ The seed also creates two venues (Teatro Municipal in La Paz with a numbered VIP
    - `DATABASE_URL` — the pooled Neon string
    - `AUTH_SECRET` — a fresh one (`openssl rand -base64 32`), never the dev one
    - `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` — optional; add `https://<domain>/api/auth/callback/google` as an authorized redirect URI in Google Cloud Console
-3. **Uploads**: in the Vercel project go to *Storage → Create → Blob*. This injects `BLOB_READ_WRITE_TOKEN` automatically; the upload endpoint detects it and stores images in Blob instead of the local filesystem (which is ephemeral on Vercel).
+3. **Uploads**: in the Vercel project go to *Storage → Create → Blob* (access: **Public**). Copy `BLOB_READ_WRITE_TOKEN` from the store's *Getting Started* page and add it as an env var manually — connecting the store does not inject it. The upload endpoint detects it and stores images in Blob instead of the local filesystem (which is ephemeral on Vercel).
 4. Deploy. `postinstall` runs `prisma generate`; run step 1 again whenever you add migrations.
 
 Avoid seeding demo users in production — the seed passwords are public in this repo.
@@ -98,7 +98,7 @@ Avoid seeding demo users in production — the seed passwords are public in this
 
 ```
 src/
-├── app/               # Routes: (public), (auth), dashboard/, admin/, pedidos/, api/
+├── app/               # Routes: (public), (auth), dashboard/, admin/, orders/, api/
 ├── components/        # ui/, layout/, auth/, events/, seats/, cart/, orders/, dashboard/, admin/
 ├── lib/               # auth, prisma client, validations (Zod), orders, utils
 ├── stores/            # Zustand cart store
