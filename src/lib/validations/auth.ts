@@ -38,5 +38,17 @@ export const changePasswordSchema = z.object({
     .max(72, "La contraseña es demasiado larga"),
 });
 
+export const updateProfileSchema = z.object({
+  phone: z
+    .string()
+    .trim()
+    .regex(
+      /^\+?[\d\s-]{7,15}$/,
+      "Ingresá un número válido con código de país (ej: +591 70000000)",
+    )
+    .or(z.literal(""))
+    .transform((value) => (value === "" ? null : value)),
+});
+
 export type LoginInput = z.infer<typeof loginSchema>;
 export type RegisterInput = z.input<typeof registerSchema>;

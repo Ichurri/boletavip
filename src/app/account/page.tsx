@@ -10,6 +10,7 @@ import {
   CardTitle,
 } from "@/components/ui/Card";
 import { ChangePasswordForm } from "@/components/account/ChangePasswordForm";
+import { ProfileForm } from "@/components/account/ProfileForm";
 
 export const metadata: Metadata = {
   title: "Mi cuenta",
@@ -31,6 +32,7 @@ export default async function AccountPage() {
       name: true,
       email: true,
       role: true,
+      phone: true,
       emailVerified: true,
       password: true,
       createdAt: true,
@@ -73,6 +75,17 @@ export default async function AccountPage() {
           </div>
         </CardContent>
       </Card>
+
+      {user.role !== "BUYER" && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Contacto para compradores</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ProfileForm initialPhone={user.phone} />
+          </CardContent>
+        </Card>
+      )}
 
       <Card>
         <CardHeader>

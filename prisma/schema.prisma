@@ -52,6 +52,8 @@ model User {
   emailVerified DateTime?
   password      String?
   image         String?
+  /// Shown to buyers on the organizer's events (WhatsApp/phone, with country code)
+  phone         String?
   role          Role      @default(BUYER)
   suspended     Boolean   @default(false)
   createdAt     DateTime  @default(now())
