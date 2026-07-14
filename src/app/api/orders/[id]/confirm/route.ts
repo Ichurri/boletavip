@@ -9,6 +9,8 @@ import type { TicketStatus } from "@/generated/prisma/enums";
 
 type RouteContext = { params: Promise<{ id: string }> };
 
+class ConfirmError extends Error {}
+
 export async function POST(request: Request, { params }: RouteContext) {
   const { session, error } = await requireRole("ORGANIZER", "ADMIN");
   if (error) return error;
@@ -75,17 +77,32 @@ export async function POST(request: Request, { params }: RouteContext) {
     .map((item) => item.seatId)
     .filter((seatId): seatId is string => seatId !== null);
 
-  await prisma.$transaction([
-    prisma.order.update({
-      where: { id: order.id },
-      data: { status: "CONFIRMED" },
-    }),
-    prisma.seat.updateMany({
-      where: { id: { in: seatIds } },
-      data: { status: "SOLD" },
-    }),
-    prisma.ticket.createMany({ data: ticketsData }),
-  ]);
+  try {
+    await prisma.$transaction(async (tx) => {
+      // Atomic claim: only one concurrent confirm can flip the status, so a
+      // double click (or organizer + admin at once) can't issue tickets twice.
+      const claimed = await tx.order.updateMany({
+        where: {
+          id: order.id,
+          status: { in: ["PENDING_PAYMENT", "PAYMENT_SUBMITTED"] },
+        },
+        data: { status: "CONFIRMED" },
+      });
+      if (claimed.count === 0) {
+        throw new ConfirmError("Este pedido ya no está pendiente de pago");
+      }
+      await tx.seat.updateMany({
+        where: { id: { in: seatIds } },
+        data: { status: "SOLD" },
+      });
+      await tx.ticket.createMany({ data: ticketsData });
+    });
+  } catch (err) {
+    if (err instanceof ConfirmError) {
+      return NextResponse.json({ error: err.message }, { status: 409 });
+    }
+    throw err;
+  }
 
   const origin = new URL(request.url).origin;
   const { subject, html } = orderConfirmedEmail(
