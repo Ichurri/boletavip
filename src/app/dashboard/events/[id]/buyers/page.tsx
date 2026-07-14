@@ -74,12 +74,20 @@ export default async function EventBuyersPage({
             {event.title} · {formatDate(event.date)} · {event.time} hrs
           </p>
         </div>
-        <Link
-          href="/dashboard/events"
-          className={buttonVariants({ variant: "ghost", size: "sm" })}
-        >
-          ← Mis eventos
-        </Link>
+        <div className="flex flex-wrap items-center gap-2">
+          <a
+            href={`/api/events/${event.id}/buyers/export`}
+            className={buttonVariants({ variant: "outline", size: "sm" })}
+          >
+            Exportar CSV
+          </a>
+          <Link
+            href="/dashboard/events"
+            className={buttonVariants({ variant: "ghost", size: "sm" })}
+          >
+            ← Mis eventos
+          </Link>
+        </div>
       </div>
 
       <div className="grid grid-cols-3 gap-4">
