@@ -16,6 +16,7 @@
 pnpm dev          # dev server (local Postgres, uploads to /public/uploads)
 pnpm build        # prisma generate && next build  (do NOT remove the generate step)
 pnpm test         # Vitest unit tests
+pnpm test:integration  # integration tests — needs DATABASE_URL pointed at a *_test DB (boletavip_test)
 pnpm typecheck    # tsc --noEmit
 pnpm lint         # eslint
 pnpm db:migrate   # prisma migrate dev (local DB)
@@ -51,7 +52,12 @@ Local DB: PostgreSQL 17, db `boletavip`, role `ichurri` / `boletavip_dev`. Seed 
 - Event lifecycle: DRAFT → submit (requires `paymentQrImage`) → PENDING → admin approves → APPROVED (public) / rejects → back to DRAFT. Approved events can only be cancelled, not edited/deleted.
 - Venues own zones; a zone is either numbered (rows × seatsPerRow, `Seat` rows generated, `Zone.rows != null`) or free-capacity. Venue structure is locked once it has sales.
 - Orders: created in a **serializable transaction** — seats flip AVAILABLE→RESERVED atomically, free-zone capacity checked against PENDING_PAYMENT/PAYMENT_SUBMITTED/CONFIRMED orders. 15-min expiry applies only to PENDING_PAYMENT. **No cron**: `expireStaleOrders()` (`src/lib/orders.ts`) runs lazily before order reads/writes and releases seats.
-- Order flow: `PENDING_PAYMENT` → buyer uploads bank receipt (`POST /api/orders/[id]/proof`, image ≤5 MB) → `PAYMENT_SUBMITTED` ("En revisión", no longer expires; proof replaceable) → organizer verifies (confirm) or rejects (cancel with optional `rejectionReason`, seats released, buyer emailed). Buyers may self-cancel only PENDING_PAYMENT.
+- Order flow: `PENDING_PAYMENT` → buyer uploads bank receipt (`POST /api/orders/[id]/proof`, image ≤5 MB) → `PAYMENT_SUBMITTED` ("En revisión", no longer expires; proof replaceable) → organizer verifies (confirm) or rejects (cancel with optional `rejectionReason`, seats released, buyer emailed). Buyers may self-cancel only PENDING_PAYMENT. Organizer is emailed on the first proof submission. Confirm claims the status atomically inside the transaction (concurrent confirms → one 409). Confirm/cancel responses include emailSent for the dashboard warning.
+- Buyers can hold at most 3 PENDING_PAYMENT orders (429 beyond that). Verification/reset emails have a 60 s cooldown (silent for /forgot to avoid probing).
+- Payment proofs are private: stored via Vercel Blob access:"private" (local: /private-uploads, gitignored) and served through GET /api/orders/[id]/proof (buyer/organizer/admin only); legacy public URLs still redirect. Proof images render with unoptimized (the image optimizer drops auth cookies).
+- Door check-in without accounts: Event.scanCode (rotatable via POST /api/events/[id]/scan-code) unlocks public /scan/[code]; /api/tickets/verify accepts scanCode as an alternative credential scoped to that event.
+- Organizers can set a contact phone (/account → POST /api/account/profile); shown on event and order pages as a wa.me link. Buyers page has CSV export (GET /api/events/[id]/buyers/export). Tickets downloadable as PDF (GET /api/tickets/[id]/pdf, pdf-lib, WinAnsi-sanitized).
+- Static pages: /help, /terms, /privacy (linked from the footer).
 - **Purchase requires a verified email** (403 otherwise). Verification: hashed token in `VerificationToken` (24 h), link `/verify-email?token=`, resend via `POST /api/verify-email/resend`, banner in root layout. Google sign-ins auto-verified (`events.signIn`); seed users verified; migration grandfathered existing users.
 - **Passwords**: forgot/reset via `/forgot-password` → `POST /api/password/forgot` (always generic 200; skips Google-only accounts) → emailed link `/reset-password?token=` (1 h TTL, single-use, identifier prefixed `password-reset:` in `VerificationToken`) → `POST /api/password/reset` (also sets `emailVerified` — the link proves ownership). Logged-in change at `/account` (`POST /api/password/change`, requires current password; 409 for Google-only accounts). `/account` is session-gated in the proxy. JWT sessions are NOT invalidated on reset (known limitation).
 - **Sales cutoff**: `PlatformSettings` singleton (`orderCutoffHours`, default 2, admin-editable on `/admin`). Enforced in `POST /api/orders` via `salesAreClosed()` (`src/lib/utils.ts`, event start = noon-UTC date + `time` at fixed UTC-4); event page shows "Venta cerrada".

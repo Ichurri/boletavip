@@ -1,6 +1,6 @@
 # Mapa de vistas de Üticket
 
-Resumen de todas las pantallas de la aplicación: quién puede verlas, qué se muestra y qué se puede hacer en cada una. Última actualización: 2026-07-09.
+Resumen de todas las pantallas de la aplicación: quién puede verlas, qué se muestra y qué se puede hacer en cada una. Última actualización: 2026-07-14.
 
 > Nota: la interfaz está en español (voseo), pero las rutas están en inglés. Las URLs viejas en español (`/eventos`, `/pedidos`, etc.) siguen funcionando por redirecciones permanentes.
 
@@ -74,6 +74,16 @@ Hay tres roles de usuario, más el visitante anónimo:
 - Ajustar cantidades por zona (hasta el máximo permitido) o vaciar el carrito.
 - Botón **Continuar al pago**: **requiere sesión y correo verificado** (si no hay sesión, redirige a login y vuelve). Al confirmar se crea el pedido con reserva de asientos por 15 minutos y se va a la pantalla de pago.
 
+### Control de puerta — `/scan/[code]`
+**Quién:** todos (pública por diseño — el código de la URL es la credencial; solo válida para eventos aprobados).
+**Qué muestra:** título, fecha/hora del evento y el mismo escáner de QR que usa el organizador en `/dashboard/verify`.
+**Qué se puede hacer:** apuntar al QR de cada boleto sin necesidad de cuenta; el resultado (válido / ya utilizado / cancelado / de otro evento) aparece igual que en el panel de organizador. El organizador genera y comparte este enlace desde la vista de **Compradores** de su evento; si se filtra, puede regenerarlo para invalidar el anterior.
+
+### Páginas informativas — `/help` · `/terms` · `/privacy`
+**Quién:** todos.
+**Qué muestra:** **Ayuda** (preguntas frecuentes sobre compra, pago, boletos y cancelaciones), **Términos y condiciones** y **Política de privacidad**. Contenido estático.
+**Qué se puede hacer:** solo lectura; enlazadas desde el pie de página en todas las pantallas.
+
 ### Páginas de sistema
 - **No encontrado** (`not-found`): mensaje amable con accesos a inicio y catálogo. La ven todos cuando una URL no existe o un evento no está disponible.
 - **Error** (`error`): pantalla "Algo salió mal" con botón *Reintentar*, ante un error inesperado.
@@ -126,7 +136,7 @@ Hay tres roles de usuario, más el visitante anónimo:
 **Qué muestra y permite, según el estado:**
 - **Esperando pago:** QR de pago del organizador, monto exacto, cuenta regresiva de 15 minutos, instrucciones y **formulario para subir el comprobante**. También se puede cancelar el pedido.
 - **En revisión:** el comprobante enviado (ampliable), fecha de envío, y la opción de **reemplazar el comprobante** mientras el organizador no lo revise.
-- **Confirmado:** mensaje de éxito y los **boletos con QR** (una tarjeta por boleto, con su código).
+- **Confirmado:** mensaje de éxito y los **boletos con QR** (una tarjeta por boleto, con su código); cada boleto se puede **descargar como PDF** (con QR, evento, fecha y datos del comprador) o solo el QR como PNG.
 - **Cancelado:** motivo del rechazo (si lo hubo) y acceso para volver al evento e intentar de nuevo.
 
 ---
@@ -162,6 +172,13 @@ Hay tres roles de usuario, más el visitante anónimo:
 **Qué se puede hacer:**
 - En *por revisar*: ver la miniatura del comprobante (se **amplía en la misma página** al tocarla) y **Verificar pago** (emite los boletos + correo al comprador) o **Rechazar** (con motivo opcional que se envía por correo, libera los asientos).
 - Los pedidos sin comprobante también pueden confirmarse (ej. pago en efectivo).
+
+### Compradores de un evento — `/dashboard/events/[id]/buyers`
+**Quién:** el organizador dueño del evento (o admin).
+**Qué muestra:** la lista de pedidos de ese evento (comprador, correo, estado, detalle de ítems, boletos, monto y fecha), con el comprobante ampliable.
+**Qué se puede hacer:**
+- **Exportar CSV** con todos los pedidos, para llevarlo a una planilla.
+- **Acceso para puerta**: generar (o regenerar) el enlace público `/scan/[code]` para que el personal de la puerta escanee boletos sin necesidad de cuenta; solo aparece si el evento está aprobado.
 
 ### Verificar boletos — `/dashboard/verify`
 **Qué muestra:** un escáner de QR con la cámara del dispositivo.
