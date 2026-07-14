@@ -40,7 +40,7 @@ Two concurrent confirms (double click, organizer + admin) both pass the status c
 - Modify: `src/app/api/orders/[id]/confirm/route.ts`
 - (Concurrency covered by integration test in Task 19 — this task verifies manually.)
 
-- [ ] **Step 1: Rewrite the route with the transactional claim**
+- [x] **Step 1: Rewrite the route with the transactional claim**
 
 Replace the entire contents of `src/app/api/orders/[id]/confirm/route.ts` with:
 
@@ -164,12 +164,12 @@ export async function POST(request: Request, { params }: RouteContext) {
 }
 ```
 
-- [ ] **Step 2: Verify the suite still passes**
+- [x] **Step 2: Verify the suite still passes**
 
 Run: `pnpm test && pnpm typecheck`
 Expected: all tests pass, no type errors.
 
-- [ ] **Step 3: Manual double-fire check against the dev server**
+- [x] **Step 3: Manual double-fire check against the dev server**
 
 Start the dev server (`nohup pnpm dev > /tmp/uticket-dev.log 2>&1 &` if backgrounding). Log in as `organizador@boletavip.com` / `Password123`, find (or create as `comprador@boletavip.com`) an order in PAYMENT_SUBMITTED, then fire two confirms at once from a terminal (reuse the session cookie from the browser dev tools):
 
@@ -183,7 +183,7 @@ wait
 
 Expected: one `200`, one `409`; ticket count in Prisma Studio equals the order quantity (not double).
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src/app/api/orders/[id]/confirm/route.ts
@@ -198,7 +198,7 @@ git commit -m "fix: claim order status atomically before issuing tickets"
 - Modify: `src/lib/email.ts`
 - Test: `src/lib/email.test.ts` (create)
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 Create `src/lib/email.test.ts`:
 
@@ -260,12 +260,12 @@ describe("eventPendingReviewEmail", () => {
 });
 ```
 
-- [ ] **Step 2: Run tests to verify they fail**
+- [x] **Step 2: Run tests to verify they fail**
 
 Run: `pnpm test -- src/lib/email.test.ts`
 Expected: FAIL — `proofSubmittedEmail` / `eventPendingReviewEmail` are not exported.
 
-- [ ] **Step 3: Add the templates**
+- [x] **Step 3: Add the templates**
 
 In `src/lib/email.ts`, append after the existing `orderRejectedEmail` function:
 
@@ -319,12 +319,12 @@ export function eventPendingReviewEmail(
 }
 ```
 
-- [ ] **Step 4: Run tests to verify they pass**
+- [x] **Step 4: Run tests to verify they pass**
 
 Run: `pnpm test -- src/lib/email.test.ts`
 Expected: PASS (all 4 tests).
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/lib/email.ts src/lib/email.test.ts
@@ -338,7 +338,7 @@ git commit -m "feat: add proof-submitted and event-pending email templates"
 **Files:**
 - Modify: `src/app/api/orders/[id]/proof/route.ts`
 
-- [ ] **Step 1: Widen the order query and send the email**
+- [x] **Step 1: Widen the order query and send the email**
 
 In `src/app/api/orders/[id]/proof/route.ts`:
 
@@ -405,11 +405,11 @@ with:
   return NextResponse.json({ ok: true, url }, { status: 201 });
 ```
 
-- [ ] **Step 2: Verify manually in dev**
+- [x] **Step 2: Verify manually in dev**
 
 With the dev server running (no email keys locally, so the send logs to console): as `comprador@boletavip.com`, create an order and upload any image as proof. Check `/tmp/uticket-dev.log` for a line `[email:dev] to=organizador@boletavip.com subject="Nuevo comprobante de pago para ..."`. Upload a **replacement** proof and confirm no second email is logged.
 
-- [ ] **Step 3: Run checks and commit**
+- [x] **Step 3: Run checks and commit**
 
 Run: `pnpm test && pnpm typecheck`
 Expected: PASS.
@@ -426,7 +426,7 @@ git commit -m "feat: email the organizer when a payment proof arrives"
 **Files:**
 - Modify: `src/app/api/events/[id]/status/route.ts`
 
-- [ ] **Step 1: Send the email in the submit branch**
+- [x] **Step 1: Send the email in the submit branch**
 
 In `src/app/api/events/[id]/status/route.ts`, add to the imports:
 
@@ -469,11 +469,11 @@ with:
     return NextResponse.json({ event: updated });
 ```
 
-- [ ] **Step 2: Verify manually in dev**
+- [x] **Step 2: Verify manually in dev**
 
 As `organizador@boletavip.com`, submit a DRAFT event to review. Check the dev log for `[email:dev] to=admin@boletavip.com subject="Evento pendiente de revisión: ..."`.
 
-- [ ] **Step 3: Run checks and commit**
+- [x] **Step 3: Run checks and commit**
 
 Run: `pnpm test && pnpm typecheck`
 Expected: PASS.
@@ -492,7 +492,7 @@ Expired-but-unswept `PENDING_PAYMENT` orders keep inflating zone counts and hold
 **Files:**
 - Modify: `src/app/(public)/events/[id]/page.tsx`
 
-- [ ] **Step 1: Call the sweeper before reading availability**
+- [x] **Step 1: Call the sweeper before reading availability**
 
 Add to the imports in `src/app/(public)/events/[id]/page.tsx`:
 
@@ -517,11 +517,11 @@ export default async function EventDetailPage({ params }: PageProps) {
   const event = await getApprovedEvent(id);
 ```
 
-- [ ] **Step 2: Verify manually**
+- [x] **Step 2: Verify manually**
 
 Create an order as `comprador@boletavip.com` (note the zone count drop on the event page), then in `pnpm db:studio` set that order's `expiresAt` to the past. Reload `/events/<id>`: the count must be restored and the seats AVAILABLE again without touching any other page.
 
-- [ ] **Step 3: Run checks and commit**
+- [x] **Step 3: Run checks and commit**
 
 Run: `pnpm test && pnpm typecheck && pnpm lint`
 Expected: PASS.
@@ -531,7 +531,7 @@ git add "src/app/(public)/events/[id]/page.tsx"
 git commit -m "fix: expire stale orders before rendering public availability"
 ```
 
-- [ ] **Step 4: Phase 1 gate**
+- [x] **Step 4: Phase 1 gate**
 
 Run: `pnpm test && pnpm typecheck && pnpm lint && pnpm build`
 Expected: all green. **Stop and get user approval before Phase 2.**
@@ -547,7 +547,7 @@ Expected: all green. **Stop and get user approval before Phase 2.**
 - Modify: `src/app/api/orders/route.ts`
 - (Behavior covered by integration test in Task 19.)
 
-- [ ] **Step 1: Add the constant**
+- [x] **Step 1: Add the constant**
 
 Append to `src/lib/constants.ts`:
 
@@ -557,7 +557,7 @@ Append to `src/lib/constants.ts`:
 export const MAX_PENDING_ORDERS_PER_BUYER = 3;
 ```
 
-- [ ] **Step 2: Enforce it in the order route**
+- [x] **Step 2: Enforce it in the order route**
 
 In `src/app/api/orders/route.ts`, add to the imports:
 
@@ -581,11 +581,11 @@ Immediately after the `await expireStaleOrders();` line, insert:
   }
 ```
 
-- [ ] **Step 3: Verify manually**
+- [x] **Step 3: Verify manually**
 
 As `comprador@boletavip.com`, create 3 orders without paying, then attempt a 4th: the UI must show the error (the checkout surfaces `error` from the response). Cancel one and confirm the 4th now succeeds.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src/lib/constants.ts src/app/api/orders/route.ts
@@ -604,7 +604,7 @@ DB-backed (no new infra): `VerificationToken` has no `createdAt`, but `expires �
 - Modify: `src/app/api/password/forgot/route.ts`
 - Test: `src/lib/verification.test.ts` (create)
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Create `src/lib/verification.test.ts`:
 
@@ -634,12 +634,12 @@ describe("isWithinCooldown", () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `pnpm test -- src/lib/verification.test.ts`
 Expected: FAIL — `isWithinCooldown` is not exported.
 
-- [ ] **Step 3: Implement the helpers**
+- [x] **Step 3: Implement the helpers**
 
 In `src/lib/verification.ts`, add after the `hashToken` function:
 
@@ -673,12 +673,12 @@ export function hasRecentPasswordResetToken(email: string) {
 }
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `pnpm test -- src/lib/verification.test.ts`
 Expected: PASS.
 
-- [ ] **Step 5: Apply the cooldown in the resend route (explicit 429)**
+- [x] **Step 5: Apply the cooldown in the resend route (explicit 429)**
 
 In `src/app/api/verify-email/resend/route.ts`, change the import:
 
@@ -706,7 +706,7 @@ and insert before the `await sendVerificationEmail(` call:
   }
 ```
 
-- [ ] **Step 6: Apply the cooldown in the forgot route (silent, keeps the anti-probing 200)**
+- [x] **Step 6: Apply the cooldown in the forgot route (silent, keeps the anti-probing 200)**
 
 In `src/app/api/password/forgot/route.ts`, change the import:
 
@@ -746,11 +746,11 @@ to:
   }
 ```
 
-- [ ] **Step 7: Verify manually**
+- [x] **Step 7: Verify manually**
 
 In dev: request a password reset twice within a minute for `comprador@boletavip.com` — only one `[email:dev]` line appears, both responses are 200. Hit `POST /api/verify-email/resend` twice for an unverified user — second response is 429.
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add src/lib/verification.ts src/lib/verification.test.ts src/app/api/verify-email/resend/route.ts src/app/api/password/forgot/route.ts
@@ -764,7 +764,7 @@ git commit -m "feat: 60s cooldown on verification and reset emails"
 **Files:**
 - Modify: `next.config.ts`
 
-- [ ] **Step 1: Add the headers**
+- [x] **Step 1: Add the headers**
 
 In `next.config.ts`, inside the `nextConfig` object (after the `experimental` block, before `redirects`), add:
 
@@ -788,19 +788,19 @@ In `next.config.ts`, inside the `nextConfig` object (after the `experimental` bl
   },
 ```
 
-- [ ] **Step 2: Verify**
+- [x] **Step 2: Verify**
 
 Run: `curl -sI http://localhost:3000/events | grep -iE "x-frame|nosniff|referrer|permissions"`
 Expected: all four headers present. Then open `/dashboard/verify` in the browser and confirm the camera still starts.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add next.config.ts
 git commit -m "feat: baseline security headers"
 ```
 
-- [ ] **Step 4: Phase 2 gate**
+- [x] **Step 4: Phase 2 gate**
 
 Run: `pnpm test && pnpm typecheck && pnpm lint && pnpm build`
 Expected: all green. **Stop and get user approval before Phase 3.**
@@ -821,7 +821,7 @@ Proofs are bank receipts (names, account numbers). Today they're public-by-URL. 
 - Modify: `src/app/dashboard/events/[id]/buyers/page.tsx`
 - Modify: `.gitignore`
 
-- [ ] **Step 1: Gitignore the local private dir**
+- [x] **Step 1: Gitignore the local private dir**
 
 In `.gitignore`, after the `# user-uploaded images` block, add:
 
@@ -830,7 +830,7 @@ In `.gitignore`, after the `# user-uploaded images` block, add:
 /private-uploads/
 ```
 
-- [ ] **Step 2: Rewrite the proof route (private storage + GET)**
+- [x] **Step 2: Rewrite the proof route (private storage + GET)**
 
 Replace the entire contents of `src/app/api/orders/[id]/proof/route.ts` with:
 
@@ -1040,7 +1040,7 @@ export async function GET(request: Request, { params }: RouteContext) {
 
 Note: `UploadProofForm` never reads `data.url` from the response (verified 2026-07-14 — it only parses the body for error messages), so dropping `url` from the POST response is safe.
 
-- [ ] **Step 3: Make ProofImage auth-safe**
+- [x] **Step 3: Make ProofImage auth-safe**
 
 Next's image optimizer fetches server-side **without cookies**, so the authed proof URL must bypass it. In `src/components/dashboard/ProofImage.tsx`, add the `unoptimized` prop to **all three** `<Image ... />` elements (thumbnail, overlay, inline), e.g.:
 
@@ -1060,7 +1060,7 @@ Next's image optimizer fetches server-side **without cookies**, so the authed pr
 
 (Repeat `unoptimized` on the two expanded `<Image>`s below it.)
 
-- [ ] **Step 4: Point every consumer at the authed route**
+- [x] **Step 4: Point every consumer at the authed route**
 
 All three pages currently pass `order.paymentProof` directly; switch them to the proxy URL (the presence check on `order.paymentProof` stays):
 
@@ -1129,11 +1129,11 @@ All three pages currently pass `order.paymentProof` directly; switch them to the
               )}
 ```
 
-- [ ] **Step 5: Verify the full loop in dev**
+- [x] **Step 5: Verify the full loop in dev**
 
 Upload a proof as the buyer; confirm the file lands in `private-uploads/proofs/` (NOT `public/uploads/`), the buyer's order page shows it, the organizer's `/dashboard/orders` shows it, and an **incognito/unauthenticated** `curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/api/orders/<id>/proof` returns `401`. Also verify a pre-existing order with a legacy `/uploads/...` proof still renders (redirect branch).
 
-- [ ] **Step 6: Run checks and commit**
+- [x] **Step 6: Run checks and commit**
 
 Run: `pnpm test && pnpm typecheck && pnpm lint`
 Expected: PASS.
@@ -1143,7 +1143,7 @@ git add .gitignore src/app/api/orders/[id]/proof/route.ts src/components/dashboa
 git commit -m "feat: store payment proofs privately behind an authed route"
 ```
 
-- [ ] **Step 7: Phase 3 gate**
+- [x] **Step 7: Phase 3 gate**
 
 Run: `pnpm test && pnpm typecheck && pnpm lint && pnpm build`
 Expected: all green. **Production note for the deploy that ships this:** verify the Blob store accepts `access: "private"` puts (`@vercel/blob` ≥ 2.x is already installed; the store was created as Public for event images — public event images and private proofs coexist per-blob). Test one proof upload in prod right after deploying. **Stop and get user approval before Phase 4.**
@@ -1162,7 +1162,7 @@ Expected: all green. **Production note for the deploy that ships this:** verify 
 - Modify: `src/app/account/page.tsx`
 - Test: `src/lib/validations/profile.test.ts` (create)
 
-- [ ] **Step 1: Add the column and migrate**
+- [x] **Step 1: Add the column and migrate**
 
 In `prisma/schema.prisma`, in `model User`, after the `image String?` line add:
 
@@ -1174,7 +1174,7 @@ In `prisma/schema.prisma`, in `model User`, after the `image String?` line add:
 Run: `pnpm db:migrate --name user_phone`
 Expected: migration created and applied. Then `pnpm prisma generate` and restart the dev server.
 
-- [ ] **Step 2: Write the failing validation test**
+- [x] **Step 2: Write the failing validation test**
 
 Create `src/lib/validations/profile.test.ts`:
 
@@ -1206,7 +1206,7 @@ describe("updateProfileSchema", () => {
 Run: `pnpm test -- src/lib/validations/profile.test.ts`
 Expected: FAIL — `updateProfileSchema` is not exported.
 
-- [ ] **Step 3: Add the schema**
+- [x] **Step 3: Add the schema**
 
 Append to `src/lib/validations/auth.ts` (before the type exports at the bottom):
 
@@ -1227,7 +1227,7 @@ export const updateProfileSchema = z.object({
 Run: `pnpm test -- src/lib/validations/profile.test.ts`
 Expected: PASS.
 
-- [ ] **Step 4: Create the API route**
+- [x] **Step 4: Create the API route**
 
 Create `src/app/api/account/profile/route.ts`:
 
@@ -1258,7 +1258,7 @@ export async function POST(request: Request) {
 }
 ```
 
-- [ ] **Step 5: Create the form component**
+- [x] **Step 5: Create the form component**
 
 Create `src/components/account/ProfileForm.tsx`:
 
@@ -1329,7 +1329,7 @@ export function ProfileForm({ initialPhone }: { initialPhone: string | null }) {
 }
 ```
 
-- [ ] **Step 6: Render it on the account page (organizers/admins only)**
+- [x] **Step 6: Render it on the account page (organizers/admins only)**
 
 In `src/app/account/page.tsx`:
 
@@ -1356,7 +1356,7 @@ Insert a new card between the "Datos de la cuenta" card and the "Cambiar contras
       )}
 ```
 
-- [ ] **Step 7: Verify and commit**
+- [x] **Step 7: Verify and commit**
 
 In dev, as `organizador@boletavip.com`, open `/account`, save `+591 70000000`, reload — value persists. As `comprador@boletavip.com` the card must not appear.
 
@@ -1376,7 +1376,7 @@ git commit -m "feat: organizer contact phone on the account page"
 - Modify: `src/app/(public)/events/[id]/page.tsx`
 - Modify: `src/app/orders/[id]/page.tsx`
 
-- [ ] **Step 1: Event page — fetch and render the phone**
+- [x] **Step 1: Event page — fetch and render the phone**
 
 In `src/app/(public)/events/[id]/page.tsx`:
 
@@ -1411,7 +1411,7 @@ In the "Detalles" card, after the 📍 venue block, add:
               )}
 ```
 
-- [ ] **Step 2: Order page — fetch and render the phone**
+- [x] **Step 2: Order page — fetch and render the phone**
 
 In `src/app/orders/[id]/page.tsx`:
 
@@ -1468,7 +1468,7 @@ Render `{organizerContact}` in three spots:
 2. In the PAYMENT_SUBMITTED "Comprobante en revisión" card, after the intro `<p>…no hace falta que te quedes en esta página.</p>`.
 3. In the CANCELLED block, after the rejection-reason `<p>` and before the "Volver al evento" link.
 
-- [ ] **Step 3: Verify and commit**
+- [x] **Step 3: Verify and commit**
 
 In dev, with the organizer's phone saved: the event page shows 📞 with a `wa.me` link; an order's pending/review/cancelled views show the contact line; with the phone cleared nothing renders.
 
@@ -1490,7 +1490,7 @@ git commit -m "feat: show organizer contact on event and order pages"
 - Create: `src/app/(public)/privacy/page.tsx`
 - Modify: `src/components/layout/Footer.tsx`
 
-- [ ] **Step 1: Create the help page**
+- [x] **Step 1: Create the help page**
 
 Create `src/app/(public)/help/page.tsx`:
 
@@ -1560,7 +1560,7 @@ export default function HelpPage() {
 }
 ```
 
-- [ ] **Step 2: Create the terms page**
+- [x] **Step 2: Create the terms page**
 
 Create `src/app/(public)/terms/page.tsx`:
 
@@ -1624,7 +1624,7 @@ export default function TermsPage() {
 }
 ```
 
-- [ ] **Step 3: Create the privacy page**
+- [x] **Step 3: Create the privacy page**
 
 Create `src/app/(public)/privacy/page.tsx`:
 
@@ -1676,7 +1676,7 @@ export default function PrivacyPage() {
 }
 ```
 
-- [ ] **Step 4: Link them from the footer**
+- [x] **Step 4: Link them from the footer**
 
 Replace the entire contents of `src/components/layout/Footer.tsx` with:
 
@@ -1712,7 +1712,7 @@ export function Footer() {
 }
 ```
 
-- [ ] **Step 5: Verify and commit**
+- [x] **Step 5: Verify and commit**
 
 Open `/help`, `/terms`, `/privacy` in dev (logged out) — all render with the shared navbar/footer; footer links work in light and dark mode.
 
@@ -1732,7 +1732,7 @@ git commit -m "feat: help, terms and privacy pages with footer links"
 - Modify: `src/components/events/EventFilters.tsx`
 - Modify: `src/app/(public)/events/page.tsx`
 
-- [ ] **Step 1: Add the `q` filter to the component**
+- [x] **Step 1: Add the `q` filter to the component**
 
 In `src/components/events/EventFilters.tsx`:
 
@@ -1791,7 +1791,7 @@ Change the wrapper grid from `lg:grid-cols-5` to `lg:grid-cols-6` and insert thi
       </div>
 ```
 
-- [ ] **Step 2: Apply it in the server query**
+- [x] **Step 2: Apply it in the server query**
 
 In `src/app/(public)/events/page.tsx`, extend the `where` object:
 
@@ -1810,7 +1810,7 @@ In `src/app/(public)/events/page.tsx`, extend the `where` object:
   };
 ```
 
-- [ ] **Step 3: Verify and commit**
+- [x] **Step 3: Verify and commit**
 
 In dev, `/events?q=<partial seed event title>` returns matches case-insensitively; combining with a category filter works; "Limpiar" clears the box.
 
@@ -1822,7 +1822,7 @@ git add src/components/events/EventFilters.tsx "src/app/(public)/events/page.tsx
 git commit -m "feat: search events by title"
 ```
 
-- [ ] **Step 4: Phase 4 gate**
+- [x] **Step 4: Phase 4 gate**
 
 Run: `pnpm test && pnpm typecheck && pnpm lint && pnpm build`
 Expected: all green. **Stop and get user approval before Phase 5.**
@@ -1841,7 +1841,7 @@ Extract the item-summary formatting used by the dashboard (and soon the CSV expo
 - Modify: `src/app/dashboard/orders/page.tsx`
 - Test: `src/lib/csv.test.ts` (create)
 
-- [ ] **Step 1: Write the failing CSV test**
+- [x] **Step 1: Write the failing CSV test**
 
 Create `src/lib/csv.test.ts`:
 
@@ -1875,7 +1875,7 @@ describe("csvLine", () => {
 Run: `pnpm test -- src/lib/csv.test.ts`
 Expected: FAIL — module `@/lib/csv` not found.
 
-- [ ] **Step 2: Implement `src/lib/csv.ts`**
+- [x] **Step 2: Implement `src/lib/csv.ts`**
 
 ```ts
 /** RFC 4180: quote a field when it contains a delimiter, quote or newline. */
@@ -1892,7 +1892,7 @@ export function csvLine(fields: (string | number)[]) {
 Run: `pnpm test -- src/lib/csv.test.ts`
 Expected: PASS.
 
-- [ ] **Step 3: Create `src/lib/order-items.ts`**
+- [x] **Step 3: Create `src/lib/order-items.ts`**
 
 ```ts
 export interface OrderItemLike {
@@ -1914,14 +1914,14 @@ export function orderItemsSummary(items: OrderItemLike[]) {
 }
 ```
 
-- [ ] **Step 4: Use it in the dashboard orders page**
+- [x] **Step 4: Use it in the dashboard orders page**
 
 In `src/app/dashboard/orders/page.tsx`:
 - Delete the local `itemsSummary` function (lines defining `function itemsSummary(...)`).
 - Add the import: `import { orderItemsSummary } from "@/lib/order-items";`
 - Replace all three `itemsSummary(order.items)` call sites with `orderItemsSummary(order.items)`.
 
-- [ ] **Step 5: Run checks and commit**
+- [x] **Step 5: Run checks and commit**
 
 Run: `pnpm test && pnpm typecheck && pnpm lint`
 Expected: PASS.
@@ -1939,7 +1939,7 @@ git commit -m "refactor: shared order-item labels and CSV helpers"
 - Create: `src/app/api/events/[id]/buyers/export/route.ts`
 - Modify: `src/app/dashboard/events/[id]/buyers/page.tsx`
 
-- [ ] **Step 1: Create the export route**
+- [x] **Step 1: Create the export route**
 
 Create `src/app/api/events/[id]/buyers/export/route.ts`:
 
@@ -2016,7 +2016,7 @@ export async function GET(_request: Request, { params }: RouteContext) {
 }
 ```
 
-- [ ] **Step 2: Add the download button**
+- [x] **Step 2: Add the download button**
 
 In `src/app/dashboard/events/[id]/buyers/page.tsx`, replace the header's back link:
 
@@ -2048,7 +2048,7 @@ with:
         </div>
 ```
 
-- [ ] **Step 3: Verify and commit**
+- [x] **Step 3: Verify and commit**
 
 In dev, as the organizer, download the CSV from a seeded event's buyers page; open it and check headers, item summaries with commas are quoted, and totals have 2 decimals. Confirm another organizer's session gets a 404 from the raw URL.
 
@@ -2077,7 +2077,7 @@ Per-event bearer code: `Event.scanCode` unlocks a public `/scan/[code]` page who
 - Modify: `src/app/dashboard/events/[id]/buyers/page.tsx`
 - (Scan-code verify path covered by integration test in Task 19.)
 
-- [ ] **Step 1: Add the column and migrate**
+- [x] **Step 1: Add the column and migrate**
 
 In `prisma/schema.prisma`, in `model Event`, after the `paymentQrImage String?` line add:
 
@@ -2088,7 +2088,7 @@ In `prisma/schema.prisma`, in `model Event`, after the `paymentQrImage String?` 
 
 Run: `pnpm db:migrate --name event_scan_code`, then `pnpm prisma generate` and restart the dev server.
 
-- [ ] **Step 2: Create the scan-code management route**
+- [x] **Step 2: Create the scan-code management route**
 
 Create `src/app/api/events/[id]/scan-code/route.ts`:
 
@@ -2144,7 +2144,7 @@ export async function POST(request: Request, { params }: RouteContext) {
 }
 ```
 
-- [ ] **Step 3: Accept the scan code in the verify schema**
+- [x] **Step 3: Accept the scan code in the verify schema**
 
 Replace the schema in `src/lib/validations/ticket.ts`:
 
@@ -2159,7 +2159,7 @@ export const verifyTicketSchema = z.object({
 export type VerifyTicketInput = z.input<typeof verifyTicketSchema>;
 ```
 
-- [ ] **Step 4: Rework the verify route's authorization**
+- [x] **Step 4: Rework the verify route's authorization**
 
 In `src/app/api/tickets/verify/route.ts`, replace the beginning of `POST` (the `requireRole` call, body parsing, and the FORBIDDEN ownership check) so the whole function reads:
 
@@ -2228,7 +2228,7 @@ export async function POST(request: Request) {
 
 (The remainder of the function — the CANCELLED check, the atomic `updateMany` check-in, and the ACCEPTED/ALREADY_USED responses — stays exactly as it is.)
 
-- [ ] **Step 5: Thread the scan code through the scanner**
+- [x] **Step 5: Thread the scan code through the scanner**
 
 In `src/components/dashboard/TicketScanner.tsx`:
 
@@ -2254,7 +2254,7 @@ In the `verify` callback, change the fetch body:
 
 and update the callback's dependency array from `}, []);` to `}, [scanCode]);`.
 
-- [ ] **Step 6: Create the public scan page**
+- [x] **Step 6: Create the public scan page**
 
 Create `src/app/scan/[code]/page.tsx`:
 
@@ -2298,7 +2298,7 @@ export default async function ScanPage({
 
 (`/scan` is not in the proxy matcher, so the page is public by design — the unguessable code in the URL is the credential.)
 
-- [ ] **Step 7: Create the organizer-facing button**
+- [x] **Step 7: Create the organizer-facing button**
 
 Create `src/components/dashboard/ScanAccessButton.tsx`:
 
@@ -2384,7 +2384,7 @@ export function ScanAccessButton({ eventId }: { eventId: string }) {
 }
 ```
 
-- [ ] **Step 8: Surface it on the buyers page**
+- [x] **Step 8: Surface it on the buyers page**
 
 In `src/app/dashboard/events/[id]/buyers/page.tsx`:
 
@@ -2402,11 +2402,11 @@ Below the header `<div className="flex flex-wrap items-center justify-between ga
       {event.status === "APPROVED" && <ScanAccessButton eventId={event.id} />}
 ```
 
-- [ ] **Step 9: Verify end to end**
+- [x] **Step 9: Verify end to end**
 
 In dev: generate the link from a seeded approved event's buyers page, open it **in an incognito window** (no session), verify a confirmed ticket's code via manual input — first scan `✅`, second `⛔ ya utilizado`. Try a ticket from a *different* event — `⚠️ FORBIDDEN`. Regenerate the code and confirm the old link 404s.
 
-- [ ] **Step 10: Run checks and commit**
+- [x] **Step 10: Run checks and commit**
 
 Run: `pnpm test && pnpm typecheck && pnpm lint`
 Expected: PASS.
@@ -2427,12 +2427,12 @@ git commit -m "feat: door scan codes for staff check-in without accounts"
 - Modify: `src/components/orders/TicketCard.tsx`
 - Test: `src/lib/ticket-pdf.test.ts` (create)
 
-- [ ] **Step 1: Install the dependency**
+- [x] **Step 1: Install the dependency**
 
 Run: `pnpm add pdf-lib`
 Expected: added to `dependencies`.
 
-- [ ] **Step 2: Write the failing test**
+- [x] **Step 2: Write the failing test**
 
 Create `src/lib/ticket-pdf.test.ts`:
 
@@ -2473,7 +2473,7 @@ describe("buildTicketPdf", () => {
 Run: `pnpm test -- src/lib/ticket-pdf.test.ts`
 Expected: FAIL — module `@/lib/ticket-pdf` not found.
 
-- [ ] **Step 3: Implement `src/lib/ticket-pdf.ts`**
+- [x] **Step 3: Implement `src/lib/ticket-pdf.ts`**
 
 ```ts
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
@@ -2582,7 +2582,7 @@ export async function buildTicketPdf(input: TicketPdfInput): Promise<Uint8Array>
 Run: `pnpm test -- src/lib/ticket-pdf.test.ts`
 Expected: PASS.
 
-- [ ] **Step 4: Create the download route**
+- [x] **Step 4: Create the download route**
 
 Create `src/app/api/tickets/[id]/pdf/route.ts`:
 
@@ -2651,7 +2651,7 @@ export async function GET(_request: Request, { params }: RouteContext) {
 }
 ```
 
-- [ ] **Step 5: Link it from the ticket card**
+- [x] **Step 5: Link it from the ticket card**
 
 In `src/components/orders/TicketCard.tsx`, replace the download block:
 
@@ -2689,7 +2689,7 @@ with:
         )}
 ```
 
-- [ ] **Step 6: Verify and commit**
+- [x] **Step 6: Verify and commit**
 
 In dev, as `comprador@boletavip.com` with a confirmed order, download a PDF: opens with title, date in Bolivia time, seat, buyer name and a scannable QR (scan it from the screen with `/dashboard/verify` as the organizer). An unauthenticated `curl` to the PDF URL returns 401; another buyer's session returns 404.
 
@@ -2701,7 +2701,7 @@ git add package.json pnpm-lock.yaml src/lib/ticket-pdf.ts src/lib/ticket-pdf.tes
 git commit -m "feat: downloadable PDF tickets"
 ```
 
-- [ ] **Step 7: Phase 5 gate**
+- [x] **Step 7: Phase 5 gate**
 
 Run: `pnpm test && pnpm typecheck && pnpm lint && pnpm build`
 Expected: all green. **Stop and get user approval before Phase 6.**
@@ -2719,7 +2719,7 @@ Expected: all green. **Stop and get user approval before Phase 6.**
 - Modify: `src/app/api/orders/[id]/cancel/route.ts`
 - Modify: `src/components/dashboard/OrderActions.tsx`
 
-- [ ] **Step 1: Return the email outcome from confirm**
+- [x] **Step 1: Return the email outcome from confirm**
 
 In `src/app/api/orders/[id]/confirm/route.ts`, replace the tail:
 
@@ -2744,7 +2744,7 @@ with:
   });
 ```
 
-- [ ] **Step 2: Return the email outcome from cancel**
+- [x] **Step 2: Return the email outcome from cancel**
 
 In `src/app/api/orders/[id]/cancel/route.ts`, replace the tail:
 
@@ -2787,7 +2787,7 @@ with:
   return NextResponse.json({ ok: true, emailSent });
 ```
 
-- [ ] **Step 3: Show the warning in OrderActions**
+- [x] **Step 3: Show the warning in OrderActions**
 
 In `src/components/dashboard/OrderActions.tsx`:
 
@@ -2833,7 +2833,7 @@ And render it under the error line:
       )}
 ```
 
-- [ ] **Step 4: Verify and commit**
+- [x] **Step 4: Verify and commit**
 
 In dev, emails go to the console so `emailSent` is `true`; to see the warning path, temporarily set `BREVO_API_KEY=broken` in `.env`, restart, confirm an order and check the amber notice appears (then remove the var and restart).
 
@@ -2860,12 +2860,12 @@ Real Postgres (dedicated `boletavip_test` DB), real route handlers, `@/lib/api-a
 - Create: `src/tests/integration/verify.itest.ts`
 - Modify: `package.json`
 
-- [ ] **Step 1: Create the test database (one-time)**
+- [x] **Step 1: Create the test database (one-time)**
 
 Run: `createdb -O ichurri boletavip_test`
 Expected: silent success (`psql -l | grep boletavip_test` shows it).
 
-- [ ] **Step 2: Add the config, guard and script**
+- [x] **Step 2: Add the config, guard and script**
 
 Create `vitest.integration.config.ts`:
 
@@ -2912,7 +2912,7 @@ In `package.json`, add to `scripts`:
 Invocation (bash): `DATABASE_URL="postgresql://ichurri:boletavip_dev@localhost:5432/boletavip_test" pnpm test:integration`
 Invocation (fish): `env DATABASE_URL="postgresql://ichurri:boletavip_dev@localhost:5432/boletavip_test" pnpm test:integration`
 
-- [ ] **Step 3: Create the helpers**
+- [x] **Step 3: Create the helpers**
 
 Create `src/tests/integration/helpers.ts`:
 
@@ -3009,7 +3009,7 @@ export function jsonRequest(url: string, body: unknown) {
 }
 ```
 
-- [ ] **Step 4: Write the order tests**
+- [x] **Step 4: Write the order tests**
 
 Create `src/tests/integration/orders.itest.ts`:
 
@@ -3168,7 +3168,7 @@ describe("expireStaleOrders", () => {
 });
 ```
 
-- [ ] **Step 5: Write the concurrent-confirmation test**
+- [x] **Step 5: Write the concurrent-confirmation test**
 
 Create `src/tests/integration/confirm.itest.ts`:
 
@@ -3263,7 +3263,7 @@ describe("POST /api/orders/[id]/confirm", () => {
 });
 ```
 
-- [ ] **Step 6: Write the check-in tests**
+- [x] **Step 6: Write the check-in tests**
 
 Create `src/tests/integration/verify.itest.ts`:
 
@@ -3404,12 +3404,12 @@ describe("POST /api/tickets/verify", () => {
 });
 ```
 
-- [ ] **Step 7: Run the integration suite**
+- [x] **Step 7: Run the integration suite**
 
 Run (bash): `DATABASE_URL="postgresql://ichurri:boletavip_dev@localhost:5432/boletavip_test" pnpm test:integration`
 Expected: migrations deploy to `boletavip_test`, then all 9 tests PASS. Also re-run `pnpm test` and confirm the unit suite does **not** pick up `*.itest.ts` files (the default config includes only `src/**/*.test.ts`).
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add vitest.integration.config.ts src/tests/integration package.json
@@ -3424,7 +3424,7 @@ git commit -m "test: integration coverage for orders, confirmation and check-in"
 - Modify: `CLAUDE.md`
 - Modify: `docs/views-overview.md`
 
-- [ ] **Step 1: Update CLAUDE.md**
+- [x] **Step 1: Update CLAUDE.md**
 
 Apply these edits:
 
@@ -3440,18 +3440,18 @@ pnpm test:integration  # integration tests — needs DATABASE_URL pointed at a *
    - Add a bullet: `- Organizers can set a contact phone (/account → POST /api/account/profile); shown on event and order pages as a wa.me link. Buyers page has CSV export (GET /api/events/[id]/buyers/export). Tickets downloadable as PDF (GET /api/tickets/[id]/pdf, pdf-lib, WinAnsi-sanitized).`
    - Add a bullet: `- Static pages: /help, /terms, /privacy (linked from the footer).`
 
-- [ ] **Step 2: Update docs/views-overview.md**
+- [x] **Step 2: Update docs/views-overview.md**
 
 Add short entries for the new views: `/help`, `/terms`, `/privacy` (public, static), `/scan/[code]` (public, bearer-code gated door scanner), and mention the CSV export + scan access button on the buyers view and the PDF download on the order view. Follow the document's existing format.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add CLAUDE.md docs/views-overview.md
 git commit -m "docs: document notifications, scan codes, private proofs and new views"
 ```
 
-- [ ] **Step 4: Final gate**
+- [x] **Step 4: Final gate**
 
 Run: `pnpm test && pnpm typecheck && pnpm lint && pnpm build`, plus the integration suite.
 Expected: all green.
