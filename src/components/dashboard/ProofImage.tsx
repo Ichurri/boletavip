@@ -14,9 +14,12 @@ import { cn } from "@/lib/utils";
 export function ProofImage({
   url,
   expand = "inline",
+  thumbClassName,
 }: {
   url: string;
   expand?: "inline" | "overlay";
+  /** Override the default thumbnail size (e.g. the 44px dashboard queue row). */
+  thumbClassName?: string;
 }) {
   const [open, setOpen] = useState(false);
 
@@ -48,6 +51,7 @@ export function ProofImage({
           className={cn(
             "bg-white object-cover",
             isOverlay ? "h-12 w-12" : "h-20 w-20 sm:h-24 sm:w-24",
+            thumbClassName,
           )}
         />
       </button>

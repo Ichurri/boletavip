@@ -3,7 +3,7 @@ import Link from "next/link";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { expireStaleOrders } from "@/lib/orders";
-import { formatCurrency, formatDate } from "@/lib/utils";
+import { formatCurrency, formatDate, BOLIVIA_TZ } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/Button";
 import {
   Card,
@@ -11,10 +11,42 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/Card";
+import { ReviewQueue } from "@/components/dashboard/ReviewQueue";
+import { MiniBarChart } from "@/components/dashboard/MiniBarChart";
 
 export const metadata: Metadata = {
   title: "Mi panel",
 };
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+/** Buckets a list of dates into the last 7 calendar days (Bolivia time). */
+function bucketLast7Days(dates: Date[]) {
+  const dayKeyFormatter = new Intl.DateTimeFormat("en-CA", {
+    timeZone: BOLIVIA_TZ,
+  });
+  const labelFormatter = new Intl.DateTimeFormat("es-BO", {
+    weekday: "short",
+    timeZone: BOLIVIA_TZ,
+  });
+
+  const now = new Date();
+  const days = Array.from({ length: 7 }, (_, i) => {
+    const date = new Date(now.getTime() - (6 - i) * DAY_MS);
+    return {
+      key: dayKeyFormatter.format(date),
+      label: labelFormatter.format(date).replace(/\.$/, ""),
+      value: 0,
+    };
+  });
+
+  const byKey = new Map(days.map((day) => [day.key, day]));
+  for (const date of dates) {
+    const bucket = byKey.get(dayKeyFormatter.format(date));
+    if (bucket) bucket.value += 1;
+  }
+  return days.map(({ label, value }) => ({ label, value }));
+}
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -23,6 +55,7 @@ export default async function DashboardPage() {
 
   const startOfToday = new Date();
   startOfToday.setHours(0, 0, 0, 0);
+  const sevenDaysAgo = new Date(startOfToday.getTime() - 6 * DAY_MS);
 
   const [
     venueCount,
@@ -32,6 +65,9 @@ export default async function DashboardPage() {
     revenueAggregate,
     ticketsSold,
     approvedEvents,
+    reviewOrdersCount,
+    reviewOrders,
+    recentConfirmed,
   ] = await Promise.all([
     prisma.venue.count({ where: { organizerId } }),
     prisma.event.count({ where: { organizerId, status: "PENDING" } }),
@@ -68,6 +104,32 @@ export default async function DashboardPage() {
       },
       orderBy: { date: "asc" },
     }),
+    prisma.order.count({
+      where: { status: "PAYMENT_SUBMITTED", event: { organizerId } },
+    }),
+    prisma.order.findMany({
+      where: { status: "PAYMENT_SUBMITTED", event: { organizerId } },
+      include: {
+        buyer: { select: { name: true, email: true } },
+        event: { select: { title: true } },
+        items: {
+          include: {
+            seat: { select: { row: true, number: true } },
+            zone: { select: { name: true } },
+          },
+        },
+      },
+      orderBy: { paymentSubmittedAt: "asc" },
+      take: 6,
+    }),
+    prisma.order.findMany({
+      where: {
+        status: "CONFIRMED",
+        event: { organizerId },
+        createdAt: { gte: sevenDaysAgo },
+      },
+      select: { createdAt: true },
+    }),
   ]);
 
   const soldByEventZone = new Map<string, number>();
@@ -93,16 +155,20 @@ export default async function DashboardPage() {
     { label: "Boletos vendidos", value: String(ticketsSold) },
     { label: "Eventos activos", value: String(activeEventCount) },
     { label: "Pagos por confirmar", value: String(pendingOrders) },
-    { label: "En revisión", value: String(pendingReviewCount) },
+    { label: "Eventos en revisión", value: String(pendingReviewCount) },
     { label: "Venues", value: String(venueCount) },
   ];
+
+  const dailyConfirmed = bucketLast7Days(
+    recentConfirmed.map((order) => order.createdAt),
+  );
 
   return (
     <div className="flex flex-col gap-8">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold">
-            Hola, {session?.user?.name ?? "organizador"} 👋
+            Hola, {session?.user?.name ?? "organizador"}
           </h1>
           <p className="mt-1 text-muted-foreground">
             Así van tus ventas y eventos.
@@ -124,18 +190,40 @@ export default async function DashboardPage() {
         </div>
       </div>
 
+      <ReviewQueue
+        orders={reviewOrders.map((order) => ({
+          ...order,
+          totalAmount: Number(order.totalAmount),
+        }))}
+        totalCount={reviewOrdersCount}
+      />
+
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
         {stats.map((stat) => (
           <Card key={stat.label}>
-            <CardContent className="p-5">
-              <p className="truncate text-2xl font-bold" title={stat.value}>
+            <CardContent className="flex flex-col gap-1 p-5">
+              <span className="font-mono text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+                {stat.label}
+              </span>
+              <p
+                className="truncate font-display text-2xl font-extrabold"
+                title={stat.value}
+              >
                 {stat.value}
               </p>
-              <p className="text-sm text-muted-foreground">{stat.label}</p>
             </CardContent>
           </Card>
         ))}
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Pedidos confirmados · últimos 7 días</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <MiniBarChart data={dailyConfirmed} />
+        </CardContent>
+      </Card>
 
       <section className="flex flex-col gap-4">
         <h2 className="font-semibold">Ocupación por zona</h2>
@@ -176,6 +264,7 @@ export default async function DashboardPage() {
                       zone.capacity > 0
                         ? Math.round((sold / zone.capacity) * 100)
                         : 0;
+                    const nearlySoldOut = percent >= 80;
                     return (
                       <div key={zone.id} className="flex flex-col gap-1">
                         <div className="flex justify-between text-sm">
@@ -186,7 +275,11 @@ export default async function DashboardPage() {
                         </div>
                         <div className="h-2 overflow-hidden rounded-full bg-muted">
                           <div
-                            className="h-full rounded-full bg-primary transition-all"
+                            className={
+                              nearlySoldOut
+                                ? "h-full rounded-full bg-gradient-to-r from-primary to-gold-bright transition-all"
+                                : "h-full rounded-full bg-primary transition-all"
+                            }
                             style={{ width: `${Math.min(100, percent)}%` }}
                           />
                         </div>

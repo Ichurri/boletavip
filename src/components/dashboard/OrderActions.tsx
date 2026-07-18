@@ -3,13 +3,17 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
+import { CheckIcon, XIcon } from "@/components/ui/icons";
 
 export function OrderActions({
   orderId,
   hasProof = false,
+  compact = false,
 }: {
   orderId: string;
   hasProof?: boolean;
+  /** Icon-only 44px buttons for dense rows (dashboard home review queue). */
+  compact?: boolean;
 }) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
@@ -63,6 +67,54 @@ export function OrderActions({
     run("cancel", { reason: reason.trim() || undefined });
   }
 
+  if (compact) {
+    return (
+      <div className="flex flex-col items-end gap-1">
+        <div className="flex items-center gap-2">
+          <Button
+            size="md"
+            className="w-11 px-0"
+            disabled={loading !== null}
+            onClick={confirm}
+            aria-label={hasProof ? "Verificar pago" : "Confirmar pago"}
+            title={hasProof ? "Verificar pago" : "Confirmar pago"}
+          >
+            {loading === "confirm" ? (
+              <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-current border-t-transparent" />
+            ) : (
+              <CheckIcon className="h-4 w-4" />
+            )}
+          </Button>
+          <Button
+            variant="outline"
+            size="md"
+            className="w-11 px-0"
+            disabled={loading !== null}
+            onClick={reject}
+            aria-label="Rechazar"
+            title="Rechazar"
+          >
+            {loading === "cancel" ? (
+              <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-current border-t-transparent" />
+            ) : (
+              <XIcon className="h-4 w-4" />
+            )}
+          </Button>
+        </div>
+        {error && (
+          <p className="max-w-[160px] text-right text-xs text-danger">
+            {error}
+          </p>
+        )}
+        {notice && (
+          <p className="max-w-[160px] text-right text-xs text-warning">
+            {notice}
+          </p>
+        )}
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col items-end gap-1">
       <div className="flex flex-wrap items-center justify-end gap-2">
@@ -83,9 +135,7 @@ export function OrderActions({
         </Button>
       </div>
       {error && <p className="text-xs text-danger">{error}</p>}
-      {notice && (
-        <p className="text-xs text-amber-600 dark:text-amber-400">{notice}</p>
-      )}
+      {notice && <p className="text-xs text-warning">{notice}</p>}
     </div>
   );
 }
