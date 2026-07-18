@@ -19,6 +19,7 @@ import { OrderCountdown } from "@/components/orders/OrderCountdown";
 import { CancelOrderButton } from "@/components/orders/CancelOrderButton";
 import { TicketCard } from "@/components/orders/TicketCard";
 import { UploadProofForm } from "@/components/orders/UploadProofForm";
+import { PartyPopperIcon, XIcon } from "@/components/ui/icons";
 
 export const metadata: Metadata = {
   title: "Pedido",
@@ -64,6 +65,7 @@ export default async function OrderDetailPage({ params }: PageProps) {
           title: true,
           date: true,
           time: true,
+          category: true,
           organizerId: true,
           organizer: { select: { phone: true } },
           venue: { select: { name: true, city: true } },
@@ -275,7 +277,9 @@ export default async function OrderDetailPage({ params }: PageProps) {
         <>
           <Card>
             <CardContent className="flex items-center gap-3 p-6">
-              <span className="text-3xl">🎉</span>
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gold-soft text-gold">
+                <PartyPopperIcon className="h-5 w-5" />
+              </span>
               <div>
                 <p className="font-semibold">¡Pago confirmado!</p>
                 <p className="text-sm text-muted-foreground">
@@ -299,6 +303,12 @@ export default async function OrderDetailPage({ params }: PageProps) {
                     ? `${ticket.zone?.name ?? ""} · Asiento ${ticket.seat.row}${ticket.seat.number}`
                     : (ticket.zone?.name ?? "Entrada general"),
                   eventTitle: order.event.title,
+                  eventDate: order.event.date,
+                  eventTime: order.event.time,
+                  venueName: order.event.venue.name,
+                  venueCity: order.event.venue.city,
+                  category: order.event.category,
+                  usedAt: ticket.usedAt,
                 }}
               />
             ))}
@@ -308,7 +318,9 @@ export default async function OrderDetailPage({ params }: PageProps) {
 
       {order.status === "CANCELLED" && (
         <div className="flex flex-1 flex-col items-center justify-center gap-3 py-16 text-center">
-          <span className="text-5xl">😕</span>
+          <span className="flex h-14 w-14 items-center justify-center rounded-full bg-muted text-muted-foreground">
+            <XIcon className="h-6 w-6" />
+          </span>
           <p className="font-medium">Este pedido fue cancelado</p>
           <p className="max-w-sm text-sm text-muted-foreground">
             {order.rejectionReason

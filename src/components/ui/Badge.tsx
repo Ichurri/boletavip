@@ -5,9 +5,9 @@ type BadgeVariant = "default" | "success" | "warning" | "danger" | "primary";
 
 const variantClasses: Record<BadgeVariant, string> = {
   default: "bg-muted text-muted-foreground",
-  success: "bg-success/12 text-success",
-  warning: "bg-warning/12 text-warning",
-  danger: "bg-danger/12 text-danger",
+  success: "bg-success/15 text-success",
+  warning: "bg-warning/15 text-warning",
+  danger: "bg-danger/15 text-danger",
   primary: "bg-primary/10 text-primary",
 };
 

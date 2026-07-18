@@ -38,7 +38,8 @@
   --elevation-glow: 0 4px 20px -4px rgb(109 43 255 / 0.4);
   --elevation-glow-ring: 0 0 14px rgb(142 92 255 / 0.55);
   --elevation-gold: 0 8px 26px -12px rgb(205 163 73 / 0.32);
-  --elevation-ticket: 0 20px 40px -16px rgb(15 11 28 / 0.45);
+  --elevation-ticket:
+    0 0 0 1px rgb(142 92 255 / 0.18), 0 20px 40px -16px rgb(0 0 0 / 0.55);
   /* Night-constant surfaces: the ticket, stage marquee and scanner never
      flip with the theme, so these live only in :root. The QR always sits
      on solid white in both themes (scannability). */
@@ -177,6 +178,22 @@ body {
   }
   to {
     background-position: -200% 0;
+  }
+}
+
+/* Ticket QR halo: fade-in once on mount (spec #2c). Fill-mode "both" plus
+   the reduced-motion block below (near-zero duration) leaves the glow
+   visible but static instead of animating in. */
+@utility animate-ticket-glow {
+  animation: ticket-glow-in 0.6s ease-out both;
+}
+
+@keyframes ticket-glow-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
   }
 }
 
