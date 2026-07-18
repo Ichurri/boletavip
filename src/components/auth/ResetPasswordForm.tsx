@@ -3,7 +3,9 @@
 import Link from "next/link";
 import { useState, type FormEvent } from "react";
 import { Button, buttonVariants } from "@/components/ui/Button";
-import { Input, Label, FieldError } from "@/components/ui/Input";
+import { Label, FieldError } from "@/components/ui/Input";
+import { PasswordInput } from "@/components/ui/PasswordInput";
+import { CheckIcon } from "@/components/ui/icons";
 import { resetPasswordSchema } from "@/lib/validations/auth";
 
 export function ResetPasswordForm({ token }: { token: string }) {
@@ -50,7 +52,9 @@ export function ResetPasswordForm({ token }: { token: string }) {
   if (done) {
     return (
       <div className="flex flex-col items-center gap-3 text-center">
-        <span className="text-4xl">✅</span>
+        <span className="flex h-14 w-14 items-center justify-center rounded-full bg-success/15 text-success">
+          <CheckIcon className="h-6 w-6" />
+        </span>
         <p className="font-medium">¡Contraseña actualizada!</p>
         <p className="text-sm text-muted-foreground">
           Ya podés iniciar sesión con tu nueva contraseña.
@@ -66,20 +70,18 @@ export function ResetPasswordForm({ token }: { token: string }) {
     <form onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="password">Nueva contraseña</Label>
-        <Input
+        <PasswordInput
           id="password"
           name="password"
-          type="password"
           autoComplete="new-password"
         />
         <FieldError message={fieldError ?? undefined} />
       </div>
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="confirm">Repetí la contraseña</Label>
-        <Input
+        <PasswordInput
           id="confirm"
           name="confirm"
-          type="password"
           autoComplete="new-password"
         />
       </div>

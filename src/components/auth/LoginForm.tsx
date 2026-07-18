@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { Button } from "@/components/ui/Button";
 import { Input, Label, FieldError } from "@/components/ui/Input";
+import { PasswordInput } from "@/components/ui/PasswordInput";
+import { MailIcon } from "@/components/ui/icons";
 import { loginSchema } from "@/lib/validations/auth";
 
 type FieldErrors = Partial<Record<"email" | "password", string>>;
@@ -61,6 +63,7 @@ export function LoginForm({ callbackUrl }: { callbackUrl: string }) {
           type="email"
           placeholder="tu@correo.com"
           autoComplete="email"
+          leftIcon={<MailIcon />}
           required
         />
         <FieldError message={fieldErrors.email} />
@@ -68,10 +71,9 @@ export function LoginForm({ callbackUrl }: { callbackUrl: string }) {
 
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="password">Contraseña</Label>
-        <Input
+        <PasswordInput
           id="password"
           name="password"
-          type="password"
           placeholder="••••••••"
           autoComplete="current-password"
           required

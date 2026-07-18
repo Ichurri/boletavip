@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useRef, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Label, FieldError } from "@/components/ui/Input";
+import { ImageIcon } from "@/components/ui/icons";
 
 export function ImageUpload({
   label,
@@ -57,8 +58,8 @@ export function ImageUpload({
             className="h-[68px] w-[120px] rounded-md border border-border object-cover"
           />
         ) : (
-          <div className="flex h-[68px] w-[120px] items-center justify-center rounded-md border border-dashed border-border text-2xl text-muted-foreground">
-            🖼️
+          <div className="flex h-[68px] w-[120px] items-center justify-center rounded-md border border-dashed border-border text-muted-foreground">
+            <ImageIcon className="h-6 w-6" />
           </div>
         )}
 

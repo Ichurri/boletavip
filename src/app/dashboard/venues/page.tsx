@@ -5,6 +5,8 @@ import { prisma } from "@/lib/prisma";
 import { buttonVariants } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { Card, CardContent } from "@/components/ui/Card";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { MapPinIcon } from "@/components/ui/icons";
 import { DeleteButton } from "@/components/dashboard/DeleteButton";
 
 export const metadata: Metadata = {
@@ -40,17 +42,19 @@ export default async function VenuesPage() {
 
       {venues.length === 0 ? (
         <Card>
-          <CardContent className="flex flex-col items-center gap-3 p-12 text-center">
-            <span className="text-4xl">🏟️</span>
-            <p className="font-medium">Todavía no tenés venues</p>
-            <p className="max-w-sm text-sm text-muted-foreground">
-              Un venue es el lugar donde ocurren tus eventos: definí sus zonas,
-              capacidades y precios una sola vez y reutilizalo.
-            </p>
-            <Link href="/dashboard/venues/new" className={buttonVariants({ size: "sm" })}>
-              Crear mi primer venue
-            </Link>
-          </CardContent>
+          <EmptyState
+            icon={<MapPinIcon />}
+            title="Todavía no tenés venues"
+            description="Un venue es el lugar donde ocurren tus eventos: definí sus zonas, capacidades y precios una sola vez y reutilizalo."
+            action={
+              <Link
+                href="/dashboard/venues/new"
+                className={buttonVariants({ size: "sm" })}
+              >
+                Crear mi primer venue
+              </Link>
+            }
+          />
         </Card>
       ) : (
         <div className="flex flex-col gap-4">

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { Input, Label } from "@/components/ui/Input";
+import { CheckIcon } from "@/components/ui/icons";
 
 export function ProfileForm({ initialPhone }: { initialPhone: string | null }) {
   const router = useRouter();
@@ -52,11 +53,16 @@ export function ProfileForm({ initialPhone }: { initialPhone: string | null }) {
       {error && <p className="text-sm text-danger">{error}</p>}
       <div>
         <Button type="submit" size="sm" disabled={status === "saving"}>
-          {status === "saving"
-            ? "Guardando..."
-            : status === "saved"
-              ? "Guardado ✓"
-              : "Guardar"}
+          {status === "saving" ? (
+            "Guardando..."
+          ) : status === "saved" ? (
+            <span className="inline-flex items-center gap-1.5">
+              <CheckIcon className="h-4 w-4" />
+              Guardado
+            </span>
+          ) : (
+            "Guardar"
+          )}
         </Button>
       </div>
     </form>

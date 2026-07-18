@@ -360,7 +360,7 @@ export default async function OrderDetailPage({ params }: PageProps) {
             href={`/events/${order.event.id}`}
             className={buttonVariants({ size: "sm" })}
           >
-            Volver al evento
+            Volver a intentar
           </Link>
         </div>
       )}

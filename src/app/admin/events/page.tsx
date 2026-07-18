@@ -4,6 +4,7 @@ import { formatCurrency, formatDate } from "@/lib/utils";
 import { EVENT_STATUS_LABELS } from "@/lib/constants";
 import { Badge } from "@/components/ui/Badge";
 import { Card, CardContent } from "@/components/ui/Card";
+import { CheckIcon } from "@/components/ui/icons";
 import { EventReviewActions } from "@/components/admin/EventReviewActions";
 
 export const metadata: Metadata = {
@@ -51,9 +52,13 @@ export default async function AdminEventsPage() {
                     hrs · {event.venue.name} ({event.venue.city}) · Desde{" "}
                     {formatCurrency(Number(event.price))}
                   </p>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="flex flex-wrap items-center gap-1 text-xs text-muted-foreground">
                     Organiza: {event.organizer.name ?? event.organizer.email}
-                    {event.paymentQrImage ? " · QR de pago cargado ✓" : ""}
+                    {event.paymentQrImage && (
+                      <span className="inline-flex items-center gap-1 text-success">
+                        · <CheckIcon className="h-3 w-3" /> QR de pago cargado
+                      </span>
+                    )}
                   </p>
                 </div>
                 <EventReviewActions eventId={event.id} />

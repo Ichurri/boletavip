@@ -8,6 +8,7 @@ import {
   CardTitle,
 } from "@/components/ui/Card";
 import { buttonVariants } from "@/components/ui/Button";
+import { AlertTriangleIcon } from "@/components/ui/icons";
 import { ResetPasswordForm } from "@/components/auth/ResetPasswordForm";
 
 export const metadata: Metadata = {
@@ -23,7 +24,9 @@ export default async function ResetPasswordPage({ searchParams }: PageProps) {
     return (
       <Card className="w-full max-w-md">
         <CardContent className="flex flex-col items-center gap-3 p-8 text-center">
-          <span className="text-4xl">⚠️</span>
+          <span className="flex h-14 w-14 items-center justify-center rounded-full bg-warning/15 text-warning">
+            <AlertTriangleIcon className="h-6 w-6" />
+          </span>
           <p className="font-medium">Falta el enlace de restablecimiento</p>
           <p className="text-sm text-muted-foreground">
             Abrí el enlace desde el correo que te enviamos, o pedí uno nuevo.

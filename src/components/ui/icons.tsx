@@ -1,6 +1,6 @@
 import type { ComponentProps, ReactElement } from "react";
 
-type IconProps = ComponentProps<"svg">;
+export type IconProps = ComponentProps<"svg">;
 
 function Icon({ children, ...props }: IconProps) {
   return (
@@ -337,6 +337,16 @@ export function TentIcon(props: IconProps) {
       <path d="M20.5 21 10 3" />
       <path d="M15.5 21 12 15l-3.5 6" />
       <path d="M2 21h20" />
+    </Icon>
+  );
+}
+
+export function ShoppingCartIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <circle cx="8" cy="21" r="1" />
+      <circle cx="19" cy="21" r="1" />
+      <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12" />
     </Icon>
   );
 }

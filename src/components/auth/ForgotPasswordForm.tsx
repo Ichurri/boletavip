@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input, Label, FieldError } from "@/components/ui/Input";
+import { MailIcon } from "@/components/ui/icons";
 import { forgotPasswordSchema } from "@/lib/validations/auth";
 
 export function ForgotPasswordForm() {
@@ -42,8 +43,9 @@ export function ForgotPasswordForm() {
 
   if (message) {
     return (
-      <p className="rounded-md bg-primary-soft px-4 py-3 text-sm text-primary">
-        📬 {message}
+      <p className="flex items-center gap-2 rounded-md bg-primary-soft px-4 py-3 text-sm text-primary">
+        <MailIcon className="h-4 w-4 shrink-0" />
+        {message}
       </p>
     );
   }
@@ -58,6 +60,7 @@ export function ForgotPasswordForm() {
           type="email"
           placeholder="tu@correo.com"
           autoComplete="email"
+          leftIcon={<MailIcon />}
         />
         <FieldError message={fieldError ?? undefined} />
       </div>

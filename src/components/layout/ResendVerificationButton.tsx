@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { CheckIcon } from "@/components/ui/icons";
 
 export function ResendVerificationButton() {
   const [state, setState] = useState<"idle" | "sending" | "sent" | "error">(
@@ -13,7 +14,13 @@ export function ResendVerificationButton() {
     setState(response.ok ? "sent" : "error");
   }
 
-  if (state === "sent") return <span className="font-medium">Correo enviado ✓</span>;
+  if (state === "sent")
+    return (
+      <span className="inline-flex items-center gap-1.5 font-medium text-success">
+        <CheckIcon className="h-4 w-4" />
+        Correo enviado
+      </span>
+    );
 
   return (
     <button

@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input, Label, FieldError } from "@/components/ui/Input";
+import { CheckIcon } from "@/components/ui/icons";
 import { changePasswordSchema } from "@/lib/validations/auth";
 
 export function ChangePasswordForm() {
@@ -84,8 +85,9 @@ export function ChangePasswordForm() {
           {loading ? "Guardando..." : "Cambiar contraseña"}
         </Button>
         {saved && (
-          <span className="text-sm text-muted-foreground">
-            Contraseña actualizada ✓
+          <span className="inline-flex items-center gap-1.5 text-sm text-success">
+            <CheckIcon className="h-4 w-4" />
+            Contraseña actualizada
           </span>
         )}
       </div>

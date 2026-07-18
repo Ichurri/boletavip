@@ -4,6 +4,7 @@ import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { Input, Label } from "@/components/ui/Input";
+import { CheckIcon } from "@/components/ui/icons";
 
 export function SettingsForm({ orderCutoffHours }: { orderCutoffHours: number }) {
   const router = useRouter();
@@ -61,7 +62,10 @@ export function SettingsForm({ orderCutoffHours }: { orderCutoffHours: number })
           {status === "saving" ? "Guardando..." : "Guardar"}
         </Button>
         {status === "saved" && (
-          <span className="text-sm text-muted-foreground">Guardado ✓</span>
+          <span className="inline-flex items-center gap-1.5 text-sm text-success">
+            <CheckIcon className="h-4 w-4" />
+            Guardado
+          </span>
         )}
       </div>
       {error && <p className="text-xs text-danger">{error}</p>}

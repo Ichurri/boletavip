@@ -12,8 +12,11 @@ import {
   FieldError,
 } from "@/components/ui/Input";
 import { ImageUpload } from "@/components/dashboard/ImageUpload";
+import { Stepper } from "@/components/ui/Stepper";
 import { eventSchema } from "@/lib/validations/event";
 import { EVENT_CATEGORIES } from "@/lib/constants";
+
+const WIZARD_STEPS = ["Información", "Fecha y lugar", "Imágenes"];
 
 export interface VenueOption {
   id: string;
@@ -57,10 +60,17 @@ export function EventForm({
   );
   const [formError, setFormError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [step, setStep] = useState(0);
+  const lastStep = step === WIZARD_STEPS.length - 1;
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setFormError(null);
+
+    if (!lastStep) {
+      setStep((value) => Math.min(value + 1, WIZARD_STEPS.length - 1));
+      return;
+    }
 
     const payload = {
       title,
@@ -103,128 +113,151 @@ export function EventForm({
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-6" noValidate>
-      <Card>
-        <CardContent className="grid gap-4 p-6 sm:grid-cols-2">
-          <div className="flex flex-col gap-1.5 sm:col-span-2">
-            <Label htmlFor="event-title">Título</Label>
-            <Input
-              id="event-title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="Noche de Stand Up"
-              required
+      <Stepper steps={WIZARD_STEPS} current={step} className="mx-auto max-w-md" />
+
+      {step === 0 && (
+        <Card>
+          <CardContent className="grid gap-4 p-6">
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="event-title">Título</Label>
+              <Input
+                id="event-title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="Noche de Stand Up"
+                required
+              />
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="event-description">Descripción</Label>
+              <Textarea
+                id="event-description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Contá de qué trata el evento, quiénes se presentan, qué incluye la entrada..."
+                required
+              />
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="event-category">Categoría</Label>
+              <Select
+                id="event-category"
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+              >
+                {EVENT_CATEGORIES.map((cat) => (
+                  <option key={cat} value={cat}>
+                    {cat}
+                  </option>
+                ))}
+              </Select>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {step === 1 && (
+        <Card>
+          <CardContent className="grid gap-4 p-6 sm:grid-cols-2">
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="event-venue">Venue</Label>
+              <Select
+                id="event-venue"
+                value={venueId}
+                onChange={(e) => setVenueId(e.target.value)}
+              >
+                {venues.map((venue) => (
+                  <option key={venue.id} value={venue.id}>
+                    {venue.name} ({venue.city})
+                  </option>
+                ))}
+              </Select>
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="event-date">Fecha</Label>
+              <Input
+                id="event-date"
+                type="date"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+                required
+              />
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="event-time">Hora</Label>
+              <Input
+                id="event-time"
+                type="time"
+                value={time}
+                onChange={(e) => setTime(e.target.value)}
+                required
+              />
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="event-price">Precio base (Bs)</Label>
+              <Input
+                id="event-price"
+                type="number"
+                min="1"
+                step="0.5"
+                value={price}
+                onChange={(e) => setPrice(e.target.value)}
+                placeholder="50"
+                required
+              />
+              <p className="text-xs text-muted-foreground">
+                El precio por zona se calcula multiplicando este precio por el
+                multiplicador de cada zona.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {step === 2 && (
+        <Card>
+          <CardContent className="grid gap-6 p-6 sm:grid-cols-2">
+            <ImageUpload
+              label="Imagen de portada"
+              hint="Se muestra en el catálogo y la página del evento (JPG, PNG o WebP, máx. 5 MB)"
+              value={coverImage}
+              onChange={setCoverImage}
             />
-          </div>
-
-          <div className="flex flex-col gap-1.5 sm:col-span-2">
-            <Label htmlFor="event-description">Descripción</Label>
-            <Textarea
-              id="event-description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Contá de qué trata el evento, quiénes se presentan, qué incluye la entrada..."
-              required
+            <ImageUpload
+              label="QR de pago"
+              hint="El QR de tu cuenta bancaria que verán los compradores al pagar. Obligatorio para enviar a revisión."
+              value={paymentQrImage}
+              onChange={setPaymentQrImage}
             />
-          </div>
-
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="event-category">Categoría</Label>
-            <Select
-              id="event-category"
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-            >
-              {EVENT_CATEGORIES.map((cat) => (
-                <option key={cat} value={cat}>
-                  {cat}
-                </option>
-              ))}
-            </Select>
-          </div>
-
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="event-venue">Venue</Label>
-            <Select
-              id="event-venue"
-              value={venueId}
-              onChange={(e) => setVenueId(e.target.value)}
-            >
-              {venues.map((venue) => (
-                <option key={venue.id} value={venue.id}>
-                  {venue.name} ({venue.city})
-                </option>
-              ))}
-            </Select>
-          </div>
-
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="event-date">Fecha</Label>
-            <Input
-              id="event-date"
-              type="date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-              required
-            />
-          </div>
-
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="event-time">Hora</Label>
-            <Input
-              id="event-time"
-              type="time"
-              value={time}
-              onChange={(e) => setTime(e.target.value)}
-              required
-            />
-          </div>
-
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="event-price">Precio base (Bs)</Label>
-            <Input
-              id="event-price"
-              type="number"
-              min="1"
-              step="0.5"
-              value={price}
-              onChange={(e) => setPrice(e.target.value)}
-              placeholder="50"
-              required
-            />
-            <p className="text-xs text-muted-foreground">
-              El precio por zona se calcula multiplicando este precio por el
-              multiplicador de cada zona.
-            </p>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardContent className="grid gap-6 p-6 sm:grid-cols-2">
-          <ImageUpload
-            label="Imagen de portada"
-            hint="Se muestra en el catálogo y la página del evento (JPG, PNG o WebP, máx. 5 MB)"
-            value={coverImage}
-            onChange={setCoverImage}
-          />
-          <ImageUpload
-            label="QR de pago"
-            hint="El QR de tu cuenta bancaria que verán los compradores al pagar. Obligatorio para enviar a revisión."
-            value={paymentQrImage}
-            onChange={setPaymentQrImage}
-          />
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      )}
 
       <FieldError message={formError ?? undefined} />
 
       <div className="flex gap-3">
+        {step > 0 && (
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => setStep((value) => value - 1)}
+          >
+            Atrás
+          </Button>
+        )}
         <Button type="submit" disabled={loading}>
-          {loading
-            ? "Guardando..."
-            : initial
-              ? "Guardar cambios"
-              : "Crear evento (borrador)"}
+          {lastStep
+            ? loading
+              ? "Guardando..."
+              : initial
+                ? "Guardar cambios"
+                : "Crear evento (borrador)"
+            : "Siguiente"}
         </Button>
         <Button
           type="button"

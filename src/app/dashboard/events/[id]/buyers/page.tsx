@@ -9,6 +9,8 @@ import { ORDER_STATUS_LABELS } from "@/lib/constants";
 import { buttonVariants } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { Card, CardContent } from "@/components/ui/Card";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { TicketIcon } from "@/components/ui/icons";
 import { ProofImage } from "@/components/dashboard/ProofImage";
 import { ScanAccessButton } from "@/components/dashboard/ScanAccessButton";
 
@@ -115,14 +117,11 @@ export default async function EventBuyersPage({
 
       {orders.length === 0 ? (
         <Card>
-          <CardContent className="flex flex-col items-center gap-3 p-12 text-center">
-            <span className="text-4xl">🎟️</span>
-            <p className="font-medium">Todavía no hay compradores</p>
-            <p className="max-w-sm text-sm text-muted-foreground">
-              Cuando alguien compre boletos para este evento, vas a ver acá su
-              nombre y correo para poder contactarlo.
-            </p>
-          </CardContent>
+          <EmptyState
+            icon={<TicketIcon />}
+            title="Todavía no hay compradores"
+            description="Cuando alguien compre boletos para este evento, vas a ver acá su nombre y correo para poder contactarlo."
+          />
         </Card>
       ) : (
         <div className="overflow-x-auto rounded-xl border border-border">

@@ -18,6 +18,8 @@ import {
   MAX_PER_ZONE,
 } from "@/stores/cart-store";
 import { useHydrated } from "@/lib/use-hydrated";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { CheckIcon, QrCodeIcon, ShoppingCartIcon } from "@/components/ui/icons";
 
 export function CartView() {
   const router = useRouter();
@@ -64,16 +66,17 @@ export function CartView() {
 
   if (shownItems.length === 0 || !eventId) {
     return (
-      <div className="flex flex-1 flex-col items-center justify-center gap-3 py-24 text-center">
-        <span className="text-5xl">🛒</span>
-        <p className="font-medium">Tu carrito está vacío</p>
-        <p className="max-w-sm text-sm text-muted-foreground">
-          Explorá los eventos disponibles y elegí tus asientos o zonas.
-        </p>
-        <Link href="/events" className={buttonVariants({ size: "sm" })}>
-          Explorar eventos
-        </Link>
-      </div>
+      <EmptyState
+        icon={<ShoppingCartIcon />}
+        title="Tu carrito está vacío"
+        description="Explorá los eventos disponibles y elegí tus asientos o zonas."
+        action={
+          <Link href="/events" className={buttonVariants({ size: "sm" })}>
+            Explorar eventos
+          </Link>
+        }
+        className="flex-1 py-24"
+      />
     );
   }
 
@@ -201,6 +204,29 @@ export function CartView() {
             <p className="text-lg font-bold tabular-nums">
               Total: {formatCurrency(total)}
             </p>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Método de pago</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center gap-3 rounded-xl border-2 border-primary bg-primary-soft p-4">
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-card text-primary">
+              <QrCodeIcon className="h-5 w-5" />
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="font-semibold">Transferencia por QR</p>
+              <p className="text-sm text-muted-foreground">
+                Vas a escanear el QR del organizador desde tu banco y subir el
+                comprobante para confirmar tu compra.
+              </p>
+            </div>
+            <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground">
+              <CheckIcon className="h-3.5 w-3.5" />
+            </span>
           </div>
         </CardContent>
       </Card>
