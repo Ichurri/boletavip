@@ -2,30 +2,50 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* Üticket brand palette (brand guidelines v1.0):
+/* Üticket brand palette (brand guidelines v1.0) + "Función Nocturna" layer:
    Primary Purple #6D2BFF · Secondary Purple #4B14D1 · Lavender #879CFF
-   Dark Gray #2B2B2B · Light Gray #F5F5F7 · White #FFFFFF */
+   Dark Gray #2B2B2B · Light Gray #F5F5F7 · White #FFFFFF
+   Gold (marquee accent, minimal use) #A97E2C / #CDA349 / #E9CE8B */
 :root {
   color-scheme: light;
   --background: #f5f5f7;
   --foreground: #2b2b2b;
   --card: #ffffff;
   --card-foreground: #2b2b2b;
+  --card-raised: #ffffff;
   --muted: #efeef4;
   --muted-foreground: #6b6580;
+  --faint: #8a84a0;
   --border: #e5e2ef;
+  --border-soft: #efeef4;
   --primary: #6d2bff;
-  --primary-hover: #4b14d1;
+  --primary-hover: #5b1ee8;
   --primary-foreground: #ffffff;
   --primary-soft: #f1ebff;
+  --secondary: #4b14d1;
   --accent: #879cff;
   --accent-foreground: #1e1b4b;
-  --danger: #dc2626;
+  --gold: #a97e2c;
+  --gold-bright: #cda349;
+  --gold-soft: rgb(205 163 73 / 0.14);
+  --success: #047857;
+  --warning: #b45309;
+  --danger: #b91c1c;
   --ring: #879cff;
   --elevation-card: 0 1px 2px rgb(43 43 43 / 0.04), 0 1px 3px rgb(43 43 43 / 0.06);
   --elevation-card-hover:
     0 4px 6px -1px rgb(43 43 43 / 0.06), 0 12px 24px -8px rgb(109 43 255 / 0.18);
   --elevation-glow: 0 4px 20px -4px rgb(109 43 255 / 0.4);
+  --elevation-glow-ring: 0 0 14px rgb(142 92 255 / 0.55);
+  --elevation-gold: 0 8px 26px -12px rgb(205 163 73 / 0.32);
+  --elevation-ticket: 0 20px 40px -16px rgb(15 11 28 / 0.45);
+  /* Night-constant surfaces: the ticket, stage marquee and scanner never
+     flip with the theme, so these live only in :root. The QR always sits
+     on solid white in both themes (scannability). */
+  --ticket-surface: linear-gradient(165deg, #1c1230 0%, #0f0b1c 78%);
+  --ticket-stub: rgb(0 0 0 / 0.18);
+  --qr-frame: #ffffff;
+  --spotlight: radial-gradient(circle, rgb(142 92 255 / 0.45), transparent 70%);
 }
 
 /* "Negativo sobre oscuro": primary lightened for ≥4.5:1 contrast on near-black */
@@ -35,15 +55,21 @@
   --foreground: #f5f5f7;
   --card: #171128;
   --card-foreground: #f5f5f7;
+  --card-raised: #1c1230;
   --muted: #221a38;
   --muted-foreground: #a9a3bc;
   --border: #2c2344;
+  --border-soft: #221a38;
   --primary: #8e5cff;
   --primary-hover: #a583ff;
   --primary-foreground: #ffffff;
   --primary-soft: #241a44;
   --accent: #879cff;
   --accent-foreground: #10123a;
+  --gold: #cda349;
+  --gold-bright: #e9ce8b;
+  --success: #34d399;
+  --warning: #fbbf24;
   --danger: #f87171;
   --ring: #879cff;
   --elevation-card: 0 1px 2px rgb(0 0 0 / 0.3), 0 1px 3px rgb(0 0 0 / 0.25);
@@ -66,7 +92,17 @@
   --color-primary-soft: var(--primary-soft);
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
+  --color-secondary: var(--secondary);
+  --color-gold: var(--gold);
+  --color-gold-bright: var(--gold-bright);
+  --color-gold-soft: var(--gold-soft);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
   --color-danger: var(--danger);
+  --color-card-raised: var(--card-raised);
+  --color-border-soft: var(--border-soft);
+  --color-faint: var(--faint);
+  --color-qr-frame: var(--qr-frame);
   --color-ring: var(--ring);
   --font-sans: var(--font-jakarta), system-ui, sans-serif;
   --font-mono: var(--font-geist-mono);
@@ -74,6 +110,9 @@
   --shadow-card: var(--elevation-card);
   --shadow-card-hover: var(--elevation-card-hover);
   --shadow-glow: var(--elevation-glow);
+  --shadow-glow-ring: var(--elevation-glow-ring);
+  --shadow-gold: var(--elevation-gold);
+  --shadow-ticket: var(--elevation-ticket);
 }
 
 body {
@@ -116,6 +155,28 @@ body {
   input[type="time"]:hover::-webkit-calendar-picker-indicator {
     opacity: 1;
     background-color: var(--primary-soft);
+  }
+}
+
+/* Violet shimmer for skeletons ("Función Nocturna": never neutral gray).
+   The global reduced-motion block below freezes it to a static tint. */
+@utility animate-shimmer {
+  background-image: linear-gradient(
+    90deg,
+    var(--muted) 0%,
+    color-mix(in oklab, var(--primary) 14%, var(--muted)) 50%,
+    var(--muted) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.6s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
   }
 }
 

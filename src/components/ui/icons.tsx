@@ -1,4 +1,4 @@
-import type { ComponentProps } from "react";
+import type { ComponentProps, ReactElement } from "react";
 
 type IconProps = ComponentProps<"svg">;
 
@@ -105,4 +105,271 @@ export function ArrowRightIcon(props: IconProps) {
       <path d="m12 5 7 7-7 7" />
     </Icon>
   );
+}
+
+export function CopyIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <rect width="14" height="14" x="8" y="8" rx="2" />
+      <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
+    </Icon>
+  );
+}
+
+export function UploadIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+      <polyline points="17 8 12 3 7 8" />
+      <line x1="12" x2="12" y1="3" y2="15" />
+    </Icon>
+  );
+}
+
+export function CheckIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M20 6 9 17l-5-5" />
+    </Icon>
+  );
+}
+
+export function XIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M18 6 6 18M6 6l12 12" />
+    </Icon>
+  );
+}
+
+export function EyeIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+      <circle cx="12" cy="12" r="3" />
+    </Icon>
+  );
+}
+
+export function EyeOffIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24" />
+      <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68" />
+      <path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61" />
+      <line x1="2" x2="22" y1="2" y2="22" />
+    </Icon>
+  );
+}
+
+export function TrashIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M3 6h18" />
+      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
+      <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+    </Icon>
+  );
+}
+
+export function PencilIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+    </Icon>
+  );
+}
+
+export function MailIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <rect width="20" height="16" x="2" y="4" rx="2" />
+      <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+    </Icon>
+  );
+}
+
+export function LockIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
+      <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+    </Icon>
+  );
+}
+
+export function ScanIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M3 7V5a2 2 0 0 1 2-2h2" />
+      <path d="M17 3h2a2 2 0 0 1 2 2v2" />
+      <path d="M21 17v2a2 2 0 0 1-2 2h-2" />
+      <path d="M7 21H5a2 2 0 0 1-2-2v-2" />
+      <path d="M7 12h10" />
+    </Icon>
+  );
+}
+
+/* 8-point star, "destacado": decorative motif of the ticket stub */
+export function SparkleIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z" />
+    </Icon>
+  );
+}
+
+export function PhoneIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+    </Icon>
+  );
+}
+
+export function AlertTriangleIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" />
+      <path d="M12 9v4" />
+      <path d="M12 17h.01" />
+    </Icon>
+  );
+}
+
+export function PartyPopperIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M5.8 11.3 2 22l10.7-3.79" />
+      <path d="M4 3h.01" />
+      <path d="M22 8h.01" />
+      <path d="M15 2h.01" />
+      <path d="M22 20h.01" />
+      <path d="m22 2-2.24.75a2.9 2.9 0 0 0-1.96 3.12c.1.86-.57 1.63-1.45 1.63h-.38c-.86 0-1.6.6-1.76 1.44L14 10" />
+      <path d="m22 13-.82-.33c-.86-.34-1.82.2-1.98 1.11c-.11.7-.72 1.22-1.43 1.22H17" />
+      <path d="m11 2 .33.82c.34.86-.2 1.82-1.11 1.98C9.52 4.9 9 5.52 9 6.23V7" />
+      <path d="M11 13c1.93 1.93 2.83 4.17 2 5-.83.83-3.07-.07-5-2-1.93-1.93-2.83-4.17-2-5 .83-.83 3.07.07 5 2Z" />
+    </Icon>
+  );
+}
+
+export function HourglassIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M5 22h14" />
+      <path d="M5 2h14" />
+      <path d="M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22" />
+      <path d="M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2" />
+    </Icon>
+  );
+}
+
+export function ImageIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
+      <circle cx="9" cy="9" r="2" />
+      <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
+    </Icon>
+  );
+}
+
+export function FlashlightIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M18 6c0 2-2 2-2 4v10a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2V10c0-2-2-2-2-4V2h12z" />
+      <line x1="6" x2="18" y1="6" y2="6" />
+      <line x1="12" x2="12" y1="12" y2="12.01" />
+    </Icon>
+  );
+}
+
+export function MicIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" />
+      <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+      <line x1="12" x2="12" y1="19" y2="22" />
+    </Icon>
+  );
+}
+
+export function MusicIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M9 18V5l12-2v13" />
+      <circle cx="6" cy="18" r="3" />
+      <circle cx="18" cy="16" r="3" />
+    </Icon>
+  );
+}
+
+export function DramaIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M10 11h.01" />
+      <path d="M14 6h.01" />
+      <path d="M18 6h.01" />
+      <path d="M6.5 13.1h.01" />
+      <path d="M22 5c0 9-4 12-6 12s-6-3-6-12c0-2 2-3 6-3s6 1 6 3" />
+      <path d="M17.4 9.9c-.8.8-2 .8-2.8 0" />
+      <path d="M10.1 7.1C9 7.2 7.7 7.7 6 8.6c-3.5 2-4.7 3.9-3.7 5.6 4.5 7.8 9.5 8.4 11.2 7.4.9-.5 1.9-2.1 1.9-4.7" />
+      <path d="M9.1 16.5c.3-1.1 1.4-1.7 2.4-1.4" />
+    </Icon>
+  );
+}
+
+export function PersonStandingIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <circle cx="12" cy="5" r="1" />
+      <path d="m9 20 3-6 3 6" />
+      <path d="m6 8 6 2 6-2" />
+      <path d="M12 10v4" />
+    </Icon>
+  );
+}
+
+export function TentIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M3.5 21 14 3" />
+      <path d="M20.5 21 10 3" />
+      <path d="M15.5 21 12 15l-3.5 6" />
+      <path d="M2 21h20" />
+    </Icon>
+  );
+}
+
+export function TrophyIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" />
+      <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" />
+      <path d="M4 22h16" />
+      <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22" />
+      <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22" />
+      <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z" />
+    </Icon>
+  );
+}
+
+/* Category → icon map, replaces CATEGORY_EMOJIS as views migrate to the
+   "Función Nocturna" icon set. */
+export const CATEGORY_ICONS: Record<string, (props: IconProps) => ReactElement> = {
+  Comedia: MicIcon,
+  Música: MusicIcon,
+  Teatro: DramaIcon,
+  Danza: PersonStandingIcon,
+  Festival: TentIcon,
+  Deportes: TrophyIcon,
+  Otro: TicketIcon,
+};
+
+export function CategoryIcon({
+  category,
+  ...props
+}: IconProps & { category: string }) {
+  const Component = CATEGORY_ICONS[category] ?? TicketIcon;
+  return <Component {...props} />;
 }

@@ -1,11 +1,16 @@
 import { cn } from "@/lib/utils";
 import type { ComponentProps } from "react";
 
-export function Card({ className, ...props }: ComponentProps<"div">) {
+export function Card({
+  raised,
+  className,
+  ...props
+}: ComponentProps<"div"> & { raised?: boolean }) {
   return (
     <div
       className={cn(
-        "rounded-xl border border-border bg-card text-card-foreground shadow-card",
+        "rounded-2xl border border-border bg-card text-card-foreground shadow-card",
+        raised && "bg-card-raised",
         className,
       )}
       {...props}

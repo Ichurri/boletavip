@@ -1,7 +1,13 @@
 import { cn } from "@/lib/utils";
 import type { ComponentProps } from "react";
 
-type ButtonVariant = "primary" | "secondary" | "outline" | "ghost" | "danger";
+type ButtonVariant =
+  | "primary"
+  | "secondary"
+  | "outline"
+  | "ghost"
+  | "danger"
+  | "gold";
 type ButtonSize = "sm" | "md" | "lg";
 
 const variantClasses: Record<ButtonVariant, string> = {
@@ -15,6 +21,7 @@ const variantClasses: Record<ButtonVariant, string> = {
     "bg-transparent text-foreground hover:bg-muted focus-visible:ring-muted-foreground",
   danger:
     "bg-danger text-white hover:opacity-90 focus-visible:ring-danger",
+  gold: "border border-gold/50 bg-transparent text-gold hover:border-gold hover:bg-gold-soft focus-visible:ring-ring",
 };
 
 const sizeClasses: Record<ButtonSize, string> = {
@@ -35,7 +42,7 @@ export function buttonVariants({
   className,
 }: ButtonStyleProps = {}) {
   return cn(
-    "inline-flex cursor-pointer touch-manipulation items-center justify-center gap-2 rounded-lg font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-background active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50",
+    "inline-flex cursor-pointer touch-manipulation items-center justify-center gap-2 rounded-xl font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-background active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50 motion-reduce:active:scale-100",
     variantClasses[variant],
     sizeClasses[size],
     className,
