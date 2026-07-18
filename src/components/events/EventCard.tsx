@@ -1,8 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
-import { CalendarIcon, MapPinIcon, TicketIcon } from "@/components/ui/icons";
+import { CalendarIcon, CategoryIcon, MapPinIcon, TicketIcon } from "@/components/ui/icons";
 import { formatCurrency, formatDate } from "@/lib/utils";
 
 export interface EventCardData {
@@ -15,12 +14,26 @@ export interface EventCardData {
   venueName: string;
   city: string;
   priceFrom: number;
+  /** Set when the event's remaining inventory is critically low or gone. */
+  scarcity?: "low" | "soldout";
+}
+
+/* 14x14px gold corner brackets over the poster, echoing the marquee frame. */
+function PosterCorners() {
+  return (
+    <>
+      <span aria-hidden className="absolute left-2 top-2 h-3.5 w-3.5 rounded-tl-sm border-l-2 border-t-2 border-gold-bright/80" />
+      <span aria-hidden className="absolute right-2 top-2 h-3.5 w-3.5 rounded-tr-sm border-r-2 border-t-2 border-gold-bright/80" />
+      <span aria-hidden className="absolute bottom-2 left-2 h-3.5 w-3.5 rounded-bl-sm border-b-2 border-l-2 border-gold-bright/80" />
+      <span aria-hidden className="absolute bottom-2 right-2 h-3.5 w-3.5 rounded-br-sm border-b-2 border-r-2 border-gold-bright/80" />
+    </>
+  );
 }
 
 export function EventCard({ event }: { event: EventCardData }) {
   return (
     <Link href={`/events/${event.id}`} className="group">
-      <Card className="h-full overflow-hidden transition-all duration-300 group-hover:-translate-y-1 group-hover:border-primary/30 group-hover:shadow-card-hover">
+      <Card className="h-full overflow-hidden transition-all duration-300 group-hover:-translate-y-[3px] group-hover:border-primary/30 group-hover:shadow-card-hover">
         <div className="relative aspect-video overflow-hidden bg-gradient-to-br from-primary/25 via-primary/10 to-accent/20">
           {event.coverImage ? (
             <>
@@ -46,9 +59,26 @@ export function EventCard({ event }: { event: EventCardData }) {
               <TicketIcon className="h-14 w-14 text-primary/40" />
             </div>
           )}
-          <Badge variant="primary" className="absolute left-3 top-3 bg-card/90 backdrop-blur-sm">
+          <PosterCorners />
+          {/* Diagonal ribbon tag, cut with clip-path like a flag hanging off the corner. */}
+          <div
+            className="absolute left-0 top-0 flex items-center gap-1.5 bg-primary/90 py-1.5 pl-3 pr-4 text-xs font-semibold text-primary-foreground backdrop-blur-sm"
+            style={{ clipPath: "polygon(0 0, 100% 0, 78% 100%, 0 100%)" }}
+          >
+            <CategoryIcon category={event.category} className="h-3.5 w-3.5 shrink-0" />
             {event.category}
-          </Badge>
+          </div>
+          {event.scarcity && (
+            <span
+              className={
+                event.scarcity === "soldout"
+                  ? "absolute bottom-2 right-2 rounded-full bg-card/90 px-2.5 py-1 text-[11px] font-semibold text-muted-foreground backdrop-blur-sm"
+                  : "absolute bottom-2 right-2 rounded-full bg-gold-soft px-2.5 py-1 text-[11px] font-semibold text-gold backdrop-blur-sm"
+              }
+            >
+              {event.scarcity === "soldout" ? "Agotado" : "¡Últimos lugares!"}
+            </span>
+          )}
         </div>
 
         <div className="flex flex-col gap-1.5 p-4">

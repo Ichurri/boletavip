@@ -354,8 +354,7 @@ export function TrophyIcon(props: IconProps) {
   );
 }
 
-/* Category → icon map, replaces CATEGORY_EMOJIS as views migrate to the
-   "Función Nocturna" icon set. */
+/* Category → icon map for the "Función Nocturna" icon set. */
 export const CATEGORY_ICONS: Record<string, (props: IconProps) => ReactElement> = {
   Comedia: MicIcon,
   Música: MusicIcon,

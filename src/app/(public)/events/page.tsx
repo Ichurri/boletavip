@@ -1,12 +1,14 @@
 import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { eventDate } from "@/lib/utils";
+import { eventCardInclude, toEventCards } from "@/lib/events";
 import type { Prisma } from "@/generated/prisma/client";
-import { EventCard, type EventCardData } from "@/components/events/EventCard";
+import { EventCard } from "@/components/events/EventCard";
 import {
   EventFilters,
   type EventFilterValues,
 } from "@/components/events/EventFilters";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { SearchIcon } from "@/components/ui/icons";
 
 export const metadata: Metadata = {
@@ -39,15 +41,7 @@ export default async function EventsPage({
   const [events, cityRows] = await Promise.all([
     prisma.event.findMany({
       where,
-      include: {
-        venue: {
-          select: {
-            name: true,
-            city: true,
-            zones: { select: { priceMultiplier: true } },
-          },
-        },
-      },
+      include: eventCardInclude,
       orderBy: { date: "asc" },
     }),
     prisma.venue.findMany({
@@ -58,23 +52,7 @@ export default async function EventsPage({
     }),
   ]);
 
-  const cards: EventCardData[] = events.map((event) => {
-    const multipliers = event.venue.zones.map((zone) =>
-      Number(zone.priceMultiplier),
-    );
-    const minMultiplier = multipliers.length ? Math.min(...multipliers) : 1;
-    return {
-      id: event.id,
-      title: event.title,
-      category: event.category,
-      date: event.date,
-      time: event.time,
-      coverImage: event.coverImage,
-      venueName: event.venue.name,
-      city: event.venue.city,
-      priceFrom: Number(event.price) * minMultiplier,
-    };
-  });
+  const cards = await toEventCards(events);
 
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 px-4 py-10">
@@ -88,15 +66,12 @@ export default async function EventsPage({
       <EventFilters cities={cityRows.map((row) => row.city)} current={filters} />
 
       {cards.length === 0 ? (
-        <div className="flex flex-1 flex-col items-center justify-center gap-3 py-16 text-center">
-          <span className="flex h-16 w-16 items-center justify-center rounded-full bg-muted text-muted-foreground">
-            <SearchIcon className="h-7 w-7" />
-          </span>
-          <p className="font-medium">No encontramos eventos</p>
-          <p className="max-w-sm text-sm text-muted-foreground">
-            Probá con otros filtros o volvé pronto: siempre hay eventos nuevos.
-          </p>
-        </div>
+        <EmptyState
+          icon={<SearchIcon />}
+          title="No encontramos eventos"
+          description="Probá con otros filtros o volvé pronto: siempre hay eventos nuevos."
+          className="flex-1"
+        />
       ) : (
         <>
           <p className="text-sm text-muted-foreground">

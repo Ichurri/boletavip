@@ -12,16 +12,6 @@ export const EVENT_CATEGORIES = [
 
 export type EventCategory = (typeof EVENT_CATEGORIES)[number];
 
-export const CATEGORY_EMOJIS: Record<string, string> = {
-  Comedia: "🎤",
-  Música: "🎵",
-  Teatro: "🎭",
-  Danza: "💃",
-  Festival: "🎪",
-  Deportes: "⚽",
-  Otro: "🎟️",
-};
-
 export const EVENT_STATUS_LABELS: Record<
   EventStatus,
   { label: string; variant: "default" | "success" | "warning" | "danger" }

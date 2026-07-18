@@ -56,7 +56,7 @@ export function EventFilters({
   }
 
   return (
-    <div className="grid gap-3 rounded-xl border border-border bg-card p-4 sm:grid-cols-2 lg:grid-cols-6">
+    <div className="grid gap-3 rounded-2xl border border-border bg-card p-4 sm:grid-cols-2 lg:grid-cols-6">
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="filter-query">Buscar</Label>
         <Input

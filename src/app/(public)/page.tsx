@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { eventCardInclude, toEventCards } from "@/lib/events";
 import { buttonVariants } from "@/components/ui/Button";
 import { Card, CardContent } from "@/components/ui/Card";
 import {
@@ -38,36 +39,12 @@ async function getFeaturedEvents(): Promise<EventCardData[]> {
 
   const events = await prisma.event.findMany({
     where: { status: "APPROVED", date: { gte: startOfToday } },
-    include: {
-      venue: {
-        select: {
-          name: true,
-          city: true,
-          zones: { select: { priceMultiplier: true } },
-        },
-      },
-    },
+    include: eventCardInclude,
     orderBy: { date: "asc" },
     take: 3,
   });
 
-  return events.map((event) => {
-    const multipliers = event.venue.zones.map((zone) =>
-      Number(zone.priceMultiplier),
-    );
-    return {
-      id: event.id,
-      title: event.title,
-      category: event.category,
-      date: event.date,
-      time: event.time,
-      coverImage: event.coverImage,
-      venueName: event.venue.name,
-      city: event.venue.city,
-      priceFrom:
-        Number(event.price) * (multipliers.length ? Math.min(...multipliers) : 1),
-    };
-  });
+  return toEventCards(events);
 }
 
 export default async function HomePage() {
@@ -84,16 +61,24 @@ export default async function HomePage() {
 
   return (
     <>
-      <section className="relative overflow-hidden">
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-primary/15 via-transparent to-transparent" />
+      {/* Night-constant marquee hero — always the "Función Nocturna" surface,
+          regardless of the site's light/dark theme (same forced-dark-scope
+          trick as TicketCard/SeatMap's stage). */}
+      <section
+        className="dark relative isolate overflow-hidden text-foreground"
+        style={{ backgroundImage: "var(--ticket-surface)" }}
+      >
         <div
           aria-hidden
-          className="pointer-events-none absolute -top-24 left-1/2 h-72 w-72 -translate-x-[80%] rounded-full bg-primary/20 blur-3xl"
+          className="pointer-events-none absolute -top-24 left-1/2 h-[420px] w-[420px] -translate-x-1/2 opacity-80"
+          style={{ backgroundImage: "var(--spotlight)" }}
         />
-        <div
-          aria-hidden
-          className="pointer-events-none absolute -top-12 left-1/2 h-64 w-64 translate-x-[10%] rounded-full bg-accent/15 blur-3xl"
-        />
+        {/* Gold corner brackets, 44x3px, marquee-frame motif */}
+        <span aria-hidden className="absolute left-6 top-6 h-11 w-11 border-l-[3px] border-t-[3px] border-gold-bright/70" />
+        <span aria-hidden className="absolute right-6 top-6 h-11 w-11 border-r-[3px] border-t-[3px] border-gold-bright/70" />
+        <span aria-hidden className="absolute bottom-6 left-6 h-11 w-11 border-b-[3px] border-l-[3px] border-gold-bright/70" />
+        <span aria-hidden className="absolute bottom-6 right-6 h-11 w-11 border-b-[3px] border-r-[3px] border-gold-bright/70" />
+
         <div className="relative mx-auto flex max-w-6xl flex-col items-center gap-6 px-4 py-24 text-center sm:py-32">
           <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-1.5 text-sm text-muted-foreground shadow-card">
             <span className="relative flex h-2 w-2">
@@ -102,7 +87,7 @@ export default async function HomePage() {
             </span>
             La boletería digital de Bolivia
           </span>
-          <h1 className="max-w-3xl text-4xl font-extrabold tracking-tight sm:text-6xl lg:text-7xl">
+          <h1 className="max-w-3xl text-[34px] font-extrabold tracking-tight sm:text-[44px] lg:text-[56px]">
             Tu entrada en{" "}
             <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
               un clic
