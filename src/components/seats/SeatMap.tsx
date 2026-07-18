@@ -6,10 +6,15 @@ import type { EventSeatMapDto } from "@/types/seat-map";
 
 const legend = [
   { label: "Disponible", className: "border border-border bg-card" },
-  { label: "Seleccionado", className: "bg-primary" },
+  { label: "Seleccionado", className: "bg-primary shadow-glow-ring" },
   { label: "Reservado", className: "bg-accent/30" },
   { label: "Vendido", className: "bg-muted" },
 ];
+
+/* Alternating gold/cream marquee bulbs framing the stage label — always
+   on the night-constant stage surface, so fixed hex is intentional here
+   (same reasoning as the ticket's forced-dark surface). */
+const MARQUEE_LIGHTS = 11;
 
 export function SeatMap({ seatMap }: { seatMap: EventSeatMapDto }) {
   const numberedZones = seatMap.zones.filter((zone) => zone.numbered);
@@ -19,8 +24,24 @@ export function SeatMap({ seatMap }: { seatMap: EventSeatMapDto }) {
     <div className="flex flex-col gap-6">
       {numberedZones.length > 0 && (
         <>
-          <div className="rounded bg-foreground py-1.5 text-center text-xs font-semibold uppercase tracking-[0.3em] text-background">
-            Escenario
+          <div
+            aria-hidden="true"
+            className="relative overflow-hidden rounded-b-[150px] px-6 pb-4 pt-3 text-center shadow-[0_14px_36px_-8px_rgb(109_43_255/0.5)]"
+            style={{ backgroundImage: "linear-gradient(180deg, #2a1852, #171128)" }}
+          >
+            <div className="mb-2 flex items-center justify-center gap-2">
+              {Array.from({ length: MARQUEE_LIGHTS }).map((_, i) => (
+                <span
+                  key={i}
+                  className="h-1 w-1 rounded-full"
+                  style={{ backgroundColor: i % 2 === 0 ? "#e9ce8b" : "#f5ece0" }}
+                />
+              ))}
+            </div>
+            <span className="font-mono text-xs font-bold uppercase tracking-[0.34em] text-[#cda349]">
+              Escenario
+            </span>
+            <div className="absolute inset-x-6 bottom-0 h-0.5 rounded-full bg-[rgb(205_163_73/0.55)]" />
           </div>
 
           {numberedZones.map((zone) => (

@@ -37,7 +37,7 @@ export function NumberedZoneGrid({
 
   function seatClasses(seat: SeatDto, selected: boolean) {
     if (selected) {
-      return "border-primary bg-primary text-primary-foreground";
+      return "border-primary bg-primary text-primary-foreground shadow-glow-ring";
     }
     switch (seat.status) {
       case "AVAILABLE":
@@ -45,7 +45,7 @@ export function NumberedZoneGrid({
       case "RESERVED":
         return "cursor-not-allowed border-transparent bg-accent/30 text-muted-foreground";
       case "SOLD":
-        return "cursor-not-allowed border-transparent bg-muted text-muted-foreground/50";
+        return "cursor-not-allowed border-transparent bg-muted text-muted-foreground/45";
     }
   }
 
@@ -62,7 +62,7 @@ export function NumberedZoneGrid({
         <div className="mx-auto flex w-max flex-col gap-1.5">
           {sortedRows.map(([row, seats]) => (
             <div key={row} className="flex items-center gap-1.5">
-              <span className="w-5 shrink-0 text-center text-xs font-medium text-muted-foreground">
+              <span className="w-5 shrink-0 text-center font-mono text-xs font-semibold tracking-[0.05em] text-gold dark:text-gold-bright">
                 {row}
               </span>
               {seats
@@ -80,7 +80,7 @@ export function NumberedZoneGrid({
                       aria-pressed={selected}
                       title={`${zone.name} · ${seat.row}${seat.number}`}
                       className={cn(
-                        "h-7 w-7 rounded border text-[10px] font-medium transition-colors sm:h-8 sm:w-8 sm:text-xs",
+                        "h-[30px] w-[30px] touch-manipulation rounded-lg border font-mono text-[10px] font-semibold transition-[transform,colors] duration-150 active:scale-90 motion-reduce:active:scale-100 sm:h-8 sm:w-8 sm:text-xs",
                         seatClasses(seat, selected),
                       )}
                       onClick={() =>

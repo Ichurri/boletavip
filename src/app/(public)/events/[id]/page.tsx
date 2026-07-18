@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { expireStaleOrders } from "@/lib/orders";
 import { getPlatformSettings } from "@/lib/settings";
 import { formatDate, salesAreClosed } from "@/lib/utils";
-import { TicketIcon } from "@/components/ui/icons";
+import { TicketIcon, CalendarIcon, MapPinIcon, PhoneIcon } from "@/components/ui/icons";
 import { Badge } from "@/components/ui/Badge";
 import {
   Card,
@@ -187,14 +187,18 @@ export default async function EventDetailPage({ params }: PageProps) {
             </CardHeader>
             <CardContent className="flex flex-col gap-3 text-sm">
               <div className="flex items-start gap-3">
-                <span>📅</span>
+                <span className="mt-0.5 text-muted-foreground">
+                  <CalendarIcon className="h-4 w-4" />
+                </span>
                 <div>
                   <p className="font-medium">{formatDate(event.date)}</p>
                   <p className="text-muted-foreground">{event.time} hrs</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
-                <span>📍</span>
+                <span className="mt-0.5 text-muted-foreground">
+                  <MapPinIcon className="h-4 w-4" />
+                </span>
                 <div>
                   <p className="font-medium">{event.venue.name}</p>
                   <p className="text-muted-foreground">
@@ -204,7 +208,9 @@ export default async function EventDetailPage({ params }: PageProps) {
               </div>
               {event.organizer.phone && (
                 <div className="flex items-start gap-3">
-                  <span>📞</span>
+                  <span className="mt-0.5 text-muted-foreground">
+                    <PhoneIcon className="h-4 w-4" />
+                  </span>
                   <div>
                     <p className="font-medium">Contacto del organizador</p>
                     <a
