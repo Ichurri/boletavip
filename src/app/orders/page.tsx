@@ -51,8 +51,8 @@ export default async function OrdersPage() {
       {orders.length === 0 ? (
         <EmptyState
           icon={<TicketIcon />}
-          title="Todavía no tenés pedidos"
-          description="Cuando compres boletos, vas a poder seguir el estado de tus pedidos y descargar tus entradas desde acá."
+          title="Todavía no tenés boletos"
+          description="Cuando compres uno, aparece acá con su QR listo para la puerta."
           action={
             <Link href="/events" className={buttonVariants({ size: "sm" })}>
               Explorar eventos

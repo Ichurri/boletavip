@@ -57,14 +57,18 @@ export function OrderActions({
   }
 
   function reject() {
-    const reason = window.prompt(
-      hasProof
-        ? "Motivo del rechazo (se envía al comprador por correo, opcional):"
-        : "Motivo del rechazo (opcional):",
+    let reason = window.prompt(
+      "Motivo del rechazo (obligatorio, se envía al comprador por correo):",
       "",
     );
+    while (reason !== null && reason.trim() === "") {
+      reason = window.prompt(
+        "El motivo es obligatorio para rechazar un comprobante. Contá qué pasó:",
+        "",
+      );
+    }
     if (reason === null) return; // user pressed cancel
-    run("cancel", { reason: reason.trim() || undefined });
+    run("cancel", { reason: reason.trim() });
   }
 
   if (compact) {

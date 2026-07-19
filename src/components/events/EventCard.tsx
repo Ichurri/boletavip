@@ -22,10 +22,10 @@ export interface EventCardData {
 function PosterCorners() {
   return (
     <>
-      <span aria-hidden className="absolute left-2 top-2 h-3.5 w-3.5 rounded-tl-sm border-l-2 border-t-2 border-gold-bright/80" />
-      <span aria-hidden className="absolute right-2 top-2 h-3.5 w-3.5 rounded-tr-sm border-r-2 border-t-2 border-gold-bright/80" />
-      <span aria-hidden className="absolute bottom-2 left-2 h-3.5 w-3.5 rounded-bl-sm border-b-2 border-l-2 border-gold-bright/80" />
-      <span aria-hidden className="absolute bottom-2 right-2 h-3.5 w-3.5 rounded-br-sm border-b-2 border-r-2 border-gold-bright/80" />
+      <span aria-hidden className="absolute left-2 top-2 h-3.5 w-3.5 rounded-tl-sm border-l-2 border-t-2 border-gold-bright opacity-75 transition-opacity duration-200 group-hover:opacity-100" />
+      <span aria-hidden className="absolute right-2 top-2 h-3.5 w-3.5 rounded-tr-sm border-r-2 border-t-2 border-gold-bright opacity-75 transition-opacity duration-200 group-hover:opacity-100" />
+      <span aria-hidden className="absolute bottom-2 left-2 h-3.5 w-3.5 rounded-bl-sm border-b-2 border-l-2 border-gold-bright opacity-75 transition-opacity duration-200 group-hover:opacity-100" />
+      <span aria-hidden className="absolute bottom-2 right-2 h-3.5 w-3.5 rounded-br-sm border-b-2 border-r-2 border-gold-bright opacity-75 transition-opacity duration-200 group-hover:opacity-100" />
     </>
   );
 }
@@ -60,10 +60,12 @@ export function EventCard({ event }: { event: EventCardData }) {
             </div>
           )}
           <PosterCorners />
-          {/* Diagonal ribbon tag, cut with clip-path like a flag hanging off the corner. */}
+          {/* Diagonal ribbon tag, cut with clip-path like a flag hanging off the corner.
+              Fixed dark plaque (doesn't invert with theme) — same night-constant
+              treatment as the ticket/marquee accents. */}
           <div
-            className="absolute left-0 top-0 flex items-center gap-1.5 bg-primary/90 py-1.5 pl-3 pr-4 text-xs font-semibold text-primary-foreground backdrop-blur-sm"
-            style={{ clipPath: "polygon(0 0, 100% 0, 78% 100%, 0 100%)" }}
+            className="absolute left-0 top-0 flex items-center gap-1.5 bg-[#171128] py-1.5 pl-3 pr-4 font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-[#e9ce8b] backdrop-blur-sm"
+            style={{ clipPath: "polygon(0 0, 100% 0, 92% 100%, 0 100%)" }}
           >
             <CategoryIcon category={event.category} className="h-3.5 w-3.5 shrink-0" />
             {event.category}
@@ -73,7 +75,7 @@ export function EventCard({ event }: { event: EventCardData }) {
               className={
                 event.scarcity === "soldout"
                   ? "absolute bottom-2 right-2 rounded-full bg-card/90 px-2.5 py-1 text-[11px] font-semibold text-muted-foreground backdrop-blur-sm"
-                  : "absolute bottom-2 right-2 rounded-full bg-gold-soft px-2.5 py-1 text-[11px] font-semibold text-gold backdrop-blur-sm"
+                  : "absolute bottom-2 right-2 rounded-full bg-danger/15 px-2.5 py-1 text-[11px] font-semibold text-danger backdrop-blur-sm"
               }
             >
               {event.scarcity === "soldout" ? "Agotado" : "¡Últimos lugares!"}
@@ -95,7 +97,7 @@ export function EventCard({ event }: { event: EventCardData }) {
           </p>
           <p className="mt-1.5 text-sm text-muted-foreground">
             Desde{" "}
-            <span className="text-base font-bold tabular-nums text-primary">
+            <span className="text-base font-extrabold tabular-nums text-primary">
               {formatCurrency(event.priceFrom)}
             </span>
           </p>

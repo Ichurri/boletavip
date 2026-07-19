@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { eventDate } from "@/lib/utils";
 import { eventCardInclude, toEventCards } from "@/lib/events";
 import type { Prisma } from "@/generated/prisma/client";
+import { buttonVariants } from "@/components/ui/Button";
 import { EventCard } from "@/components/events/EventCard";
 import {
   EventFilters,
@@ -53,6 +55,9 @@ export default async function EventsPage({
   ]);
 
   const cards = await toEventCards(events);
+  const hasActiveFilters = Boolean(
+    filters.q || filters.categoria || filters.ciudad || filters.fecha || filters.precio,
+  );
 
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 px-4 py-10">
@@ -69,7 +74,14 @@ export default async function EventsPage({
         <EmptyState
           icon={<SearchIcon />}
           title="No encontramos eventos"
-          description="Probá con otros filtros o volvé pronto: siempre hay eventos nuevos."
+          description="La cartelera está tranquila por acá. Probá con otra ciudad o categoría."
+          action={
+            hasActiveFilters ? (
+              <Link href="/events" className={buttonVariants({ size: "sm" })}>
+                Limpiar filtros
+              </Link>
+            ) : undefined
+          }
           className="flex-1"
         />
       ) : (

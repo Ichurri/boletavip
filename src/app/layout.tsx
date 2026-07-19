@@ -5,6 +5,7 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { VerifyEmailBanner } from "@/components/layout/VerifyEmailBanner";
 import { RefreshOnFocus } from "@/components/layout/RefreshOnFocus";
+import { OfflineBanner } from "@/components/layout/OfflineBanner";
 import "./globals.css";
 
 const jakarta = Plus_Jakarta_Sans({
@@ -41,6 +42,7 @@ export default function RootLayout({
       <body className="flex min-h-screen flex-col font-sans">
         <ThemeProvider>
           <RefreshOnFocus />
+          <OfflineBanner />
           <Navbar />
           <VerifyEmailBanner />
           <main className="flex flex-1 flex-col">{children}</main>
