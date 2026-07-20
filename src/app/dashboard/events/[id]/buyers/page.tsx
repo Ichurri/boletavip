@@ -102,7 +102,7 @@ export default async function EventBuyersPage({
 
       {event.status === "APPROVED" && <ScanAccessButton eventId={event.id} />}
 
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid gap-4 sm:grid-cols-3">
         {stats.map((stat) => (
           <Card key={stat.label}>
             <CardContent className="p-5">
