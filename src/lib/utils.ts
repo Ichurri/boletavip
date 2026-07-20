@@ -15,6 +15,12 @@ export function formatCurrency(amount: number | string) {
   return currencyFormatter.format(Number(amount));
 }
 
+/** Short human-friendly order reference for the mono "ORD-XXXXXX" tag —
+ * the id itself is a cuid, not meant to be read aloud in full. */
+export function orderReference(id: string) {
+  return id.slice(-6).toUpperCase();
+}
+
 /** Stored at noon UTC so the calendar date is stable in any nearby timezone. */
 export function eventDate(date: string) {
   return new Date(`${date}T12:00:00Z`);

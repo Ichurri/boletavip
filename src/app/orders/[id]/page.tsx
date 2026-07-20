@@ -21,6 +21,7 @@ import { TicketCard } from "@/components/orders/TicketCard";
 import { UploadProofForm } from "@/components/orders/UploadProofForm";
 import { CopyAmountButton } from "@/components/orders/CopyAmountButton";
 import { Stepper } from "@/components/ui/Stepper";
+import { orderReference } from "@/lib/utils";
 import { PartyPopperIcon, XIcon } from "@/components/ui/icons";
 
 const PAYMENT_STEPS = ["Transferir", "Subir comprobante", "Confirmación"];
@@ -90,6 +91,7 @@ export default async function OrderDetailPage({ params }: PageProps) {
 
   const statusInfo = ORDER_STATUS_LABELS[order.status];
   const total = Number(order.totalAmount);
+  const totalTickets = order.items.reduce((sum, item) => sum + item.quantity, 0);
   const organizerPhone = order.event.organizer.phone;
   const organizerContact = organizerPhone ? (
     <p className="text-sm text-muted-foreground">
@@ -133,69 +135,87 @@ export default async function OrderDetailPage({ params }: PageProps) {
             current={1}
             className="mx-auto max-w-md"
           />
-          <div className="grid gap-6 md:grid-cols-2">
-            <Card>
-              <CardHeader>
-                <CardTitle>Pagá con QR</CardTitle>
-              </CardHeader>
-              <CardContent className="flex flex-col items-center gap-4">
-                {order.paymentQrUrl ? (
-                  <Image
-                    src={order.paymentQrUrl}
-                    alt="QR de pago del organizador"
-                    width={260}
-                    height={260}
-                    className="h-auto max-w-full rounded-md border border-border bg-qr-frame p-2"
-                  />
-                ) : (
-                  <p className="text-sm text-muted-foreground">
-                    El organizador no cargó un QR de pago. Contactalo para
-                    coordinar la transferencia.
-                  </p>
-                )}
-                <div className="flex items-center gap-2">
-                  <p className="text-2xl font-bold tabular-nums">
-                    {formatCurrency(total)}
-                  </p>
-                  <CopyAmountButton value={formatCurrency(total)} />
-                </div>
-                <OrderCountdown expiresAt={order.expiresAt.toISOString()} />
-                <CancelOrderButton orderId={order.id} />
-              </CardContent>
-            </Card>
+          <p className="text-center font-mono text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+            Pedido ORD-{orderReference(order.id)} · {order.event.title} ·{" "}
+            {totalTickets} boleto{totalTickets === 1 ? "" : "s"}
+          </p>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>Instrucciones</CardTitle>
-              </CardHeader>
-              <CardContent className="flex flex-col gap-4">
-                <ol className="flex list-decimal flex-col gap-2 pl-5 text-sm text-muted-foreground">
-                  <li>Abrí la app de tu banco y escaneá el QR.</li>
-                  <li>
-                    Transferí el monto exacto:{" "}
-                    <strong className="text-foreground">
+          <div className="grid gap-6 lg:grid-cols-[1fr_320px] lg:items-start lg:gap-8">
+            <div className="order-2 flex flex-col gap-6 lg:order-1">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2.5">
+                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
+                      1
+                    </span>
+                    Transferí el monto exacto
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="flex flex-col items-center gap-4">
+                  {order.paymentQrUrl ? (
+                    <Image
+                      src={order.paymentQrUrl}
+                      alt="QR de pago del organizador"
+                      width={260}
+                      height={260}
+                      className="h-auto max-w-full rounded-md border border-border bg-qr-frame p-2"
+                    />
+                  ) : (
+                    <p className="text-sm text-muted-foreground">
+                      El organizador no cargó un QR de pago. Contactalo para
+                      coordinar la transferencia.
+                    </p>
+                  )}
+                  <div className="flex items-center gap-2">
+                    <p className="text-2xl font-bold tabular-nums">
                       {formatCurrency(total)}
-                    </strong>
-                    .
-                  </li>
-                  <li>
-                    Sacale captura al comprobante de la transferencia y subilo
-                    acá abajo.
-                  </li>
-                  <li>
-                    El organizador verificará tu comprobante y tus boletos con
-                    QR aparecerán en esta misma página.
-                  </li>
-                </ol>
-                {organizerContact}
+                    </p>
+                    <CopyAmountButton value={formatCurrency(total)} />
+                  </div>
+                  {organizerContact}
+                </CardContent>
+              </Card>
 
-                <div className="border-t border-border pt-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2.5">
+                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
+                      2
+                    </span>
+                    Subí tu comprobante
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
                   <UploadProofForm orderId={order.id} />
-                </div>
+                </CardContent>
+              </Card>
 
-                <div className="border-t border-border pt-4">
-                  <h3 className="mb-2 text-sm font-semibold">Tu pedido</h3>
-                  <ul className="flex flex-col gap-1.5 text-sm">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2.5">
+                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
+                      3
+                    </span>
+                    Esperá la confirmación
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground">
+                    El organizador revisa tu comprobante. Te avisamos por
+                    correo y tus boletos aparecen en Mis pedidos.
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+
+            <div className="order-1 lg:order-2 lg:sticky lg:top-20">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Tu pedido</CardTitle>
+                </CardHeader>
+                <CardContent className="flex flex-col items-center gap-4">
+                  <OrderCountdown expiresAt={order.expiresAt.toISOString()} />
+                  <ul className="flex w-full flex-col gap-1.5 text-sm">
                     {order.items.map((item) => (
                       <li key={item.id} className="flex justify-between gap-2">
                         <span className="text-muted-foreground">
@@ -209,9 +229,21 @@ export default async function OrderDetailPage({ params }: PageProps) {
                       </li>
                     ))}
                   </ul>
-                </div>
-              </CardContent>
-            </Card>
+                  <div className="flex w-full justify-between border-t border-border pt-2 text-sm font-semibold">
+                    <span>Total</span>
+                    <span className="tabular-nums">
+                      {formatCurrency(total)}
+                    </span>
+                  </div>
+                  <p className="text-center text-xs text-muted-foreground">
+                    Los boletos se emiten cuando el organizador confirma tu
+                    pago. Si el tiempo expira, los asientos se liberan y
+                    podés volver a intentar.
+                  </p>
+                  <CancelOrderButton orderId={order.id} />
+                </CardContent>
+              </Card>
+            </div>
           </div>
         </>
       )}

@@ -30,9 +30,19 @@ export function SelectionSummary({ eventId }: { eventId: string }) {
   const shownItems = hydrated ? items : NO_ITEMS;
   const total = cartTotal(shownItems);
   const count = cartCount(shownItems);
+  // Remounting this span (via `key`) each time the selection's contents
+  // change replays its CSS flash animation — no effect/setState needed.
+  const selectionSignature = shownItems
+    .map((item) => `${item.key}:${item.quantity}`)
+    .join(",");
 
   return (
-    <Card>
+    <Card className="relative">
+      <span
+        key={selectionSignature}
+        aria-hidden
+        className="animate-selection-flash pointer-events-none absolute inset-0 rounded-2xl"
+      />
       <CardHeader>
         <CardTitle>Tu selección</CardTitle>
       </CardHeader>

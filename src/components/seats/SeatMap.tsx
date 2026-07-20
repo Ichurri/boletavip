@@ -29,18 +29,24 @@ export function SeatMap({ seatMap }: { seatMap: EventSeatMapDto }) {
             className="relative overflow-hidden rounded-b-[150px] px-6 pb-4 pt-3 text-center shadow-[0_14px_36px_-8px_rgb(109_43_255/0.5)]"
             style={{ backgroundImage: "linear-gradient(180deg, #2a1852, #171128)" }}
           >
-            <div className="mb-2 flex items-center justify-center gap-2">
-              {Array.from({ length: MARQUEE_LIGHTS }).map((_, i) => (
-                <span
-                  key={i}
-                  className="h-1 w-1 rounded-full"
-                  style={{ backgroundColor: i % 2 === 0 ? "#e9ce8b" : "#f5ece0" }}
-                />
-              ))}
+            <div
+              className="animate-stage-spotlight pointer-events-none absolute inset-x-0 -top-10 mx-auto h-32 w-56 opacity-85"
+              style={{ backgroundImage: "var(--spotlight)" }}
+            />
+            <div className="relative">
+              <div className="mb-2 flex items-center justify-center gap-2">
+                {Array.from({ length: MARQUEE_LIGHTS }).map((_, i) => (
+                  <span
+                    key={i}
+                    className="h-1 w-1 rounded-full"
+                    style={{ backgroundColor: i % 2 === 0 ? "#e9ce8b" : "#f5ece0" }}
+                  />
+                ))}
+              </div>
+              <span className="font-mono text-xs font-bold uppercase tracking-[0.34em] text-[#cda349]">
+                Escenario
+              </span>
             </div>
-            <span className="font-mono text-xs font-bold uppercase tracking-[0.34em] text-[#cda349]">
-              Escenario
-            </span>
             <div className="absolute inset-x-6 bottom-0 h-0.5 rounded-full bg-[rgb(205_163_73/0.55)]" />
           </div>
 

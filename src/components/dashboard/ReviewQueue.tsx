@@ -4,7 +4,7 @@ import { HourglassIcon, EyeIcon } from "@/components/ui/icons";
 import { OrderActions } from "@/components/dashboard/OrderActions";
 import { ProofImage } from "@/components/dashboard/ProofImage";
 import { orderItemsSummary, type OrderItemLike } from "@/lib/order-items";
-import { formatCurrency } from "@/lib/utils";
+import { formatCurrency, orderReference } from "@/lib/utils";
 
 export interface ReviewQueueOrder {
   id: string;
@@ -13,12 +13,6 @@ export interface ReviewQueueOrder {
   buyer: { name: string | null; email: string };
   event: { title: string };
   items: OrderItemLike[];
-}
-
-/* Short human-friendly order reference for the mono "ORD-XXXXXX" tag —
-   the id itself is a cuid, not meant to be read aloud in full. */
-function orderReference(id: string) {
-  return id.slice(-6).toUpperCase();
 }
 
 function waitingMinutes(date: Date | string) {

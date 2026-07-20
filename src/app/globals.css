@@ -197,6 +197,41 @@ body {
   }
 }
 
+/* Stage spotlight "breathing" behind the seat map's marquee proscenium
+   (spec #3d). The global reduced-motion block below collapses this to a
+   static state, so no per-component motion-reduce override is needed. */
+@utility animate-stage-spotlight {
+  animation: spotlight-breathe 4s ease-in-out infinite;
+}
+
+@keyframes spotlight-breathe {
+  0%,
+  100% {
+    opacity: 0.85;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* "Tu selección" border flash on change (spec #3d). Triggered by remounting
+   this span via a `key` tied to the selection, not by effect-driven state,
+   so it needs no manual reduced-motion guard beyond the global block below. */
+@utility animate-selection-flash {
+  animation: selection-flash 300ms ease-out both;
+}
+
+@keyframes selection-flash {
+  from {
+    box-shadow:
+      0 0 0 2px rgb(109 43 255 / 0.7),
+      0 0 16px rgb(109 43 255 / 0.35);
+  }
+  to {
+    box-shadow: 0 0 0 2px rgb(109 43 255 / 0);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   ::before,

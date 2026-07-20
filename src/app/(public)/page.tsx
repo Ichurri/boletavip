@@ -2,11 +2,12 @@ import Link from "next/link";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { eventCardInclude, toEventCards } from "@/lib/events";
-import { buttonVariants } from "@/components/ui/Button";
+import { EVENT_CATEGORIES } from "@/lib/constants";
 import { Card, CardContent } from "@/components/ui/Card";
 import {
   ArrowRightIcon,
   QrCodeIcon,
+  SearchIcon,
   SparklesIcon,
   TicketIcon,
 } from "@/components/ui/icons";
@@ -65,7 +66,7 @@ export default async function HomePage() {
           regardless of the site's light/dark theme (same forced-dark-scope
           trick as TicketCard/SeatMap's stage). */}
       <section
-        className="dark relative isolate overflow-hidden text-foreground"
+        className="dark relative isolate overflow-hidden border-b border-gold-bright/35 text-foreground"
         style={{ backgroundImage: "var(--ticket-surface)" }}
       >
         <div
@@ -79,37 +80,59 @@ export default async function HomePage() {
         <span aria-hidden className="absolute bottom-6 left-6 h-11 w-11 border-b-[3px] border-l-[3px] border-gold-bright/70" />
         <span aria-hidden className="absolute bottom-6 right-6 h-11 w-11 border-b-[3px] border-r-[3px] border-gold-bright/70" />
 
-        <div className="relative mx-auto flex max-w-6xl flex-col items-center gap-6 px-4 py-24 text-center sm:py-32">
-          <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-1.5 text-sm text-muted-foreground shadow-card">
-            <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-60" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
-            </span>
-            La boletería digital de Bolivia
+        <div className="relative mx-auto flex max-w-6xl flex-col items-center gap-5 px-4 py-24 text-center sm:py-32">
+          <span className="font-mono text-[10px] font-bold uppercase tracking-[0.22em] text-gold-bright">
+            Esta noche en Bolivia
           </span>
           <h1 className="max-w-3xl text-[34px] font-extrabold tracking-tight sm:text-[44px] lg:text-[56px]">
-            Tu entrada en{" "}
+            Tu próxima{" "}
             <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-              un clic
-            </span>
-            .
+              función
+            </span>{" "}
+            te espera
           </h1>
           <p className="max-w-xl text-lg text-muted-foreground">
-            Conectamos personas con experiencias mediante boletos digitales
-            rápidos, seguros y simples.
+            Comedia, conciertos y teatro con entrada digital. Comprá en
+            minutos, QR en tu bolsillo.
           </p>
-          <div className="flex flex-col gap-3 sm:flex-row">
-            <Link href="/events" className={buttonVariants({ size: "lg" })}>
-              Explorar eventos
-              <ArrowRightIcon className="h-4 w-4" />
-            </Link>
+
+          <form action="/events" className="w-full max-w-lg">
+            <div className="relative">
+              <SearchIcon className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-white/50" />
+              <input
+                type="search"
+                name="q"
+                placeholder="Buscá por artista, evento o ciudad"
+                className="h-[52px] w-full rounded-full border border-white/15 bg-white/[0.06] pl-11 pr-4 text-sm text-white placeholder:text-white/50 backdrop-blur-md transition-colors focus-visible:border-primary focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/40"
+              />
+            </div>
+          </form>
+
+          <div className="flex w-full max-w-lg gap-2 overflow-x-auto px-4 py-1 sm:justify-center sm:px-0">
             <Link
-              href={organizeHref}
-              className={buttonVariants({ variant: "outline", size: "lg" })}
+              href="/events"
+              className="inline-flex h-9 shrink-0 items-center rounded-full border border-white/15 bg-white/[0.06] px-4 text-sm font-medium text-white transition-colors hover:bg-white/[0.12]"
             >
-              {isOrganizer ? "Crear un evento" : "Quiero organizar un evento"}
+              Todos
             </Link>
+            {EVENT_CATEGORIES.map((category) => (
+              <Link
+                key={category}
+                href={`/events?categoria=${encodeURIComponent(category)}`}
+                className="inline-flex h-9 shrink-0 items-center rounded-full border border-white/15 bg-white/[0.06] px-4 text-sm font-medium text-white/80 transition-colors hover:bg-white/[0.12] hover:text-white"
+              >
+                {category}
+              </Link>
+            ))}
           </div>
+
+          <Link
+            href={organizeHref}
+            className="mt-1 inline-flex items-center gap-1 text-sm font-medium text-white/70 underline-offset-2 hover:text-white hover:underline"
+          >
+            {isOrganizer ? "Crear un evento" : "Quiero organizar un evento"}
+            <ArrowRightIcon className="h-3.5 w-3.5" />
+          </Link>
         </div>
       </section>
 
