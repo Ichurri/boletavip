@@ -3,12 +3,16 @@ import Link from "next/link";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { expireStaleOrders } from "@/lib/orders";
-import { cn, formatCurrency, formatDate } from "@/lib/utils";
+import {
+  cn,
+  formatCurrency,
+  formatShortDate,
+  orderReference,
+} from "@/lib/utils";
 import { ORDER_STATUS_LABELS } from "@/lib/constants";
 import type { OrderStatus } from "@/generated/prisma/enums";
 import { buttonVariants } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
-import { Card, CardContent } from "@/components/ui/Card";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { TicketIcon } from "@/components/ui/icons";
 import { PendingTimeRemaining } from "@/components/orders/PendingTimeRemaining";
@@ -32,6 +36,25 @@ const FILTERS = [
   { value: "pendientes", label: "Pendientes" },
 ] as const;
 type OrderFilter = (typeof FILTERS)[number]["value"];
+
+/* Gradient tints echoing the icon badges elsewhere in the redesign
+   (EventCard tags, review-queue rows) — gold for confirmed, violet for
+   pending, flat muted once cancelled. */
+function badgeClasses(status: OrderStatus) {
+  if (status === "CONFIRMED") {
+    return {
+      bg: "bg-gradient-to-br from-gold/25 to-primary/20",
+      icon: "text-gold-bright",
+    };
+  }
+  if (status === "CANCELLED") {
+    return { bg: "bg-muted", icon: "text-muted-foreground" };
+  }
+  return {
+    bg: "bg-gradient-to-br from-primary/25 to-accent/15",
+    icon: "text-primary",
+  };
+}
 
 type PageProps = { searchParams: Promise<{ filtro?: string }> };
 
@@ -71,8 +94,13 @@ export default async function OrdersPage({ searchParams }: PageProps) {
   });
 
   return (
-    <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-6 px-4 py-10">
-      <h1 className="text-2xl font-bold">Mis pedidos</h1>
+    <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-6 px-4 py-10">
+      <div className="flex flex-col gap-1.5">
+        <h1 className="text-[28px] font-extrabold leading-tight tracking-tight">
+          Mis pedidos
+        </h1>
+        <span className="h-[3px] w-10 bg-gradient-to-r from-gold to-transparent" />
+      </div>
 
       <div className="flex gap-2">
         {FILTERS.map((filter) => {
@@ -107,61 +135,58 @@ export default async function OrdersPage({ searchParams }: PageProps) {
           className="flex-1 py-24"
         />
       ) : (
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-2.5">
           {orders.map((order) => {
             const statusInfo = ORDER_STATUS_LABELS[order.status];
             const cancelled = order.status === "CANCELLED";
-            const eventCancelled = order.event.status === "CANCELLED";
+            const pending = order.status === "PENDING_PAYMENT";
+            const icon = badgeClasses(order.status);
             return (
-              <Card
-                key={order.id}
-                className={cancelled ? "opacity-[0.55]" : undefined}
-              >
-                <CardContent className="flex flex-wrap items-center justify-between gap-4 p-6">
-                  <div className="min-w-0">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <h2
-                        className={
-                          cancelled
-                            ? "font-semibold line-through"
-                            : "font-semibold"
-                        }
-                      >
-                        {order.event.title}
-                      </h2>
+              <Link key={order.id} href={`/orders/${order.id}`} className="block">
+                <div
+                  className={cn(
+                    "flex items-center gap-3 rounded-2xl border border-border bg-card p-3.5 transition-colors hover:border-primary/30",
+                    cancelled && "opacity-[0.55]",
+                    pending && "border-gold/40",
+                  )}
+                >
+                  <span
+                    className={cn(
+                      "flex h-11 w-11 shrink-0 items-center justify-center rounded-xl",
+                      icon.bg,
+                    )}
+                  >
+                    <TicketIcon className={cn("h-5 w-5", icon.icon)} />
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p
+                      className={cn(
+                        "truncate text-sm font-semibold",
+                        cancelled && "text-muted-foreground line-through",
+                      )}
+                    >
+                      {order.event.title}
+                    </p>
+                    <p className="truncate font-mono text-xs text-muted-foreground">
+                      ORD-{orderReference(order.id)} ·{" "}
+                      {formatShortDate(order.event.date)}
+                      {!cancelled &&
+                        ` · ${formatCurrency(Number(order.totalAmount))}`}
+                    </p>
+                  </div>
+                  <div className="shrink-0">
+                    {pending ? (
+                      <PendingTimeRemaining
+                        expiresAt={order.expiresAt.toISOString()}
+                      />
+                    ) : (
                       <Badge variant={statusInfo.variant}>
                         {statusInfo.label}
                       </Badge>
-                      {order.status === "PENDING_PAYMENT" && (
-                        <PendingTimeRemaining
-                          expiresAt={order.expiresAt.toISOString()}
-                        />
-                      )}
-                    </div>
-                    <p className="mt-1 text-sm text-muted-foreground">
-                      {formatDate(order.event.date)} · {order.event.time} hrs ·{" "}
-                      {formatCurrency(Number(order.totalAmount))}
-                      {order._count.tickets > 0 &&
-                        ` · ${order._count.tickets} boleto${order._count.tickets === 1 ? "" : "s"}`}
-                    </p>
-                    {cancelled && (
-                      <p className="mt-1 text-xs text-muted-foreground">
-                        {order.rejectionReason
-                          ? `Motivo: ${order.rejectionReason}`
-                          : eventCancelled
-                            ? "El organizador canceló este evento"
-                            : null}
-                      </p>
                     )}
                   </div>
-                  <Link
-                    href={`/orders/${order.id}`}
-                    className={buttonVariants({ variant: "outline", size: "sm" })}
-                  >
-                    Ver pedido
-                  </Link>
-                </CardContent>
-              </Card>
+                </div>
+              </Link>
             );
           })}
         </div>

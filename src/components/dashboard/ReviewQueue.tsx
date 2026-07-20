@@ -1,10 +1,10 @@
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/Button";
-import { HourglassIcon, EyeIcon } from "@/components/ui/icons";
+import { EyeIcon } from "@/components/ui/icons";
 import { OrderActions } from "@/components/dashboard/OrderActions";
 import { ProofImage } from "@/components/dashboard/ProofImage";
 import { orderItemsSummary, type OrderItemLike } from "@/lib/order-items";
-import { formatCurrency, orderReference } from "@/lib/utils";
+import { cn, formatCurrency, orderReference } from "@/lib/utils";
 
 export interface ReviewQueueOrder {
   id: string;
@@ -19,9 +19,13 @@ function waitingMinutes(date: Date | string) {
   return Math.max(0, Math.floor((Date.now() - new Date(date).getTime()) / 60_000));
 }
 
-/* FIFO queue of PAYMENT_SUBMITTED orders — the only gold-tinted surface on
-   the dashboard home (spec #6b), and it disappears entirely once the
-   organizer is caught up. */
+function ageLabel(minutes: number) {
+  return `hace ${minutes >= 60 ? `${Math.floor(minutes / 60)}h` : `${minutes}m`}`;
+}
+
+/* FIFO queue of PAYMENT_SUBMITTED orders, FIFO by wait time (spec #6b).
+   The gold treatment lives in the summary banner above this card on the
+   dashboard home — this card's own header stays neutral. */
 export function ReviewQueue({
   orders,
   totalCount,
@@ -32,36 +36,30 @@ export function ReviewQueue({
   if (orders.length === 0) return null;
 
   return (
-    <section className="overflow-hidden rounded-2xl border border-gold/30">
-      <div className="flex items-center justify-between gap-2 bg-gold-soft px-4 py-3 sm:px-5">
-        <div className="flex items-center gap-2">
-          <HourglassIcon className="h-4 w-4 text-gold" />
-          <h2
-            aria-live="polite"
-            className="font-mono text-xs font-bold uppercase tracking-[0.08em] text-gold"
-          >
-            Comprobantes por revisar · {totalCount}
-          </h2>
-        </div>
-        {totalCount > orders.length && (
-          <Link
-            href="/dashboard/orders"
-            className="text-xs font-medium text-gold hover:underline"
-          >
-            Ver todos
-          </Link>
-        )}
+    <section className="overflow-hidden rounded-2xl border border-border bg-card">
+      <div className="flex items-center justify-between gap-2 border-b border-border-soft px-5 py-4">
+        <h2 className="font-semibold">Comprobantes por revisar</h2>
+        <span
+          aria-live="polite"
+          className="rounded-full bg-gold-soft px-2.5 py-1 text-xs font-bold text-gold"
+        >
+          {totalCount} pendiente{totalCount === 1 ? "" : "s"}
+        </span>
       </div>
 
-      <div className="flex flex-col divide-y divide-border-soft bg-card">
+      <div className="flex flex-col divide-y divide-border-soft">
         {orders.map((order) => {
           const age = order.paymentSubmittedAt
             ? waitingMinutes(order.paymentSubmittedAt)
             : 0;
+          const aged = age >= 30;
           return (
             <div
               key={order.id}
-              className="flex flex-col gap-3 p-4 sm:p-5 lg:flex-row lg:items-center lg:justify-between lg:gap-6"
+              className={cn(
+                "flex flex-col gap-3 p-4 sm:p-5 lg:flex-row lg:items-center lg:justify-between lg:gap-6",
+                aged && "bg-gold-soft/40",
+              )}
             >
               <div className="flex min-w-0 items-center gap-3">
                 <ProofImage
@@ -73,11 +71,16 @@ export function ReviewQueue({
                     <span className="font-mono text-xs text-muted-foreground">
                       ORD-{orderReference(order.id)}
                     </span>
-                    {age >= 30 && (
-                      <span className="rounded-full bg-warning/15 px-1.5 py-0.5 text-[10px] font-semibold text-warning">
-                        Esperando {age >= 60 ? `${Math.floor(age / 60)}h` : `${age}m`}
-                      </span>
-                    )}
+                    <span
+                      className={cn(
+                        "rounded-full px-1.5 py-0.5 text-[10px] font-semibold",
+                        aged
+                          ? "bg-warning/15 text-warning"
+                          : "bg-muted text-muted-foreground",
+                      )}
+                    >
+                      {ageLabel(age)}
+                    </span>
                   </div>
                   <p className="truncate text-sm font-medium">
                     {order.buyer.name ?? order.buyer.email} · {order.event.title}
@@ -113,6 +116,17 @@ export function ReviewQueue({
           );
         })}
       </div>
+
+      {totalCount > orders.length && (
+        <div className="flex justify-center border-t border-border-soft p-3">
+          <Link
+            href="/dashboard/orders"
+            className="text-sm font-semibold text-primary hover:underline"
+          >
+            Ver los {totalCount} pendientes →
+          </Link>
+        </div>
+      )}
     </section>
   );
 }

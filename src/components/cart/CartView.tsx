@@ -19,7 +19,13 @@ import {
 } from "@/stores/cart-store";
 import { useHydrated } from "@/lib/use-hydrated";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { CheckIcon, QrCodeIcon, ShoppingCartIcon } from "@/components/ui/icons";
+import {
+  CheckIcon,
+  MailIcon,
+  PhoneIcon,
+  QrCodeIcon,
+  ShoppingCartIcon,
+} from "@/components/ui/icons";
 
 export function CartView({
   contact,
@@ -113,12 +119,18 @@ export function CartView({
             <CardHeader>
               <CardTitle>¿A dónde enviamos tus boletos?</CardTitle>
             </CardHeader>
-            <CardContent className="flex flex-col gap-1 text-sm">
-              <p className="font-medium">
-                {contact?.email ?? "Sin correo registrado"}
-              </p>
+            <CardContent className="grid gap-3 sm:grid-cols-2">
+              <div className="flex h-12 items-center gap-2.5 rounded-xl border border-border bg-card px-3.5 text-sm sm:col-span-2">
+                <MailIcon className="h-4 w-4 shrink-0 text-muted-foreground" />
+                <span className="truncate font-medium">
+                  {contact?.email ?? "Sin correo registrado"}
+                </span>
+              </div>
               {contact?.phone && (
-                <p className="text-muted-foreground">{contact.phone}</p>
+                <div className="flex h-12 items-center gap-2.5 rounded-xl border border-border bg-card px-3.5 text-sm sm:col-span-2">
+                  <PhoneIcon className="h-4 w-4 shrink-0 text-muted-foreground" />
+                  <span className="truncate font-medium">{contact.phone}</span>
+                </div>
               )}
             </CardContent>
           </Card>

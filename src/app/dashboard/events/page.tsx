@@ -3,24 +3,55 @@ import Image from "next/image";
 import Link from "next/link";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { formatCurrency, formatDate } from "@/lib/utils";
+import { cn, formatShortDate } from "@/lib/utils";
 import { EVENT_STATUS_LABELS } from "@/lib/constants";
+import type { Prisma } from "@/generated/prisma/client";
 import { buttonVariants } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
-import { Card, CardContent } from "@/components/ui/Card";
+import { Card } from "@/components/ui/Card";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { MicIcon, TicketIcon } from "@/components/ui/icons";
+import {
+  EyeIcon,
+  MicIcon,
+  PencilIcon,
+  SearchIcon,
+  TicketIcon,
+} from "@/components/ui/icons";
 import { EventActions } from "@/components/dashboard/EventActions";
 
 export const metadata: Metadata = {
   title: "Mis eventos",
 };
 
-export default async function DashboardEventsPage() {
+const FILTERS = [
+  { value: "todos", label: "Todos" },
+  { value: "publicados", label: "Publicados" },
+  { value: "borradores", label: "Borradores" },
+] as const;
+type EventFilter = (typeof FILTERS)[number]["value"];
+
+type PageProps = {
+  searchParams: Promise<{ q?: string; estado?: string }>;
+};
+
+export default async function DashboardEventsPage({
+  searchParams,
+}: PageProps) {
   const session = await auth();
+  const { q, estado } = await searchParams;
+  const activeFilter: EventFilter = FILTERS.some((f) => f.value === estado)
+    ? (estado as EventFilter)
+    : "todos";
+
+  const where: Prisma.EventWhereInput = {
+    organizerId: session!.user.id,
+    ...(q?.trim() ? { title: { contains: q.trim(), mode: "insensitive" } } : {}),
+    ...(activeFilter === "publicados" ? { status: "APPROVED" } : {}),
+    ...(activeFilter === "borradores" ? { status: "DRAFT" } : {}),
+  };
 
   const events = await prisma.event.findMany({
-    where: { organizerId: session!.user.id },
+    where,
     include: {
       venue: { select: { name: true, city: true, capacity: true } },
       _count: { select: { tickets: { where: { status: { not: "CANCELLED" } } } } },
@@ -28,13 +59,60 @@ export default async function DashboardEventsPage() {
     orderBy: { createdAt: "desc" },
   });
 
+  function filterHref(filter: EventFilter) {
+    const params = new URLSearchParams();
+    if (q?.trim()) params.set("q", q.trim());
+    if (filter !== "todos") params.set("estado", filter);
+    const query = params.toString();
+    return query ? `/dashboard/events?${query}` : "/dashboard/events";
+  }
+
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Mis eventos</h1>
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div className="flex flex-col gap-1.5">
+          <h1 className="text-[28px] font-extrabold leading-tight tracking-tight">
+            Mis eventos
+          </h1>
+          <span className="h-[3px] w-10 bg-gradient-to-r from-gold to-transparent" />
+        </div>
         <Link href="/dashboard/events/new" className={buttonVariants({ size: "sm" })}>
-          + Nuevo evento
+          + Crear evento
         </Link>
+      </div>
+
+      <div className="flex flex-wrap items-center gap-3">
+        <form action="/dashboard/events" className="w-full max-w-sm flex-1">
+          {activeFilter !== "todos" && (
+            <input type="hidden" name="estado" value={activeFilter} />
+          )}
+          <div className="relative">
+            <SearchIcon className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <input
+              type="search"
+              name="q"
+              defaultValue={q ?? ""}
+              placeholder="Buscar evento"
+              className="h-11 w-full rounded-xl border border-border bg-card pl-10 pr-3.5 text-sm text-card-foreground transition-colors placeholder:text-muted-foreground focus-visible:border-primary focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/40"
+            />
+          </div>
+        </form>
+        <div className="flex gap-2">
+          {FILTERS.map((filter) => (
+            <Link
+              key={filter.value}
+              href={filterHref(filter.value)}
+              className={cn(
+                "inline-flex h-11 items-center rounded-full px-4 text-sm font-medium transition-colors",
+                filter.value === activeFilter
+                  ? "bg-primary text-primary-foreground"
+                  : "border border-border text-muted-foreground hover:bg-muted hover:text-foreground",
+              )}
+            >
+              {filter.label}
+            </Link>
+          ))}
+        </div>
       </div>
 
       {events.length === 0 ? (
@@ -54,87 +132,128 @@ export default async function DashboardEventsPage() {
           />
         </Card>
       ) : (
-        <div className="flex flex-col gap-4">
-          {events.map((event) => {
-            const statusInfo = EVENT_STATUS_LABELS[event.status];
-            const editable =
-              event.status === "DRAFT" || event.status === "PENDING";
-            const capacity = event.venue.capacity;
-            const sold = event._count.tickets;
-            const percent =
-              capacity > 0 ? Math.min(100, Math.round((sold / capacity) * 100)) : 0;
-            return (
-              <Card key={event.id}>
-                <CardContent className="flex flex-wrap items-center justify-between gap-4 p-6">
-                  <div className="flex min-w-0 items-center gap-4">
-                    <div className="h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-muted">
-                      {event.coverImage ? (
-                        <Image
-                          src={event.coverImage}
-                          alt=""
-                          width={64}
-                          height={64}
-                          className="h-full w-full object-cover"
-                        />
-                      ) : (
-                        <div className="flex h-full items-center justify-center text-muted-foreground">
-                          <TicketIcon className="h-6 w-6" />
+        <Card className="overflow-hidden p-0">
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[720px] border-collapse text-sm">
+              <thead>
+                <tr className="border-b border-border text-left text-xs text-muted-foreground">
+                  <th className="px-5 py-3 font-medium">Evento</th>
+                  <th className="px-5 py-3 font-medium">Fecha</th>
+                  <th className="px-5 py-3 font-medium">Vendidos</th>
+                  <th className="px-5 py-3 font-medium">Estado</th>
+                  <th className="px-5 py-3 font-medium">Acciones</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border-soft">
+                {events.map((event) => {
+                  const statusInfo = EVENT_STATUS_LABELS[event.status];
+                  const editable =
+                    event.status === "DRAFT" || event.status === "PENDING";
+                  const capacity = event.venue.capacity;
+                  const sold = event._count.tickets;
+                  const percent =
+                    capacity > 0
+                      ? Math.min(100, Math.round((sold / capacity) * 100))
+                      : 0;
+                  return (
+                    <tr key={event.id} className="hover:bg-muted/40">
+                      <td className="px-5 py-3">
+                        <div className="flex min-w-0 items-center gap-3">
+                          <div className="h-11 w-11 shrink-0 overflow-hidden rounded-lg bg-muted">
+                            {event.coverImage ? (
+                              <Image
+                                src={event.coverImage}
+                                alt=""
+                                width={44}
+                                height={44}
+                                className="h-full w-full object-cover"
+                              />
+                            ) : (
+                              <div className="flex h-full items-center justify-center text-muted-foreground">
+                                <TicketIcon className="h-4 w-4" />
+                              </div>
+                            )}
+                          </div>
+                          <span className="min-w-0 truncate font-semibold">
+                            {event.title}
+                          </span>
                         </div>
-                      )}
-                    </div>
-                    <div className="min-w-0">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <h2 className="font-semibold">{event.title}</h2>
-                        <Badge variant={statusInfo.variant}>{statusInfo.label}</Badge>
-                      </div>
-                      <p className="mt-1 text-sm text-muted-foreground">
-                        {formatDate(event.date)} · {event.time} hrs ·{" "}
-                        {event.venue.name} ({event.venue.city}) · Desde{" "}
-                        {formatCurrency(Number(event.price))}
-                      </p>
-                      <div className="mt-2 flex items-center gap-2">
-                        <div className="h-1.5 w-32 overflow-hidden rounded-full bg-muted">
-                          <div
-                            className="h-full rounded-full bg-primary transition-all"
-                            style={{ width: `${percent}%` }}
-                          />
+                      </td>
+                      <td className="whitespace-nowrap px-5 py-3 text-muted-foreground">
+                        {formatShortDate(event.date)}
+                      </td>
+                      <td className="px-5 py-3">
+                        <div className="flex flex-col gap-1">
+                          <span className="font-mono text-xs text-muted-foreground">
+                            {sold}/{capacity}
+                          </span>
+                          <div className="h-1 w-28 overflow-hidden rounded-full bg-muted">
+                            <div
+                              className="h-full rounded-full bg-primary transition-all"
+                              style={{ width: `${percent}%` }}
+                            />
+                          </div>
                         </div>
-                        <span className="text-xs text-muted-foreground">
-                          {sold}/{capacity} boletos
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex flex-wrap items-center gap-2">
-                    {event.status === "APPROVED" && (
-                      <Link
-                        href={`/events/${event.id}`}
-                        className={buttonVariants({ variant: "ghost", size: "sm" })}
-                      >
-                        Ver pública
-                      </Link>
-                    )}
-                    <Link
-                      href={`/dashboard/events/${event.id}/buyers`}
-                      className={buttonVariants({ variant: "ghost", size: "sm" })}
-                    >
-                      Compradores
-                    </Link>
-                    {editable && (
-                      <Link
-                        href={`/dashboard/events/${event.id}/edit`}
-                        className={buttonVariants({ variant: "outline", size: "sm" })}
-                      >
-                        Editar
-                      </Link>
-                    )}
-                    <EventActions eventId={event.id} status={event.status} />
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
+                      </td>
+                      <td className="px-5 py-3">
+                        <Badge variant={statusInfo.variant}>
+                          {statusInfo.label}
+                        </Badge>
+                      </td>
+                      <td className="px-5 py-3">
+                        <div className="flex flex-col items-start gap-2">
+                          <div className="flex items-center gap-1.5">
+                            {event.status === "APPROVED" && (
+                              <Link
+                                href={`/events/${event.id}`}
+                                aria-label={`Ver ${event.title} pública`}
+                                title="Ver pública"
+                                className={buttonVariants({
+                                  variant: "ghost",
+                                  size: "md",
+                                  className: "w-9 px-0",
+                                })}
+                              >
+                                <EyeIcon className="h-4 w-4" />
+                              </Link>
+                            )}
+                            <Link
+                              href={`/dashboard/events/${event.id}/buyers`}
+                              aria-label={`Compradores de ${event.title}`}
+                              title="Compradores"
+                              className={buttonVariants({
+                                variant: "ghost",
+                                size: "md",
+                                className: "w-9 px-0",
+                              })}
+                            >
+                              <TicketIcon className="h-4 w-4" />
+                            </Link>
+                            {editable && (
+                              <Link
+                                href={`/dashboard/events/${event.id}/edit`}
+                                aria-label={`Editar ${event.title}`}
+                                title="Editar"
+                                className={buttonVariants({
+                                  variant: "ghost",
+                                  size: "md",
+                                  className: "w-9 px-0",
+                                })}
+                              >
+                                <PencilIcon className="h-4 w-4" />
+                              </Link>
+                            )}
+                          </div>
+                          <EventActions eventId={event.id} status={event.status} />
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </Card>
       )}
     </div>
   );

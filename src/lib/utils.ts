@@ -65,3 +65,30 @@ const dateTimeFormatter = new Intl.DateTimeFormat("es-BO", {
 export function formatDateTime(date: Date | string) {
   return dateTimeFormatter.format(new Date(date));
 }
+
+const shortDateFormatter = new Intl.DateTimeFormat("es-BO", {
+  day: "numeric",
+  month: "short",
+  timeZone: BOLIVIA_TZ,
+});
+
+/** Compact "22 ago" date, for dense table/list rows. */
+export function formatShortDate(date: Date | string) {
+  return shortDateFormatter.format(new Date(date)).replace(/\.$/, "");
+}
+
+const weekdayDateFormatter = new Intl.DateTimeFormat("es-BO", {
+  weekday: "short",
+  day: "numeric",
+  month: "short",
+  timeZone: BOLIVIA_TZ,
+});
+
+/** Compact "Sáb 22 ago" date, for dense cards with a leading weekday. */
+export function formatWeekdayDate(date: Date | string) {
+  const formatted = weekdayDateFormatter
+    .format(new Date(date))
+    .replace(",", "")
+    .replace(/\.$/, "");
+  return formatted.charAt(0).toUpperCase() + formatted.slice(1);
+}

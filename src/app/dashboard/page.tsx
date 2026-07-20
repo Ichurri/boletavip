@@ -3,7 +3,7 @@ import Link from "next/link";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { expireStaleOrders } from "@/lib/orders";
-import { cn, formatCurrency, formatDate, BOLIVIA_TZ } from "@/lib/utils";
+import { cn, formatCurrency, formatWeekdayDate, BOLIVIA_TZ } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/Button";
 import {
   Card,
@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/Card";
 import { ReviewQueue } from "@/components/dashboard/ReviewQueue";
 import { MiniBarChart } from "@/components/dashboard/MiniBarChart";
+import { ScanIcon } from "@/components/ui/icons";
 
 export const metadata: Metadata = {
   title: "Mi panel",
@@ -62,10 +63,7 @@ export default async function DashboardPage() {
   const thirtyMinAgo = new Date(now.getTime() - 30 * 60_000);
 
   const [
-    venueCount,
-    pendingReviewCount,
     activeEventCount,
-    pendingOrders,
     revenueAggregate,
     ticketsSold,
     approvedEvents,
@@ -76,16 +74,8 @@ export default async function DashboardPage() {
     ticketsSoldThisWeek,
     oldReviewCount,
   ] = await Promise.all([
-    prisma.venue.count({ where: { organizerId } }),
-    prisma.event.count({ where: { organizerId, status: "PENDING" } }),
     prisma.event.count({
       where: { organizerId, status: "APPROVED", date: { gte: startOfToday } },
-    }),
-    prisma.order.count({
-      where: {
-        status: { in: ["PENDING_PAYMENT", "PAYMENT_SUBMITTED"] },
-        event: { organizerId },
-      },
     }),
     prisma.order.aggregate({
       _sum: { totalAmount: true },
@@ -176,6 +166,12 @@ export default async function DashboardPage() {
     }
   }
 
+  const totalCapacity = approvedEvents.reduce(
+    (sum, event) =>
+      sum + event.venue.zones.reduce((s, zone) => s + zone.capacity, 0),
+    0,
+  );
+
   const thisWeekRevenue = recentConfirmed.reduce(
     (sum, order) => sum + Number(order.totalAmount),
     0,
@@ -213,10 +209,18 @@ export default async function DashboardPage() {
     },
     {
       label: "Boletos vendidos",
-      value: String(ticketsSold),
+      value: `${ticketsSold} / ${totalCapacity}`,
       sub:
         ticketsSoldThisWeek > 0
           ? { text: `▲ ${ticketsSoldThisWeek} esta semana`, tone: "success" }
+          : undefined,
+    },
+    {
+      label: "Por revisar",
+      value: String(reviewOrdersCount),
+      sub:
+        oldReviewCount > 0
+          ? { text: `${oldReviewCount} esperando hace +30 min`, tone: "warning" }
           : undefined,
     },
     {
@@ -232,16 +236,6 @@ export default async function DashboardPage() {
                   : `Próximo: en ${daysUntilNext} día${daysUntilNext === 1 ? "" : "s"}`,
             },
     },
-    {
-      label: "Pagos por confirmar",
-      value: String(pendingOrders),
-      sub:
-        oldReviewCount > 0
-          ? { text: `${oldReviewCount} esperando hace +30 min`, tone: "warning" }
-          : undefined,
-    },
-    { label: "Eventos en revisión", value: String(pendingReviewCount) },
-    { label: "Venues", value: String(venueCount) },
   ];
 
   const dailyConfirmed = bucketLast7Days(
@@ -252,41 +246,52 @@ export default async function DashboardPage() {
   );
 
   return (
-    <div className="flex flex-col gap-8">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold">
+    <div className="flex flex-col gap-6">
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div className="flex flex-col gap-1.5">
+          <h1 className="text-[28px] font-extrabold leading-tight tracking-tight">
             Hola, {session?.user?.name ?? "organizador"}
           </h1>
-          <p className="mt-1 text-muted-foreground">
-            Así van tus ventas y eventos.
-          </p>
+          <span className="h-[3px] w-10 bg-gradient-to-r from-gold to-transparent" />
         </div>
         <div className="flex gap-2">
           <Link
-            href="/dashboard/venues/new"
+            href="/dashboard/verify"
             className={buttonVariants({ variant: "outline", size: "sm" })}
           >
-            + Nuevo venue
+            <ScanIcon className="h-4 w-4" />
+            Escanear entradas
           </Link>
           <Link
             href="/dashboard/events/new"
             className={buttonVariants({ size: "sm" })}
           >
-            + Nuevo evento
+            + Crear evento
           </Link>
         </div>
       </div>
 
-      <ReviewQueue
-        orders={reviewOrders.map((order) => ({
-          ...order,
-          totalAmount: Number(order.totalAmount),
-        }))}
-        totalCount={reviewOrdersCount}
-      />
+      {reviewOrdersCount > 0 && (
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-gold/30 bg-gold-soft px-5 py-3.5">
+          <p className="text-sm">
+            <span className="font-bold text-gold">
+              {reviewOrdersCount} comprobante
+              {reviewOrdersCount === 1 ? "" : "s"} esperan tu revisión
+            </span>{" "}
+            <span className="text-muted-foreground">
+              — los compradores no reciben sus boletos hasta que apruebes.
+            </span>
+          </p>
+          <a
+            href="#comprobantes-queue"
+            className="shrink-0 text-sm font-semibold text-gold hover:underline"
+          >
+            Ir a la cola ↓
+          </a>
+        </div>
+      )}
 
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         {stats.map((stat) => (
           <Card key={stat.label}>
             <CardContent className="flex flex-col gap-1 p-5">
@@ -318,82 +323,86 @@ export default async function DashboardPage() {
         ))}
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Ventas · últimos 7 días</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <MiniBarChart data={dailyConfirmed} />
-        </CardContent>
-      </Card>
+      <div className="grid gap-6 lg:grid-cols-[2fr_1fr] lg:items-start">
+        <div id="comprobantes-queue">
+          <ReviewQueue
+            orders={reviewOrders.map((order) => ({
+              ...order,
+              totalAmount: Number(order.totalAmount),
+            }))}
+            totalCount={reviewOrdersCount}
+          />
+        </div>
 
-      <section className="flex flex-col gap-4">
-        <h2 className="font-semibold">Ocupación por zona</h2>
-        {approvedEvents.length === 0 ? (
+        <div className="flex flex-col gap-6">
           <Card>
-            <CardContent className="p-6 text-sm text-muted-foreground">
-              Cuando tengas eventos aprobados, acá vas a ver cuántos boletos
-              vendiste en cada zona.
+            <CardHeader>
+              <CardTitle>Tus eventos</CardTitle>
+            </CardHeader>
+            <CardContent className="flex flex-col gap-4">
+              {approvedEvents.length === 0 ? (
+                <p className="text-sm text-muted-foreground">
+                  Cuando tengas eventos aprobados, acá vas a ver su ocupación.
+                </p>
+              ) : (
+                approvedEvents.slice(0, 5).map((event) => {
+                  const capacity = event.venue.zones.reduce(
+                    (sum, zone) => sum + zone.capacity,
+                    0,
+                  );
+                  const sold = event.venue.zones.reduce(
+                    (sum, zone) =>
+                      sum +
+                      (soldByEventZone.get(`${event.id}:${zone.id}`) ?? 0),
+                    0,
+                  );
+                  const percent =
+                    capacity > 0
+                      ? Math.round((sold / capacity) * 100)
+                      : 0;
+                  const nearlySoldOut = percent >= 80;
+                  return (
+                    <div key={event.id} className="flex flex-col gap-1.5">
+                      <div className="flex items-baseline justify-between gap-2">
+                        <span className="truncate text-sm font-semibold">
+                          {event.title}
+                        </span>
+                        <span className="shrink-0 font-mono text-xs font-semibold text-muted-foreground">
+                          {sold}/{capacity}
+                        </span>
+                      </div>
+                      <div className="h-1.5 overflow-hidden rounded-full bg-muted">
+                        <div
+                          className={cn(
+                            "h-full rounded-full transition-all",
+                            nearlySoldOut
+                              ? "bg-gradient-to-r from-primary to-gold-bright"
+                              : "bg-primary",
+                          )}
+                          style={{ width: `${Math.min(100, percent)}%` }}
+                        />
+                      </div>
+                      <span className="text-xs text-muted-foreground">
+                        {formatWeekdayDate(event.date)} ·{" "}
+                        {percent > 0 ? `${percent}% vendido` : "recién publicado"}
+                      </span>
+                    </div>
+                  );
+                })
+              )}
             </CardContent>
           </Card>
-        ) : (
-          approvedEvents.map((event) => {
-            const totalCapacity = event.venue.zones.reduce(
-              (sum, zone) => sum + zone.capacity,
-              0,
-            );
-            const totalSold = event.venue.zones.reduce(
-              (sum, zone) =>
-                sum + (soldByEventZone.get(`${event.id}:${zone.id}`) ?? 0),
-              0,
-            );
-            return (
-              <Card key={event.id}>
-                <CardHeader>
-                  <div className="flex flex-wrap items-baseline justify-between gap-2">
-                    <CardTitle>{event.title}</CardTitle>
-                    <p className="text-sm text-muted-foreground">
-                      {formatDate(event.date)} · {totalSold}/{totalCapacity}{" "}
-                      boletos
-                    </p>
-                  </div>
-                </CardHeader>
-                <CardContent className="flex flex-col gap-3">
-                  {event.venue.zones.map((zone) => {
-                    const sold =
-                      soldByEventZone.get(`${event.id}:${zone.id}`) ?? 0;
-                    const percent =
-                      zone.capacity > 0
-                        ? Math.round((sold / zone.capacity) * 100)
-                        : 0;
-                    const nearlySoldOut = percent >= 80;
-                    return (
-                      <div key={zone.id} className="flex flex-col gap-1">
-                        <div className="flex justify-between text-sm">
-                          <span>{zone.name}</span>
-                          <span className="text-muted-foreground">
-                            {sold}/{zone.capacity} ({percent}%)
-                          </span>
-                        </div>
-                        <div className="h-2 overflow-hidden rounded-full bg-muted">
-                          <div
-                            className={
-                              nearlySoldOut
-                                ? "h-full rounded-full bg-gradient-to-r from-primary to-gold-bright transition-all"
-                                : "h-full rounded-full bg-primary transition-all"
-                            }
-                            style={{ width: `${Math.min(100, percent)}%` }}
-                          />
-                        </div>
-                      </div>
-                    );
-                  })}
-                </CardContent>
-              </Card>
-            );
-          })
-        )}
-      </section>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Ventas · últimos 7 días</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <MiniBarChart data={dailyConfirmed} />
+            </CardContent>
+          </Card>
+        </div>
+      </div>
     </div>
   );
 }

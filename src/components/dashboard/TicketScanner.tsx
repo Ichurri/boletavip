@@ -83,9 +83,13 @@ interface DoorCounts {
 
 export function TicketScanner({
   scanCode,
+  eventTitle,
   initialCounts,
 }: {
   scanCode?: string;
+  /** Event context shown in the header (spec #7a) — only set when the
+   * scanner is scoped to one event (the public /scan/[code] station). */
+  eventTitle?: string;
   /** Only meaningful when the scanner is scoped to one event (the public
    * /scan/[code] door station) — omitted on the multi-event dashboard
    * scanner, where there's no single event to count against. */
@@ -307,31 +311,45 @@ export function TicketScanner({
       className="dark relative flex flex-col gap-6 rounded-2xl p-4 text-foreground sm:p-6"
       style={{ backgroundImage: "var(--ticket-surface)" }}
     >
-      {counts && (
-        <div className="flex items-center justify-center gap-8">
-          <div className="flex flex-col items-center">
-            <span className="font-mono text-2xl font-extrabold tabular-nums text-white">
-              {counts.inside}
-            </span>
-            <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-white/60">
-              Adentro
-            </span>
-          </div>
-          <div className="h-8 w-px bg-white/15" />
-          <div className="flex flex-col items-center">
-            <span className="font-mono text-2xl font-extrabold tabular-nums text-white">
-              {counts.upcoming}
-            </span>
-            <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-white/60">
-              Por llegar
-            </span>
-          </div>
-        </div>
-      )}
-
       <Card className="border-white/10 bg-transparent shadow-none">
         <CardContent className="flex flex-col gap-4 p-0">
-          <div className="relative overflow-hidden rounded-xl border border-white/10 bg-black">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex flex-col gap-0.5">
+              <span className="font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-gold-bright">
+                Modo puerta
+              </span>
+              {eventTitle && (
+                <span className="text-sm font-bold text-white">
+                  {eventTitle}
+                </span>
+              )}
+            </div>
+            {torchSupported && (
+              <button
+                type="button"
+                onClick={toggleTorch}
+                aria-label={torchOn ? "Apagar linterna" : "Encender linterna"}
+                title={torchOn ? "Apagar linterna" : "Encender linterna"}
+                className={cn(
+                  "flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border transition-colors",
+                  torchOn
+                    ? "border-gold bg-gold text-[#171128]"
+                    : "border-white/10 text-white hover:bg-white/10",
+                )}
+              >
+                <FlashlightIcon className="h-5 w-5" />
+              </button>
+            )}
+          </div>
+
+          <div
+            className="relative overflow-hidden rounded-xl border border-white/10 bg-black"
+            style={
+              cameraActive
+                ? { backgroundImage: "linear-gradient(180deg,#171128,#0B0814)" }
+                : undefined
+            }
+          >
             <video
               ref={videoRef}
               playsInline
@@ -352,34 +370,54 @@ export function TicketScanner({
               </div>
             )}
             {cameraActive && (
-              <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-                <div
-                  className={cn(
-                    "relative h-48 w-48 overflow-hidden rounded-xl border-2 shadow-[0_0_0_9999px_rgba(0,0,0,0.35)] transition-colors duration-100",
-                    detectFlash ? "border-primary" : "border-white/70",
-                  )}
-                >
-                  <div className="animate-scan-line absolute inset-x-0 h-0.5 bg-primary/80 shadow-[0_0_8px_2px_rgba(109,43,255,0.6)]" />
-                </div>
+              <div className="pointer-events-none absolute inset-0">
+                {(
+                  [
+                    ["left-6 top-6", "border-l-[3px] border-t-[3px] rounded-tl-md"],
+                    ["right-6 top-6", "border-r-[3px] border-t-[3px] rounded-tr-md"],
+                    ["bottom-6 left-6", "border-b-[3px] border-l-[3px] rounded-bl-md"],
+                    ["bottom-6 right-6", "border-b-[3px] border-r-[3px] rounded-br-md"],
+                  ] as const
+                ).map(([pos, border]) => (
+                  <span
+                    key={pos}
+                    className={cn(
+                      "absolute h-8 w-8 transition-colors duration-100",
+                      pos,
+                      border,
+                      detectFlash ? "border-primary" : "border-primary/70",
+                    )}
+                  />
+                ))}
+                <div className="animate-scan-line absolute inset-x-10 h-0.5 bg-primary/80 shadow-[0_0_8px_2px_rgba(109,43,255,0.6)]" />
+                <p className="absolute inset-x-0 bottom-4 text-center text-xs text-white/60">
+                  Apuntá al QR del boleto
+                </p>
               </div>
             )}
-            {torchSupported && (
-              <button
-                type="button"
-                onClick={toggleTorch}
-                aria-label={torchOn ? "Apagar linterna" : "Encender linterna"}
-                title={torchOn ? "Apagar linterna" : "Encender linterna"}
-                className={cn(
-                  "absolute right-3 top-3 flex h-11 w-11 items-center justify-center rounded-full backdrop-blur-sm transition-colors",
-                  torchOn
-                    ? "bg-gold text-[#171128]"
-                    : "bg-white/15 text-white hover:bg-white/25",
-                )}
-              >
-                <FlashlightIcon className="h-5 w-5" />
-              </button>
-            )}
           </div>
+
+          {counts && (
+            <div className="flex items-center justify-center gap-8 border-t border-white/10 pt-4">
+              <div className="flex flex-col items-center">
+                <span className="font-mono text-2xl font-extrabold tabular-nums text-white">
+                  {counts.inside}
+                </span>
+                <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-white/60">
+                  Adentro
+                </span>
+              </div>
+              <div className="h-8 w-px bg-white/15" />
+              <div className="flex flex-col items-center">
+                <span className="font-mono text-2xl font-extrabold tabular-nums text-white">
+                  {counts.upcoming}
+                </span>
+                <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-white/60">
+                  Por llegar
+                </span>
+              </div>
+            </div>
+          )}
 
           {cameraError && <p className="text-sm text-danger">{cameraError}</p>}
 
