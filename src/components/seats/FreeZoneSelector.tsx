@@ -51,7 +51,7 @@ export function FreeZoneSelector({
             type="button"
             variant="outline"
             size="sm"
-            className="h-8 w-8 p-0 text-base"
+            className="h-11 w-11 p-0 text-base sm:h-9 sm:w-9"
             aria-label={`Quitar boleto de ${zone.name}`}
             disabled={shownQuantity === 0}
             onClick={() => update(-1)}
@@ -65,7 +65,7 @@ export function FreeZoneSelector({
             type="button"
             variant="outline"
             size="sm"
-            className="h-8 w-8 p-0 text-base"
+            className="h-11 w-11 p-0 text-base sm:h-9 sm:w-9"
             aria-label={`Agregar boleto de ${zone.name}`}
             disabled={shownQuantity >= maxQuantity}
             onClick={() => update(1)}

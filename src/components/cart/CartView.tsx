@@ -228,7 +228,7 @@ export function CartView({
                       type="button"
                       variant="outline"
                       size="sm"
-                      className="h-8 w-8 p-0 text-base"
+                      className="h-11 w-11 p-0 text-base sm:h-9 sm:w-9"
                       aria-label={`Quitar boleto de ${item.label}`}
                       onClick={() =>
                         setZoneQuantity(
@@ -251,7 +251,7 @@ export function CartView({
                       type="button"
                       variant="outline"
                       size="sm"
-                      className="h-8 w-8 p-0 text-base"
+                      className="h-11 w-11 p-0 text-base sm:h-9 sm:w-9"
                       aria-label={`Agregar boleto de ${item.label}`}
                       disabled={item.quantity >= MAX_PER_ZONE}
                       onClick={() =>

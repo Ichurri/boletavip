@@ -42,7 +42,7 @@ export function buttonVariants({
   className,
 }: ButtonStyleProps = {}) {
   return cn(
-    "inline-flex cursor-pointer touch-manipulation items-center justify-center gap-2 rounded-xl font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-background active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50 motion-reduce:active:scale-100",
+    "inline-flex cursor-pointer touch-manipulation items-center justify-center gap-2 whitespace-nowrap rounded-xl font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-background active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50 motion-reduce:active:scale-100",
     variantClasses[variant],
     sizeClasses[size],
     className,

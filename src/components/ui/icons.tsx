@@ -42,6 +42,30 @@ export function CalendarIcon(props: IconProps) {
   );
 }
 
+export function ChevronDownIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="m6 9 6 6 6-6" />
+    </Icon>
+  );
+}
+
+export function ChevronLeftIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="m15 18-6-6 6-6" />
+    </Icon>
+  );
+}
+
+export function ChevronRightIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="m9 18 6-6-6-6" />
+    </Icon>
+  );
+}
+
 export function MapPinIcon(props: IconProps) {
   return (
     <Icon {...props}>

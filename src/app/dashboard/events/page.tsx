@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { cn, formatShortDate } from "@/lib/utils";
 import { EVENT_STATUS_LABELS } from "@/lib/constants";
 import type { Prisma } from "@/generated/prisma/client";
+import type { EventStatus } from "@/generated/prisma/enums";
 import { buttonVariants } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
@@ -18,6 +19,63 @@ import {
   TicketIcon,
 } from "@/components/ui/icons";
 import { EventActions } from "@/components/dashboard/EventActions";
+
+function EventQuickLinks({
+  eventId,
+  eventTitle,
+  status,
+  editable,
+}: {
+  eventId: string;
+  eventTitle: string;
+  status: EventStatus;
+  editable: boolean;
+}) {
+  return (
+    <div className="flex items-center gap-1.5">
+      {status === "APPROVED" && (
+        <Link
+          href={`/events/${eventId}`}
+          aria-label={`Ver ${eventTitle} pública`}
+          title="Ver pública"
+          className={buttonVariants({
+            variant: "ghost",
+            size: "md",
+            className: "w-9 px-0",
+          })}
+        >
+          <EyeIcon className="h-4 w-4" />
+        </Link>
+      )}
+      <Link
+        href={`/dashboard/events/${eventId}/buyers`}
+        aria-label={`Compradores de ${eventTitle}`}
+        title="Compradores"
+        className={buttonVariants({
+          variant: "ghost",
+          size: "md",
+          className: "w-9 px-0",
+        })}
+      >
+        <TicketIcon className="h-4 w-4" />
+      </Link>
+      {editable && (
+        <Link
+          href={`/dashboard/events/${eventId}/edit`}
+          aria-label={`Editar ${eventTitle}`}
+          title="Editar"
+          className={buttonVariants({
+            variant: "ghost",
+            size: "md",
+            className: "w-9 px-0",
+          })}
+        >
+          <PencilIcon className="h-4 w-4" />
+        </Link>
+      )}
+    </div>
+  );
+}
 
 export const metadata: Metadata = {
   title: "Mis eventos",
@@ -132,7 +190,74 @@ export default async function DashboardEventsPage({
           />
         </Card>
       ) : (
-        <Card className="overflow-hidden p-0">
+        <>
+          <div className="flex flex-col gap-3 md:hidden">
+            {events.map((event) => {
+              const statusInfo = EVENT_STATUS_LABELS[event.status];
+              const editable =
+                event.status === "DRAFT" || event.status === "PENDING";
+              const capacity = event.venue.capacity;
+              const sold = event._count.tickets;
+              const percent =
+                capacity > 0
+                  ? Math.min(100, Math.round((sold / capacity) * 100))
+                  : 0;
+              return (
+                <Card key={event.id} className="p-4">
+                  <div className="flex items-center gap-3">
+                    <div className="h-11 w-11 shrink-0 overflow-hidden rounded-lg bg-muted">
+                      {event.coverImage ? (
+                        <Image
+                          src={event.coverImage}
+                          alt=""
+                          width={44}
+                          height={44}
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <div className="flex h-full items-center justify-center text-muted-foreground">
+                          <TicketIcon className="h-4 w-4" />
+                        </div>
+                      )}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate font-semibold">{event.title}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {formatShortDate(event.date)}
+                      </p>
+                    </div>
+                    <Badge variant={statusInfo.variant}>
+                      {statusInfo.label}
+                    </Badge>
+                  </div>
+
+                  <div className="mt-3 flex flex-col gap-1">
+                    <span className="font-mono text-xs text-muted-foreground">
+                      {sold}/{capacity} vendidos
+                    </span>
+                    <div className="h-1 w-full overflow-hidden rounded-full bg-muted">
+                      <div
+                        className="h-full rounded-full bg-primary transition-all"
+                        style={{ width: `${percent}%` }}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-border-soft pt-3">
+                    <EventQuickLinks
+                      eventId={event.id}
+                      eventTitle={event.title}
+                      status={event.status}
+                      editable={editable}
+                    />
+                    <EventActions eventId={event.id} status={event.status} />
+                  </div>
+                </Card>
+              );
+            })}
+          </div>
+
+          <Card className="hidden overflow-hidden p-0 md:block">
           <div className="overflow-x-auto">
             <table className="w-full min-w-[720px] border-collapse text-sm">
               <thead>
@@ -201,49 +326,13 @@ export default async function DashboardEventsPage({
                         </Badge>
                       </td>
                       <td className="px-5 py-3">
-                        <div className="flex flex-col items-start gap-2">
-                          <div className="flex items-center gap-1.5">
-                            {event.status === "APPROVED" && (
-                              <Link
-                                href={`/events/${event.id}`}
-                                aria-label={`Ver ${event.title} pública`}
-                                title="Ver pública"
-                                className={buttonVariants({
-                                  variant: "ghost",
-                                  size: "md",
-                                  className: "w-9 px-0",
-                                })}
-                              >
-                                <EyeIcon className="h-4 w-4" />
-                              </Link>
-                            )}
-                            <Link
-                              href={`/dashboard/events/${event.id}/buyers`}
-                              aria-label={`Compradores de ${event.title}`}
-                              title="Compradores"
-                              className={buttonVariants({
-                                variant: "ghost",
-                                size: "md",
-                                className: "w-9 px-0",
-                              })}
-                            >
-                              <TicketIcon className="h-4 w-4" />
-                            </Link>
-                            {editable && (
-                              <Link
-                                href={`/dashboard/events/${event.id}/edit`}
-                                aria-label={`Editar ${event.title}`}
-                                title="Editar"
-                                className={buttonVariants({
-                                  variant: "ghost",
-                                  size: "md",
-                                  className: "w-9 px-0",
-                                })}
-                              >
-                                <PencilIcon className="h-4 w-4" />
-                              </Link>
-                            )}
-                          </div>
+                        <div className="flex flex-nowrap items-center gap-2">
+                          <EventQuickLinks
+                            eventId={event.id}
+                            eventTitle={event.title}
+                            status={event.status}
+                            editable={editable}
+                          />
                           <EventActions eventId={event.id} status={event.status} />
                         </div>
                       </td>
@@ -253,7 +342,8 @@ export default async function DashboardEventsPage({
               </tbody>
             </table>
           </div>
-        </Card>
+          </Card>
+        </>
       )}
     </div>
   );

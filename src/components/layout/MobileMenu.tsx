@@ -2,8 +2,10 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
 import { buttonVariants } from "@/components/ui/Button";
+import { cn } from "@/lib/utils";
 
 interface MobileMenuUser {
   name: string | null;
@@ -13,10 +15,18 @@ interface MobileMenuUser {
 
 export function MobileMenu({ user }: { user: MobileMenuUser | null }) {
   const [open, setOpen] = useState(false);
+  const pathname = usePathname();
   const close = () => setOpen(false);
 
-  const linkClass =
-    "rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground";
+  function linkClass(href: string) {
+    const active = pathname.startsWith(href);
+    return cn(
+      "rounded-md px-3 py-2 text-sm font-medium transition-colors",
+      active
+        ? "bg-primary/10 text-primary"
+        : "text-muted-foreground hover:bg-muted hover:text-foreground",
+    );
+  }
   const isOrganizer = user?.role === "ORGANIZER" || user?.role === "ADMIN";
 
   return (
@@ -25,7 +35,7 @@ export function MobileMenu({ user }: { user: MobileMenuUser | null }) {
         type="button"
         aria-label={open ? "Cerrar menú" : "Abrir menú"}
         aria-expanded={open}
-        className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-border text-foreground transition-colors hover:bg-muted"
+        className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-border text-foreground transition-colors hover:bg-muted"
         onClick={() => setOpen((current) => !current)}
       >
         <svg
@@ -48,26 +58,26 @@ export function MobileMenu({ user }: { user: MobileMenuUser | null }) {
       {open && (
         <div className="absolute inset-x-0 top-16 z-50 border-b border-border bg-background shadow-lg">
           <nav className="mx-auto flex max-w-6xl flex-col gap-1 px-4 py-4">
-            <Link href="/events" className={linkClass} onClick={close}>
+            <Link href="/events" className={linkClass("/events")} onClick={close}>
               Eventos
             </Link>
             {user && (
-              <Link href="/orders" className={linkClass} onClick={close}>
+              <Link href="/orders" className={linkClass("/orders")} onClick={close}>
                 Mis pedidos
               </Link>
             )}
             {isOrganizer && (
-              <Link href="/dashboard" className={linkClass} onClick={close}>
+              <Link href="/dashboard" className={linkClass("/dashboard")} onClick={close}>
                 Mi panel
               </Link>
             )}
             {user?.role === "ADMIN" && (
-              <Link href="/admin" className={linkClass} onClick={close}>
+              <Link href="/admin" className={linkClass("/admin")} onClick={close}>
                 Admin
               </Link>
             )}
             {user && (
-              <Link href="/account" className={linkClass} onClick={close}>
+              <Link href="/account" className={linkClass("/account")} onClick={close}>
                 Mi cuenta
               </Link>
             )}

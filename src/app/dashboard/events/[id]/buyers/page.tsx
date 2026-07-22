@@ -124,7 +124,75 @@ export default async function EventBuyersPage({
           />
         </Card>
       ) : (
-        <div className="overflow-x-auto rounded-xl border border-border">
+        <>
+          <div className="flex flex-col gap-3 md:hidden">
+            {orders.map((order) => {
+              const statusInfo = ORDER_STATUS_LABELS[order.status];
+              return (
+                <div
+                  key={order.id}
+                  className="rounded-xl border border-border bg-card p-4"
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <p className="truncate font-medium">
+                        {order.buyer.name ?? "—"}
+                      </p>
+                      <a
+                        href={`mailto:${order.buyer.email}`}
+                        className="block truncate text-xs text-muted-foreground hover:text-primary hover:underline"
+                      >
+                        {order.buyer.email}
+                      </a>
+                    </div>
+                    <Badge variant={statusInfo.variant}>
+                      {statusInfo.label}
+                    </Badge>
+                  </div>
+
+                  <dl className="mt-3 grid grid-cols-2 gap-x-3 gap-y-2.5 text-sm">
+                    <div>
+                      <dt className="text-xs text-muted-foreground">
+                        Boletos
+                      </dt>
+                      <dd className="tabular-nums">
+                        {order.status === "CONFIRMED"
+                          ? order._count.tickets
+                          : "—"}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt className="text-xs text-muted-foreground">Monto</dt>
+                      <dd className="font-medium tabular-nums">
+                        {formatCurrency(Number(order.totalAmount))}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt className="text-xs text-muted-foreground">Fecha</dt>
+                      <dd>{formatDateTime(order.createdAt)}</dd>
+                    </div>
+                    <div>
+                      <dt className="text-xs text-muted-foreground">
+                        Comprobante
+                      </dt>
+                      <dd>
+                        {order.paymentProof ? (
+                          <ProofImage
+                            url={`/api/orders/${order.id}/proof`}
+                            expand="overlay"
+                          />
+                        ) : (
+                          <span className="text-muted-foreground">—</span>
+                        )}
+                      </dd>
+                    </div>
+                  </dl>
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="hidden overflow-x-auto rounded-xl border border-border md:block">
           <table className="w-full min-w-[640px] text-sm">
             <thead className="border-b border-border bg-muted/50 text-left text-muted-foreground">
               <tr>
@@ -185,7 +253,8 @@ export default async function EventBuyersPage({
               })}
             </tbody>
           </table>
-        </div>
+          </div>
+        </>
       )}
     </div>
   );

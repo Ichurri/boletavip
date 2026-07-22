@@ -157,6 +157,51 @@ body {
     opacity: 1;
     background-color: var(--primary-soft);
   }
+
+  /* Theme-aware scrollbars — the OS default (flat gray) clashes with the
+     brand surfaces, especially inside the always-dark hero/ticket/stage
+     sections. Firefox via scrollbar-color, WebKit via pseudo-elements;
+     both read the current --border/--muted-foreground so they follow
+     light/dark and the forced-.dark scopes automatically. */
+  html {
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: var(--border);
+    border: 2px solid transparent;
+    border-radius: 999px;
+    background-clip: padding-box;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: var(--muted-foreground);
+  }
+
+  ::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+}
+
+/* Hide the scrollbar on specific scrollable panels while keeping them
+   scrollable — e.g. a dropdown's option list, where a visible track/thumb
+   reads as clutter inside an already-bounded popover. */
+@utility scrollbar-hide {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 /* Violet shimmer for skeletons ("Función Nocturna": never neutral gray).

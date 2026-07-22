@@ -108,10 +108,10 @@ export default async function HomePage() {
             </div>
           </form>
 
-          <div className="flex w-full max-w-lg gap-2 overflow-x-auto px-4 py-1 sm:justify-center sm:px-0">
+          <div className="flex w-full max-w-lg flex-wrap items-center justify-center gap-2">
             <Link
               href="/events"
-              className="inline-flex h-9 shrink-0 items-center rounded-full border border-white/15 bg-white/[0.06] px-4 text-sm font-medium text-white transition-colors hover:bg-white/[0.12]"
+              className="inline-flex h-9 items-center rounded-full border border-white/15 bg-white/[0.06] px-4 text-sm font-medium text-white transition-colors hover:bg-white/[0.12]"
             >
               Todos
             </Link>
@@ -119,7 +119,7 @@ export default async function HomePage() {
               <Link
                 key={category}
                 href={`/events?categoria=${encodeURIComponent(category)}`}
-                className="inline-flex h-9 shrink-0 items-center rounded-full border border-white/15 bg-white/[0.06] px-4 text-sm font-medium text-white/80 transition-colors hover:bg-white/[0.12] hover:text-white"
+                className="inline-flex h-9 items-center rounded-full border border-white/15 bg-white/[0.06] px-4 text-sm font-medium text-white/80 transition-colors hover:bg-white/[0.12] hover:text-white"
               >
                 {category}
               </Link>

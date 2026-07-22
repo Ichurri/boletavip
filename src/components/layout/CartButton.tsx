@@ -13,7 +13,7 @@ export function CartButton() {
     <Link
       href="/cart"
       aria-label={`Carrito${count > 0 ? ` (${count} boletos)` : ""}`}
-      className="relative inline-flex h-9 w-9 items-center justify-center rounded-md border border-border text-foreground transition-colors hover:bg-muted"
+      className="relative inline-flex h-10 w-10 items-center justify-center rounded-md border border-border text-foreground transition-colors hover:bg-muted sm:h-9 sm:w-9"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"

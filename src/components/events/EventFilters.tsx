@@ -3,7 +3,9 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
-import { Input, Label, Select } from "@/components/ui/Input";
+import { Input, Label } from "@/components/ui/Input";
+import { DatePicker } from "@/components/ui/DatePicker";
+import { Dropdown } from "@/components/ui/Dropdown";
 import { EVENT_CATEGORIES } from "@/lib/constants";
 
 export interface EventFilterValues {
@@ -73,44 +75,33 @@ export function EventFilters({
 
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="filter-category">Categoría</Label>
-        <Select
+        <Dropdown
           id="filter-category"
           value={categoria}
-          onChange={(e) => setCategoria(e.target.value)}
-        >
-          <option value="">Todas</option>
-          {EVENT_CATEGORIES.map((cat) => (
-            <option key={cat} value={cat}>
-              {cat}
-            </option>
-          ))}
-        </Select>
+          onChange={setCategoria}
+          options={[
+            { value: "", label: "Todas" },
+            ...EVENT_CATEGORIES.map((cat) => ({ value: cat, label: cat })),
+          ]}
+        />
       </div>
 
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="filter-city">Ciudad</Label>
-        <Select
+        <Dropdown
           id="filter-city"
           value={ciudad}
-          onChange={(e) => setCiudad(e.target.value)}
-        >
-          <option value="">Todas</option>
-          {cities.map((city) => (
-            <option key={city} value={city}>
-              {city}
-            </option>
-          ))}
-        </Select>
+          onChange={setCiudad}
+          options={[
+            { value: "", label: "Todas" },
+            ...cities.map((city) => ({ value: city, label: city })),
+          ]}
+        />
       </div>
 
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="filter-date">Desde la fecha</Label>
-        <Input
-          id="filter-date"
-          type="date"
-          value={fecha}
-          onChange={(e) => setFecha(e.target.value)}
-        />
+        <DatePicker id="filter-date" value={fecha} onChange={setFecha} />
       </div>
 
       <div className="flex flex-col gap-1.5">

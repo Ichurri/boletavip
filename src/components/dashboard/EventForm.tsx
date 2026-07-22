@@ -12,6 +12,7 @@ import {
   FieldError,
 } from "@/components/ui/Input";
 import { ImageUpload } from "@/components/dashboard/ImageUpload";
+import { DatePicker } from "@/components/ui/DatePicker";
 import { Stepper } from "@/components/ui/Stepper";
 import { eventSchema } from "@/lib/validations/event";
 import { EVENT_CATEGORIES } from "@/lib/constants";
@@ -178,13 +179,7 @@ export function EventForm({
 
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="event-date">Fecha</Label>
-              <Input
-                id="event-date"
-                type="date"
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
-                required
-              />
+              <DatePicker id="event-date" value={date} onChange={setDate} />
             </div>
 
             <div className="flex flex-col gap-1.5">

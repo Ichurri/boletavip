@@ -5,33 +5,43 @@ import { Button } from "@/components/ui/Button";
 import { CheckIcon, XIcon } from "@/components/ui/icons";
 import { cn } from "@/lib/utils";
 
-const AUTO_DISMISS_MS = 2500;
+const AUTO_DISMISS_MS = 2000;
+const AUTO_DISMISS_S = Math.round(AUTO_DISMISS_MS / 1000);
 
 /**
  * Full-screen door verdict (spec #7a): a solid color fill, a 148px icon in a
  * white ring, and the binary VÁLIDO/NO PASA word — the specific reason
- * (already used, cancelled, wrong event...) only shows in the pill below.
- * VÁLIDO auto-dismisses after 2.5s with a draining progress bar; anything
- * else waits for the door staff to press "Escanear otro".
+ * (already used, cancelled, wrong event...) shows in the pill below, with an
+ * optional secondary line (ticket reference, seat) underneath it.
+ * VÁLIDO auto-dismisses after a couple seconds with a draining progress bar
+ * and a live countdown; anything else waits for the door staff to press
+ * "Escanear otro".
  */
 export function ScannerVerdict({
   accepted,
   reason,
+  detail,
   onDismiss,
 }: {
   accepted: boolean;
   reason: string;
+  detail?: string;
   onDismiss: () => void;
 }) {
   const [draining, setDraining] = useState(false);
+  const [secondsLeft, setSecondsLeft] = useState(AUTO_DISMISS_S);
 
   useEffect(() => {
     if (!accepted) return;
     const startId = requestAnimationFrame(() => setDraining(true));
     const dismissId = setTimeout(onDismiss, AUTO_DISMISS_MS);
+    const tickId = setInterval(() => {
+      setSecondsLeft((value) => Math.max(0, value - 1));
+    }, 1000);
     return () => {
       cancelAnimationFrame(startId);
       clearTimeout(dismissId);
+      clearInterval(tickId);
     };
   }, [accepted, onDismiss]);
 
@@ -55,9 +65,16 @@ export function ScannerVerdict({
         {accepted ? "VÁLIDO" : "NO PASA"}
       </p>
 
-      <span className="max-w-full truncate rounded-full bg-white/20 px-4 py-1.5 text-sm font-medium text-white">
-        {reason}
-      </span>
+      <div className="flex flex-col items-center gap-1.5">
+        <span className="max-w-full truncate rounded-full bg-white/20 px-4 py-1.5 text-sm font-medium text-white">
+          {reason}
+        </span>
+        {detail && (
+          <span className="max-w-full truncate font-mono text-xs font-medium uppercase tracking-[0.08em] text-white/70">
+            {detail}
+          </span>
+        )}
+      </div>
 
       {accepted ? (
         <button
@@ -74,7 +91,9 @@ export function ScannerVerdict({
               style={{ transition: `width ${AUTO_DISMISS_MS}ms linear` }}
             />
           </span>
-          <span className="text-xs text-white/70">Tocá para seguir ya</span>
+          <span className="text-xs text-white/70">
+            Listo para el siguiente en {secondsLeft}s · tocá para seguir ya
+          </span>
         </button>
       ) : (
         <Button

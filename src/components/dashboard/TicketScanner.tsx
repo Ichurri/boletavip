@@ -47,8 +47,7 @@ interface VerifyOutcome {
 }
 
 const usedAtFormatter = new Intl.DateTimeFormat("es-BO", {
-  dateStyle: "short",
-  timeStyle: "medium",
+  timeStyle: "short",
   timeZone: "America/La_Paz",
 });
 
@@ -63,17 +62,36 @@ const REJECTION_REASONS: Record<
   ERROR: "Error de verificación",
 };
 
-function reasonFor(outcome: VerifyOutcome) {
+/** Short human-friendly reference for the mono "N.º XXXXXX" tag — the
+ * ticket code itself is a UUID, not meant to be read aloud in full. */
+function ticketReference(code: string) {
+  return code.slice(-6).toUpperCase();
+}
+
+function verdictCopy(outcome: VerifyOutcome): { reason: string; detail?: string } {
+  const ref = outcome.ticket ? ticketReference(outcome.ticket.code) : null;
+
   if (outcome.result === "ACCEPTED") {
-    return outcome.ticket?.label ?? "Entrada válida";
+    return {
+      reason: outcome.ticket?.label ?? "Entrada válida",
+      detail: ref ? `N.º ${ref} · Primera vez` : undefined,
+    };
   }
   if (outcome.result === "ALREADY_USED") {
     const usedAt = outcome.usedAt
-      ? ` · ${usedAtFormatter.format(new Date(outcome.usedAt))}`
-      : "";
-    return `Ya utilizado${usedAt}`;
+      ? usedAtFormatter.format(new Date(outcome.usedAt))
+      : null;
+    return {
+      reason: usedAt ? `Ya escaneado a las ${usedAt}` : "Ya escaneado",
+      detail: ref
+        ? `N.º ${ref}${outcome.ticket ? ` · ${outcome.ticket.label}` : ""}`
+        : undefined,
+    };
   }
-  return outcome.error ?? REJECTION_REASONS[outcome.result];
+  return {
+    reason: outcome.error ?? REJECTION_REASONS[outcome.result],
+    detail: ref ? `N.º ${ref}${outcome.ticket ? ` · ${outcome.ticket.label}` : ""}` : undefined,
+  };
 }
 
 interface DoorCounts {
@@ -312,7 +330,7 @@ export function TicketScanner({
       style={{ backgroundImage: "var(--ticket-surface)" }}
     >
       <Card className="border-white/10 bg-transparent shadow-none">
-        <CardContent className="flex flex-col gap-4 p-0">
+        <CardContent className="flex flex-col gap-4 p-4 sm:p-5">
           <div className="flex items-center justify-between gap-2">
             <div className="flex flex-col gap-0.5">
               <span className="font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-gold-bright">
@@ -370,26 +388,28 @@ export function TicketScanner({
               </div>
             )}
             {cameraActive && (
-              <div className="pointer-events-none absolute inset-0">
-                {(
-                  [
-                    ["left-6 top-6", "border-l-[3px] border-t-[3px] rounded-tl-md"],
-                    ["right-6 top-6", "border-r-[3px] border-t-[3px] rounded-tr-md"],
-                    ["bottom-6 left-6", "border-b-[3px] border-l-[3px] rounded-bl-md"],
-                    ["bottom-6 right-6", "border-b-[3px] border-r-[3px] rounded-br-md"],
-                  ] as const
-                ).map(([pos, border]) => (
-                  <span
-                    key={pos}
-                    className={cn(
-                      "absolute h-8 w-8 transition-colors duration-100",
-                      pos,
-                      border,
-                      detectFlash ? "border-primary" : "border-primary/70",
-                    )}
-                  />
-                ))}
-                <div className="animate-scan-line absolute inset-x-10 h-0.5 bg-primary/80 shadow-[0_0_8px_2px_rgba(109,43,255,0.6)]" />
+              <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+                <div className="relative aspect-square w-[62%] max-w-[240px]">
+                  {(
+                    [
+                      ["left-0 top-0", "border-l-2 border-t-2 rounded-tl-lg"],
+                      ["right-0 top-0", "border-r-2 border-t-2 rounded-tr-lg"],
+                      ["bottom-0 left-0", "border-b-2 border-l-2 rounded-bl-lg"],
+                      ["bottom-0 right-0", "border-b-2 border-r-2 rounded-br-lg"],
+                    ] as const
+                  ).map(([pos, border]) => (
+                    <span
+                      key={pos}
+                      className={cn(
+                        "absolute h-10 w-10 transition-colors duration-100",
+                        pos,
+                        border,
+                        detectFlash ? "border-primary" : "border-primary/70",
+                      )}
+                    />
+                  ))}
+                  <div className="animate-scan-line absolute inset-x-2 h-0.5 bg-primary/80 shadow-[0_0_8px_2px_rgba(109,43,255,0.6)]" />
+                </div>
                 <p className="absolute inset-x-0 bottom-4 text-center text-xs text-white/60">
                   Apuntá al QR del boleto
                 </p>
@@ -466,7 +486,7 @@ export function TicketScanner({
       {outcome && (
         <ScannerVerdict
           accepted={outcome.result === "ACCEPTED"}
-          reason={reasonFor(outcome)}
+          {...verdictCopy(outcome)}
           onDismiss={dismissOutcome}
         />
       )}
