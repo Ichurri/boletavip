@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/Button";
 import { CheckIcon, XIcon } from "@/components/ui/icons";
 import { cn } from "@/lib/utils";
 
-const AUTO_DISMISS_MS = 2000;
+const AUTO_DISMISS_MS = 4000;
 const AUTO_DISMISS_S = Math.round(AUTO_DISMISS_MS / 1000);
 
 /**
@@ -13,9 +13,9 @@ const AUTO_DISMISS_S = Math.round(AUTO_DISMISS_MS / 1000);
  * white ring, and the binary VÁLIDO/NO PASA word — the specific reason
  * (already used, cancelled, wrong event...) shows in the pill below, with an
  * optional secondary line (ticket reference, seat) underneath it.
- * VÁLIDO auto-dismisses after a couple seconds with a draining progress bar
- * and a live countdown; anything else waits for the door staff to press
- * "Escanear otro".
+ * VÁLIDO shows an explicit "Escanear siguiente" button (the confirm step)
+ * plus a draining progress bar that auto-advances if staff don't tap;
+ * anything else waits for the door staff to press "Escanear otro".
  */
 export function ScannerVerdict({
   accepted,
@@ -77,24 +77,30 @@ export function ScannerVerdict({
       </div>
 
       {accepted ? (
-        <button
-          type="button"
-          onClick={onDismiss}
-          className="mt-2 flex cursor-pointer flex-col items-center gap-1.5"
-        >
-          <span className="h-1 w-48 overflow-hidden rounded-full bg-white/25">
-            <span
-              className={cn(
-                "block h-full rounded-full bg-white ease-linear motion-reduce:transition-none",
-                draining ? "w-0" : "w-full",
-              )}
-              style={{ transition: `width ${AUTO_DISMISS_MS}ms linear` }}
-            />
-          </span>
-          <span className="text-xs text-white/70">
-            Listo para el siguiente en {secondsLeft}s · tocá para seguir ya
-          </span>
-        </button>
+        <div className="mt-2 flex flex-col items-center gap-3">
+          <Button
+            type="button"
+            size="lg"
+            className="h-[52px] bg-white text-success hover:bg-white/90"
+            onClick={onDismiss}
+          >
+            Escanear siguiente
+          </Button>
+          <div className="flex flex-col items-center gap-1.5">
+            <span className="h-1 w-40 overflow-hidden rounded-full bg-white/25">
+              <span
+                className={cn(
+                  "block h-full rounded-full bg-white ease-linear motion-reduce:transition-none",
+                  draining ? "w-0" : "w-full",
+                )}
+                style={{ transition: `width ${AUTO_DISMISS_MS}ms linear` }}
+              />
+            </span>
+            <span className="text-xs text-white/70">
+              Avanza solo en {secondsLeft}s si no tocás
+            </span>
+          </div>
+        </div>
       ) : (
         <Button
           type="button"

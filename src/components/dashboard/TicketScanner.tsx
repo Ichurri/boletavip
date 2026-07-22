@@ -5,7 +5,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent } from "@/components/ui/Card";
 import { Input, Label } from "@/components/ui/Input";
-import { FlashlightIcon } from "@/components/ui/icons";
+import { FlashlightIcon, XIcon } from "@/components/ui/icons";
 import { ScannerVerdict } from "@/components/dashboard/ScannerVerdict";
 import { cn } from "@/lib/utils";
 
@@ -326,12 +326,70 @@ export function TicketScanner({
 
   return (
     <div
-      className="dark relative flex flex-col gap-6 rounded-2xl p-4 text-foreground sm:p-6"
+      className={cn(
+        "dark text-foreground",
+        cameraActive
+          ? "fixed inset-0 z-[45] flex flex-col"
+          : "relative flex flex-col gap-6 rounded-2xl p-4 sm:p-6",
+      )}
       style={{ backgroundImage: "var(--ticket-surface)" }}
     >
-      <Card className="border-white/10 bg-transparent shadow-none">
-        <CardContent className="flex flex-col gap-4 p-4 sm:p-5">
-          <div className="flex items-center justify-between gap-2">
+      <Card
+        className={cn(
+          "border-white/10 bg-transparent shadow-none",
+          cameraActive && "flex flex-1 flex-col border-0",
+        )}
+      >
+        <CardContent
+          className={cn(
+            "flex flex-col gap-4",
+            cameraActive ? "flex-1 p-4 sm:p-6" : "p-4 sm:p-5",
+          )}
+        >
+          {/* Fullscreen header: close (stops the camera) · label · torch */}
+          {cameraActive && (
+            <div className="flex items-center justify-between gap-2">
+              <button
+                type="button"
+                onClick={stopCamera}
+                aria-label="Apagar cámara"
+                title="Apagar cámara"
+                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-white/10 text-white transition-colors hover:bg-white/10"
+              >
+                <XIcon className="h-5 w-5" />
+              </button>
+              <div className="flex flex-col items-center gap-0.5 text-center">
+                <span className="font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-gold-bright">
+                  Modo puerta
+                </span>
+                {eventTitle && (
+                  <span className="text-sm font-bold text-white">
+                    {eventTitle}
+                  </span>
+                )}
+              </div>
+              {torchSupported ? (
+                <button
+                  type="button"
+                  onClick={toggleTorch}
+                  aria-label={torchOn ? "Apagar linterna" : "Encender linterna"}
+                  title={torchOn ? "Apagar linterna" : "Encender linterna"}
+                  className={cn(
+                    "flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border transition-colors",
+                    torchOn
+                      ? "border-gold bg-gold text-[#171128]"
+                      : "border-white/10 text-white hover:bg-white/10",
+                  )}
+                >
+                  <FlashlightIcon className="h-5 w-5" />
+                </button>
+              ) : (
+                <span className="h-11 w-11 shrink-0" aria-hidden />
+              )}
+            </div>
+          )}
+
+          {!cameraActive && (
             <div className="flex flex-col gap-0.5">
               <span className="font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-gold-bright">
                 Modo puerta
@@ -342,26 +400,15 @@ export function TicketScanner({
                 </span>
               )}
             </div>
-            {torchSupported && (
-              <button
-                type="button"
-                onClick={toggleTorch}
-                aria-label={torchOn ? "Apagar linterna" : "Encender linterna"}
-                title={torchOn ? "Apagar linterna" : "Encender linterna"}
-                className={cn(
-                  "flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border transition-colors",
-                  torchOn
-                    ? "border-gold bg-gold text-[#171128]"
-                    : "border-white/10 text-white hover:bg-white/10",
-                )}
-              >
-                <FlashlightIcon className="h-5 w-5" />
-              </button>
-            )}
-          </div>
+          )}
 
           <div
-            className="relative overflow-hidden rounded-xl border border-white/10 bg-black"
+            className={cn(
+              "relative overflow-hidden bg-black",
+              cameraActive
+                ? "min-h-0 flex-1"
+                : "aspect-video w-full rounded-xl border border-white/10",
+            )}
             style={
               cameraActive
                 ? { backgroundImage: "linear-gradient(180deg,#171128,#0B0814)" }
@@ -373,8 +420,8 @@ export function TicketScanner({
               playsInline
               muted
               className={cn(
-                "aspect-video w-full object-cover",
-                !cameraActive && "hidden",
+                "w-full object-cover",
+                cameraActive ? "h-full" : "aspect-video hidden",
               )}
             />
             {!cameraActive && (
@@ -389,7 +436,7 @@ export function TicketScanner({
             )}
             {cameraActive && (
               <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-                <div className="relative aspect-square w-[62%] max-w-[240px]">
+                <div className="relative aspect-square w-[62%] max-w-[280px]">
                   {(
                     [
                       ["left-0 top-0", "border-l-2 border-t-2 rounded-tl-lg"],
@@ -410,15 +457,20 @@ export function TicketScanner({
                   ))}
                   <div className="animate-scan-line absolute inset-x-2 h-0.5 bg-primary/80 shadow-[0_0_8px_2px_rgba(109,43,255,0.6)]" />
                 </div>
-                <p className="absolute inset-x-0 bottom-4 text-center text-xs text-white/60">
-                  Apuntá al QR del boleto
+                <p className="absolute inset-x-0 bottom-8 text-center text-sm text-white/60">
+                  {verifying ? "Verificando..." : "Apuntá al QR del boleto"}
                 </p>
               </div>
             )}
           </div>
 
           {counts && (
-            <div className="flex items-center justify-center gap-8 border-t border-white/10 pt-4">
+            <div
+              className={cn(
+                "flex items-center justify-center gap-8 border-t border-white/10 pt-4",
+                cameraActive && "pb-1",
+              )}
+            >
               <div className="flex flex-col items-center">
                 <span className="font-mono text-2xl font-extrabold tabular-nums text-white">
                   {counts.inside}
@@ -439,47 +491,38 @@ export function TicketScanner({
             </div>
           )}
 
-          {cameraError && <p className="text-sm text-danger">{cameraError}</p>}
+          {!cameraActive && (
+            <>
+              {cameraError && <p className="text-sm text-danger">{cameraError}</p>}
 
-          <div className="flex items-center justify-between gap-2">
-            <p className="text-sm text-muted-foreground">
-              {cameraActive
-                ? verifying
-                  ? "Verificando..."
-                  : "Buscando QR..."
-                : "Cámara apagada"}
-            </p>
-            {cameraActive && (
-              <Button type="button" variant="ghost" size="sm" onClick={stopCamera}>
-                Apagar cámara
-              </Button>
-            )}
-          </div>
+              <p className="text-sm text-muted-foreground">Cámara apagada</p>
 
-          <div className="flex flex-col gap-1.5 border-t border-white/10 pt-4">
-            <Label htmlFor="manual-code">O ingresá el código manualmente</Label>
-            <div className="flex gap-2">
-              <Input
-                id="manual-code"
-                value={manualCode}
-                onChange={(e) => setManualCode(e.target.value)}
-                placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-                autoComplete="off"
-              />
-              <Button
-                type="button"
-                variant="outline"
-                disabled={verifying || !UUID_PATTERN.test(manualCode.trim())}
-                onClick={() => {
-                  audioCtxRef.current ??= new AudioContext();
-                  audioCtxRef.current.resume().catch(() => {});
-                  verify(manualCode.trim());
-                }}
-              >
-                Verificar
-              </Button>
-            </div>
-          </div>
+              <div className="flex flex-col gap-1.5 border-t border-white/10 pt-4">
+                <Label htmlFor="manual-code">O ingresá el código manualmente</Label>
+                <div className="flex gap-2">
+                  <Input
+                    id="manual-code"
+                    value={manualCode}
+                    onChange={(e) => setManualCode(e.target.value)}
+                    placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+                    autoComplete="off"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    disabled={verifying || !UUID_PATTERN.test(manualCode.trim())}
+                    onClick={() => {
+                      audioCtxRef.current ??= new AudioContext();
+                      audioCtxRef.current.resume().catch(() => {});
+                      verify(manualCode.trim());
+                    }}
+                  >
+                    Verificar
+                  </Button>
+                </div>
+              </div>
+            </>
+          )}
         </CardContent>
       </Card>
 
