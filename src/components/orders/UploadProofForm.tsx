@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
 import { UploadIcon } from "@/components/ui/icons";
+import { MAX_UPLOAD_BYTES } from "@/lib/constants";
 
 type Status = "idle" | "attached" | "uploading" | "error";
 
@@ -25,6 +26,19 @@ export function UploadProofForm({
   const [dragOver, setDragOver] = useState(false);
 
   function pickFile(next: File | null) {
+    if (next && next.size > MAX_UPLOAD_BYTES) {
+      const message = "La imagen no puede superar los 5 MB";
+      setError(message);
+      window.alert(message);
+      setFile(null);
+      setPreviewUrl((prev) => {
+        if (prev) URL.revokeObjectURL(prev);
+        return null;
+      });
+      setStatus("idle");
+      if (inputRef.current) inputRef.current.value = "";
+      return;
+    }
     setError(null);
     setFile(next);
     setPreviewUrl((prev) => {
