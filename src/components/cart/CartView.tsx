@@ -46,6 +46,10 @@ export function CartView({
 
   async function checkout() {
     if (!eventId) return;
+    if (!termsAccepted) {
+      setCheckoutError("Debés aceptar los términos de compra para continuar.");
+      return;
+    }
     setCheckoutError(null);
     setCheckingOut(true);
 
@@ -163,19 +167,24 @@ export function CartView({
             <input
               type="checkbox"
               checked={termsAccepted}
-              onChange={(e) => setTermsAccepted(e.target.checked)}
+              onChange={(e) => {
+                setTermsAccepted(e.target.checked);
+                if (e.target.checked) setCheckoutError(null);
+              }}
               className="mt-0.5 h-4 w-4 shrink-0 rounded border-border accent-[var(--primary)]"
             />
-            Acepto los{" "}
-            <Link
-              href="/terms"
-              target="_blank"
-              className="font-medium text-primary hover:underline"
-            >
-              términos de compra
-            </Link>{" "}
-            y entiendo que tengo 15 minutos para completar el pago una vez
-            confirme.
+            <span>
+              Acepto los{" "}
+              <Link
+                href="/terms"
+                target="_blank"
+                className="font-medium text-primary hover:underline"
+              >
+                términos de compra
+              </Link>{" "}
+              y entiendo que tengo 15 minutos para completar el pago una vez
+              confirme.
+            </span>
           </label>
 
           {checkoutError && (
@@ -292,9 +301,10 @@ export function CartView({
 
               <Button
                 size="lg"
+                variant={termsAccepted ? "primary" : "secondary"}
                 className="w-full"
                 onClick={checkout}
-                disabled={checkingOut || !termsAccepted}
+                disabled={checkingOut}
               >
                 {checkingOut
                   ? "Creando pedido..."

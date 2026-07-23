@@ -130,14 +130,16 @@ export function RegisterForm() {
           onChange={(e) => setTermsAccepted(e.target.checked)}
           className="mt-0.5 h-4 w-4 shrink-0 rounded border-border accent-[var(--primary)]"
         />
-        Acepto los{" "}
-        <Link href="/terms" target="_blank" className="font-medium text-primary hover:underline">
-          Términos
-        </Link>{" "}
-        y la{" "}
-        <Link href="/privacy" target="_blank" className="font-medium text-primary hover:underline">
-          Política de Privacidad
-        </Link>
+        <span>
+          Acepto los{" "}
+          <Link href="/terms" target="_blank" className="font-medium text-primary hover:underline">
+            Términos
+          </Link>{" "}
+          y la{" "}
+          <Link href="/privacy" target="_blank" className="font-medium text-primary hover:underline">
+            Política de Privacidad
+          </Link>
+        </span>
       </label>
 
       {formError && <p className="text-sm text-danger">{formError}</p>}
