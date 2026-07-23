@@ -139,7 +139,7 @@ export function TicketCard({ ticket }: { ticket: TicketCardData }) {
               Descargar PDF
             </a>
             <a
-              href={ticket.qrCode}
+              href={`/api/tickets/${ticket.id}/qr`}
               download={`boleto-${ticket.code.slice(0, 8)}.png`}
               className={buttonVariants({
                 variant: "ghost",
