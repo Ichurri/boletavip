@@ -34,7 +34,12 @@ export default async function VenuesPage() {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Mis venues</h1>
+        <div className="flex flex-col gap-1.5">
+          <h1 className="text-[28px] font-extrabold leading-tight tracking-tight">
+            Mis venues
+          </h1>
+          <span className="h-[3px] w-10 bg-gradient-to-r from-gold to-transparent" />
+        </div>
         <Link href="/dashboard/venues/new" className={buttonVariants({ size: "sm" })}>
           + Nuevo venue
         </Link>

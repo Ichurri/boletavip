@@ -22,7 +22,7 @@ export function Footer() {
             </Link>
           ))}
         </nav>
-        <p>Boletos digitales para tus eventos favoritos 🇧🇴</p>
+        <p>Boletos digitales para tus eventos favoritos.</p>
       </div>
     </footer>
   );

@@ -2,6 +2,7 @@
 
 import { formatCurrency } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
+import { Card } from "@/components/ui/Card";
 import { useCartStore, MAX_PER_ZONE } from "@/stores/cart-store";
 import { useHydrated } from "@/lib/use-hydrated";
 import type { ZoneDto } from "@/types/seat-map";
@@ -36,7 +37,7 @@ export function FreeZoneSelector({
   }
 
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border p-4">
+    <Card className="flex flex-wrap items-center justify-between gap-3 p-4">
       <div>
         <h3 className="font-semibold">{zone.name}</h3>
         <p className="text-sm text-muted-foreground">
@@ -74,6 +75,6 @@ export function FreeZoneSelector({
           </Button>
         </div>
       )}
-    </div>
+    </Card>
   );
 }

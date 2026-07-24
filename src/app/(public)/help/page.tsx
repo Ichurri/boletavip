@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Card, CardContent } from "@/components/ui/Card";
 
 export const metadata: Metadata = { title: "Ayuda" };
 
@@ -34,20 +35,25 @@ export default function HelpPage() {
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-8 px-4 py-10">
       <div>
-        <h1 className="text-3xl font-bold">Ayuda</h1>
-        <p className="mt-1 text-muted-foreground">
+        <h1 className="text-[28px] font-extrabold leading-tight tracking-tight">
+          Ayuda
+        </h1>
+        <span className="mt-1.5 block h-[3px] w-10 bg-gradient-to-r from-gold to-transparent" />
+        <p className="mt-2 text-muted-foreground">
           Las respuestas a lo que más nos preguntan.
         </p>
       </div>
 
-      <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-4">
         {faqs.map((faq) => (
-          <section key={faq.q}>
-            <h2 className="font-semibold">{faq.q}</h2>
-            <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-              {faq.a}
-            </p>
-          </section>
+          <Card key={faq.q}>
+            <CardContent className="p-5">
+              <h2 className="font-semibold">{faq.q}</h2>
+              <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
+                {faq.a}
+              </p>
+            </CardContent>
+          </Card>
         ))}
       </div>
 

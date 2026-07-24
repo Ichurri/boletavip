@@ -11,6 +11,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/Card";
+import { StatCard } from "@/components/ui/StatCard";
 import { ReviewQueue } from "@/components/dashboard/ReviewQueue";
 import { MiniBarChart } from "@/components/dashboard/MiniBarChart";
 import { ScanIcon } from "@/components/ui/icons";
@@ -293,33 +294,7 @@ export default async function DashboardPage() {
 
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
         {stats.map((stat) => (
-          <Card key={stat.label}>
-            <CardContent className="flex flex-col gap-1 p-5">
-              <span className="font-mono text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
-                {stat.label}
-              </span>
-              <p
-                className="truncate font-display text-2xl font-extrabold"
-                title={stat.value}
-              >
-                {stat.value}
-              </p>
-              {stat.sub && (
-                <span
-                  className={cn(
-                    "text-xs",
-                    stat.sub.tone === "success"
-                      ? "text-success"
-                      : stat.sub.tone === "warning"
-                        ? "text-warning"
-                        : "text-muted-foreground",
-                  )}
-                >
-                  {stat.sub.text}
-                </span>
-              )}
-            </CardContent>
-          </Card>
+          <StatCard key={stat.label} {...stat} />
         ))}
       </div>
 

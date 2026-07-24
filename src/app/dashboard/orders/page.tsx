@@ -50,8 +50,11 @@ export default async function DashboardOrdersPage() {
       <AutoRefresh intervalMs={15000} />
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold">Pedidos</h1>
-          <p className="mt-1 text-muted-foreground">
+          <h1 className="text-[28px] font-extrabold leading-tight tracking-tight">
+            Pedidos
+          </h1>
+          <span className="mt-1.5 block h-[3px] w-10 bg-gradient-to-r from-gold to-transparent" />
+          <p className="mt-2 text-muted-foreground">
             Revisá los comprobantes de pago para emitir los boletos.
           </p>
         </div>

@@ -8,7 +8,8 @@ import { formatCurrency, formatDate, formatDateTime } from "@/lib/utils";
 import { ORDER_STATUS_LABELS } from "@/lib/constants";
 import { buttonVariants } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
-import { Card, CardContent } from "@/components/ui/Card";
+import { Card } from "@/components/ui/Card";
+import { StatCard } from "@/components/ui/StatCard";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { TicketIcon } from "@/components/ui/icons";
 import { ProofImage } from "@/components/dashboard/ProofImage";
@@ -79,8 +80,11 @@ export default async function EventBuyersPage({
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold">Compradores</h1>
-          <p className="mt-1 text-muted-foreground">
+          <h1 className="text-[28px] font-extrabold leading-tight tracking-tight">
+            Compradores
+          </h1>
+          <span className="mt-1.5 block h-[3px] w-10 bg-gradient-to-r from-gold to-transparent" />
+          <p className="mt-2 text-muted-foreground">
             {event.title} · {formatDate(event.date)} · {event.time} hrs
           </p>
         </div>
@@ -113,14 +117,7 @@ export default async function EventBuyersPage({
 
       <div className="grid gap-4 sm:grid-cols-3">
         {stats.map((stat) => (
-          <Card key={stat.label}>
-            <CardContent className="p-5">
-              <p className="truncate text-2xl font-bold" title={stat.value}>
-                {stat.value}
-              </p>
-              <p className="text-sm text-muted-foreground">{stat.label}</p>
-            </CardContent>
-          </Card>
+          <StatCard key={stat.label} label={stat.label} value={stat.value} />
         ))}
       </div>
 
@@ -220,7 +217,7 @@ export default async function EventBuyersPage({
                 return (
                   <tr
                     key={order.id}
-                    className="border-b border-border last:border-0"
+                    className="border-b border-border transition-colors last:border-0 hover:bg-muted/40"
                   >
                     <td className="px-4 py-3 font-medium">
                       {order.buyer.name ?? "—"}

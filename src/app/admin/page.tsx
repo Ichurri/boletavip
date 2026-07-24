@@ -11,6 +11,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/Card";
+import { StatCard } from "@/components/ui/StatCard";
+import { HourglassIcon } from "@/components/ui/icons";
 import { SettingsForm } from "@/components/admin/SettingsForm";
 
 export const metadata: Metadata = {
@@ -61,43 +63,39 @@ export default async function AdminPage() {
   return (
     <div className="flex flex-col gap-8">
       <div>
-        <h1 className="text-2xl font-bold">Panel de administración</h1>
-        <p className="mt-1 text-muted-foreground">
+        <h1 className="text-[28px] font-extrabold leading-tight tracking-tight">
+          Panel de administración
+        </h1>
+        <span className="mt-1.5 block h-[3px] w-10 bg-gradient-to-r from-gold to-transparent" />
+        <p className="mt-2 text-muted-foreground">
           Métricas globales de la plataforma.
         </p>
       </div>
 
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
         {stats.map((stat) => (
-          <Card key={stat.label}>
-            <CardContent className="p-5">
-              <p className="truncate text-2xl font-bold" title={stat.value}>
-                {stat.value}
-              </p>
-              <p className="text-sm text-muted-foreground">{stat.label}</p>
-            </CardContent>
-          </Card>
+          <StatCard key={stat.label} label={stat.label} value={stat.value} />
         ))}
       </div>
 
       {pendingEvents > 0 && (
-        <Card>
-          <CardContent className="flex flex-wrap items-center justify-between gap-4 p-6">
-            <div>
-              <p className="font-semibold">
-                ⏳ {pendingEvents} evento{pendingEvents === 1 ? "" : "s"}{" "}
-                esperando revisión
-              </p>
-              <p className="text-sm text-muted-foreground">
-                Los organizadores no pueden vender hasta que apruebes sus
-                eventos.
-              </p>
-            </div>
-            <Link href="/admin/events" className={buttonVariants({ size: "sm" })}>
-              Revisar eventos
-            </Link>
-          </CardContent>
-        </Card>
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-gold/30 bg-gold-soft px-5 py-3.5">
+          <div className="flex items-center gap-2.5">
+            <HourglassIcon className="h-4 w-4 shrink-0 text-gold" />
+            <p className="text-sm">
+              <span className="font-bold text-gold">
+                {pendingEvents} evento{pendingEvents === 1 ? "" : "s"} esperando
+                revisión
+              </span>{" "}
+              <span className="text-muted-foreground">
+                — los organizadores no pueden vender hasta que los apruebes.
+              </span>
+            </p>
+          </div>
+          <Link href="/admin/events" className={buttonVariants({ size: "sm" })}>
+            Revisar eventos
+          </Link>
+        </div>
       )}
 
       <Card>
