@@ -3,6 +3,7 @@ import Link from "next/link";
 import { googleEnabled } from "@/lib/auth";
 import { RegisterForm } from "@/components/auth/RegisterForm";
 import { GoogleButton } from "@/components/auth/GoogleButton";
+import { Logo } from "@/components/layout/Logo";
 import {
   Card,
   CardContent,
@@ -18,6 +19,9 @@ export const metadata: Metadata = {
 export default function RegisterPage() {
   return (
     <Card className="w-full max-w-md">
+      <div className="flex flex-col items-center gap-2 px-6 pt-6 lg:hidden">
+        <Logo className="h-8 w-auto" />
+      </div>
       <CardHeader>
         <CardTitle>Crear cuenta</CardTitle>
         <CardDescription>

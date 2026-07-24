@@ -3,6 +3,7 @@ import Link from "next/link";
 import { googleEnabled } from "@/lib/auth";
 import { LoginForm } from "@/components/auth/LoginForm";
 import { GoogleButton } from "@/components/auth/GoogleButton";
+import { Logo } from "@/components/layout/Logo";
 import {
   Card,
   CardContent,
@@ -26,6 +27,12 @@ export default async function LoginPage({
 
   return (
     <Card className="w-full max-w-md">
+      <div className="flex flex-col items-center gap-2 px-6 pt-6 lg:hidden">
+        <Logo className="h-8 w-auto" />
+        <span className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-gold-bright">
+          Bienvenido de nuevo
+        </span>
+      </div>
       <CardHeader>
         <CardTitle>Iniciar sesión</CardTitle>
         <CardDescription>
