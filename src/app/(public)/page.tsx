@@ -62,16 +62,13 @@ export default async function HomePage() {
 
   return (
     <>
-      {/* Night-constant marquee hero — always the "Función Nocturna" surface,
-          regardless of the site's light/dark theme (same forced-dark-scope
-          trick as TicketCard/SeatMap's stage). */}
-      <section
-        className="dark relative isolate overflow-hidden border-b border-gold-bright/35 text-foreground"
-        style={{ backgroundImage: "var(--ticket-surface)" }}
-      >
+      {/* Marquee hero — follows the site's light/dark theme via the shared
+          --background/--primary tokens (unlike TicketCard/SeatMap's stage,
+          which stays night-constant for QR contrast). */}
+      <section className="relative isolate overflow-hidden border-b border-gold-bright/35 bg-background text-foreground">
         <div
           aria-hidden
-          className="pointer-events-none absolute -top-24 left-1/2 h-[420px] w-[420px] -translate-x-1/2 opacity-80"
+          className="pointer-events-none absolute -top-24 left-1/2 h-[420px] w-[420px] -translate-x-1/2 opacity-50 dark:opacity-80"
           style={{ backgroundImage: "var(--spotlight)" }}
         />
         {/* Gold corner brackets, 44x3px, marquee-frame motif */}
@@ -98,12 +95,12 @@ export default async function HomePage() {
 
           <form action="/events" className="w-full max-w-lg">
             <div className="relative">
-              <SearchIcon className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-white/50" />
+              <SearchIcon className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <input
                 type="search"
                 name="q"
                 placeholder="Buscá por artista, evento o ciudad"
-                className="h-[52px] w-full rounded-full border border-white/15 bg-white/[0.06] pl-11 pr-4 text-sm text-white placeholder:text-white/50 backdrop-blur-md transition-colors focus-visible:border-primary focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/40"
+                className="h-[52px] w-full rounded-full border border-border bg-card pl-11 pr-4 text-sm text-card-foreground placeholder:text-muted-foreground backdrop-blur-md transition-colors focus-visible:border-primary focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/40"
               />
             </div>
           </form>
@@ -111,7 +108,7 @@ export default async function HomePage() {
           <div className="flex w-full max-w-lg flex-wrap items-center justify-center gap-2">
             <Link
               href="/events"
-              className="inline-flex h-9 items-center rounded-full border border-white/15 bg-white/[0.06] px-4 text-sm font-medium text-white transition-colors hover:bg-white/[0.12]"
+              className="inline-flex h-9 items-center rounded-full border border-border bg-muted px-4 text-sm font-medium text-foreground transition-colors hover:bg-border"
             >
               Todos
             </Link>
@@ -119,7 +116,7 @@ export default async function HomePage() {
               <Link
                 key={category}
                 href={`/events?categoria=${encodeURIComponent(category)}`}
-                className="inline-flex h-9 items-center rounded-full border border-white/15 bg-white/[0.06] px-4 text-sm font-medium text-white/80 transition-colors hover:bg-white/[0.12] hover:text-white"
+                className="inline-flex h-9 items-center rounded-full border border-border bg-transparent px-4 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
               >
                 {category}
               </Link>
@@ -128,7 +125,7 @@ export default async function HomePage() {
 
           <Link
             href={organizeHref}
-            className="mt-1 inline-flex items-center gap-1 text-sm font-medium text-white/70 underline-offset-2 hover:text-white hover:underline"
+            className="mt-1 inline-flex items-center gap-1 text-sm font-medium text-muted-foreground underline-offset-2 hover:text-foreground hover:underline"
           >
             {isOrganizer ? "Crear un evento" : "Quiero organizar un evento"}
             <ArrowRightIcon className="h-3.5 w-3.5" />

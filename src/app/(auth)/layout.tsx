@@ -7,17 +7,13 @@ export default function AuthLayout({
 }>) {
   return (
     <div className="flex flex-1">
-      {/* Desktop-only brand panel (spec #9c) — always the night-constant
-          surface, same trick as the ticket/hero/scanner, and kept in sync
-          with the home hero's copy (spec #5c). Mobile just keeps the
-          global Navbar's logo, so nothing is added there. */}
-      <div
-        className="dark relative hidden w-1/2 overflow-hidden border-r border-gold-bright/30 text-foreground lg:flex lg:items-center"
-        style={{ backgroundImage: "var(--ticket-surface)" }}
-      >
+      {/* Desktop-only brand panel (spec #9c) — follows the site's light/dark
+          theme like the home hero (spec #5c), same shared copy. Mobile just
+          keeps the global Navbar's logo, so nothing is added there. */}
+      <div className="relative hidden w-1/2 overflow-hidden border-r border-gold-bright/30 bg-background text-foreground lg:flex lg:items-center">
         <div
           aria-hidden
-          className="pointer-events-none absolute -top-16 left-[15%] h-[420px] w-[420px] opacity-80"
+          className="pointer-events-none absolute -top-16 left-[15%] h-[420px] w-[420px] opacity-50 dark:opacity-80"
           style={{ backgroundImage: "var(--spotlight)" }}
         />
         <div className="relative flex flex-col gap-4 px-16">
