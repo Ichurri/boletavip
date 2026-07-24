@@ -327,16 +327,16 @@ export function TicketScanner({
   return (
     <div
       className={cn(
-        "dark text-foreground",
+        "text-foreground",
         cameraActive
-          ? "fixed inset-0 z-[45] flex flex-col"
-          : "relative flex flex-col gap-6 rounded-2xl p-4 sm:p-6",
+          ? "dark fixed inset-0 z-[45] flex flex-col"
+          : "relative flex flex-col gap-6 rounded-2xl bg-card p-4 sm:p-6",
       )}
-      style={{ backgroundImage: "var(--ticket-surface)" }}
+      style={cameraActive ? { backgroundImage: "var(--ticket-surface)" } : undefined}
     >
       <Card
         className={cn(
-          "border-white/10 bg-transparent shadow-none",
+          "border-border bg-transparent shadow-none",
           cameraActive && "flex flex-1 flex-col border-0",
         )}
       >
@@ -395,7 +395,7 @@ export function TicketScanner({
                 Modo puerta
               </span>
               {eventTitle && (
-                <span className="text-sm font-bold text-white">
+                <span className="text-sm font-bold text-foreground">
                   {eventTitle}
                 </span>
               )}
@@ -404,10 +404,10 @@ export function TicketScanner({
 
           <div
             className={cn(
-              "relative overflow-hidden bg-black",
+              "relative overflow-hidden",
               cameraActive
-                ? "min-h-0 flex-1"
-                : "aspect-video w-full rounded-xl border border-white/10",
+                ? "min-h-0 flex-1 bg-black"
+                : "aspect-video w-full rounded-xl border border-border bg-muted",
             )}
             style={
               cameraActive
@@ -426,7 +426,7 @@ export function TicketScanner({
             />
             {!cameraActive && (
               <div className="flex aspect-video w-full flex-col items-center justify-center gap-3 text-center">
-                <p className="px-6 text-sm text-white/70">
+                <p className="px-6 text-sm text-muted-foreground">
                   Activá la cámara y apuntá al QR del boleto
                 </p>
                 <Button type="button" onClick={startCamera}>
@@ -467,24 +467,24 @@ export function TicketScanner({
           {counts && (
             <div
               className={cn(
-                "flex items-center justify-center gap-8 border-t border-white/10 pt-4",
+                "flex items-center justify-center gap-8 border-t border-border pt-4",
                 cameraActive && "pb-1",
               )}
             >
               <div className="flex flex-col items-center">
-                <span className="font-mono text-2xl font-extrabold tabular-nums text-white">
+                <span className="font-mono text-2xl font-extrabold tabular-nums text-foreground">
                   {counts.inside}
                 </span>
-                <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-white/60">
+                <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
                   Adentro
                 </span>
               </div>
-              <div className="h-8 w-px bg-white/15" />
+              <div className="h-8 w-px bg-border" />
               <div className="flex flex-col items-center">
-                <span className="font-mono text-2xl font-extrabold tabular-nums text-white">
+                <span className="font-mono text-2xl font-extrabold tabular-nums text-foreground">
                   {counts.upcoming}
                 </span>
-                <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-white/60">
+                <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
                   Por llegar
                 </span>
               </div>
@@ -497,7 +497,7 @@ export function TicketScanner({
 
               <p className="text-sm text-muted-foreground">Cámara apagada</p>
 
-              <div className="flex flex-col gap-1.5 border-t border-white/10 pt-4">
+              <div className="flex flex-col gap-1.5 border-t border-border pt-4">
                 <Label htmlFor="manual-code">O ingresá el código manualmente</Label>
                 <div className="flex gap-2">
                   <Input
