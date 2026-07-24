@@ -84,22 +84,30 @@ export default async function EventBuyersPage({
             {event.title} · {formatDate(event.date)} · {event.time} hrs
           </p>
         </div>
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="scrollbar-hide flex flex-nowrap items-center gap-2 overflow-x-auto">
           <a
             href={`/api/events/${event.id}/buyers/export`}
-            className={buttonVariants({ variant: "outline", size: "sm" })}
+            className={buttonVariants({
+              variant: "outline",
+              size: "sm",
+              className: "shrink-0",
+            })}
           >
             Exportar CSV
           </a>
-          <Link
-            href="/dashboard/events"
-            className={buttonVariants({ variant: "ghost", size: "sm" })}
-          >
-            ← Mis eventos
-          </Link>
           {event.status === "APPROVED" && (
             <ScanAccessButton eventId={event.id} />
           )}
+          <Link
+            href="/dashboard/events"
+            className={buttonVariants({
+              variant: "ghost",
+              size: "sm",
+              className: "shrink-0",
+            })}
+          >
+            ← Mis eventos
+          </Link>
         </div>
       </div>
 

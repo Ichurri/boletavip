@@ -36,11 +36,12 @@ export function ScanAccessButton({ eventId }: { eventId: string }) {
 
   if (!link) {
     return (
-      <div className="flex flex-col items-end gap-1">
+      <div className="flex shrink-0 flex-col items-end gap-1">
         <Button
           type="button"
           variant="outline"
           size="sm"
+          className="shrink-0"
           disabled={loading}
           onClick={() => fetchCode()}
         >
