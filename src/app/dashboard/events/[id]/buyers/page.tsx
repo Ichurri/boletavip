@@ -97,10 +97,11 @@ export default async function EventBuyersPage({
           >
             ← Mis eventos
           </Link>
+          {event.status === "APPROVED" && (
+            <ScanAccessButton eventId={event.id} />
+          )}
         </div>
       </div>
-
-      {event.status === "APPROVED" && <ScanAccessButton eventId={event.id} />}
 
       <div className="grid gap-4 sm:grid-cols-3">
         {stats.map((stat) => (

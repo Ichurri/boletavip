@@ -263,10 +263,10 @@ export default async function DashboardEventsPage({
               <thead>
                 <tr className="border-b border-border text-left text-xs text-muted-foreground">
                   <th className="px-5 py-3 font-medium">Evento</th>
-                  <th className="px-5 py-3 font-medium">Fecha</th>
-                  <th className="px-5 py-3 font-medium">Vendidos</th>
-                  <th className="px-5 py-3 font-medium">Estado</th>
-                  <th className="px-5 py-3 font-medium">Acciones</th>
+                  <th className="w-px whitespace-nowrap px-5 py-3 font-medium">Fecha</th>
+                  <th className="w-px whitespace-nowrap px-5 py-3 font-medium">Vendidos</th>
+                  <th className="w-px whitespace-nowrap px-5 py-3 font-medium">Estado</th>
+                  <th className="w-px whitespace-nowrap px-5 py-3 font-medium">Acciones</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border-soft">
@@ -307,7 +307,7 @@ export default async function DashboardEventsPage({
                       <td className="whitespace-nowrap px-5 py-3 text-muted-foreground">
                         {formatShortDate(event.date)}
                       </td>
-                      <td className="px-5 py-3">
+                      <td className="whitespace-nowrap px-5 py-3">
                         <div className="flex flex-col gap-1">
                           <span className="font-mono text-xs text-muted-foreground">
                             {sold}/{capacity}
@@ -320,12 +320,12 @@ export default async function DashboardEventsPage({
                           </div>
                         </div>
                       </td>
-                      <td className="px-5 py-3">
+                      <td className="whitespace-nowrap px-5 py-3">
                         <Badge variant={statusInfo.variant}>
                           {statusInfo.label}
                         </Badge>
                       </td>
-                      <td className="px-5 py-3">
+                      <td className="whitespace-nowrap px-5 py-3">
                         <div className="flex flex-nowrap items-center gap-2">
                           <EventQuickLinks
                             eventId={event.id}
