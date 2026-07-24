@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Card, CardContent } from "@/components/ui/Card";
 
 export const metadata: Metadata = { title: "Privacidad" };
 
@@ -25,19 +26,24 @@ export default function PrivacyPage() {
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-8 px-4 py-10">
       <div>
-        <h1 className="text-3xl font-bold">Política de privacidad</h1>
-        <p className="mt-1 text-muted-foreground">
+        <h1 className="text-[28px] font-extrabold leading-tight tracking-tight">
+          Política de privacidad
+        </h1>
+        <span className="mt-1.5 block h-[3px] w-10 bg-gradient-to-r from-gold to-transparent" />
+        <p className="mt-2 text-muted-foreground">
           Última actualización: julio de 2026.
         </p>
       </div>
-      <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-4">
         {sections.map((section) => (
-          <section key={section.title}>
-            <h2 className="font-semibold">{section.title}</h2>
-            <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-              {section.body}
-            </p>
-          </section>
+          <Card key={section.title}>
+            <CardContent className="p-5">
+              <h2 className="font-semibold">{section.title}</h2>
+              <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
+                {section.body}
+              </p>
+            </CardContent>
+          </Card>
         ))}
       </div>
     </div>

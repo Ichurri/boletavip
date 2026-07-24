@@ -40,7 +40,7 @@ export function ProofImage({
         type="button"
         onClick={() => setOpen((value) => !value)}
         title={open ? "Ocultar comprobante" : "Ver comprobante"}
-        className="block shrink-0 cursor-pointer overflow-hidden rounded-md border border-border transition-opacity hover:opacity-80"
+        className="block shrink-0 cursor-pointer overflow-hidden rounded-xl border border-border transition-opacity hover:opacity-80"
       >
         <Image
           src={url}
@@ -69,7 +69,7 @@ export function ProofImage({
             width={960}
             height={720}
             unoptimized
-            className="max-h-[85vh] w-auto max-w-full rounded-lg bg-white object-contain shadow-2xl"
+            className="max-h-[85vh] w-auto max-w-full rounded-xl bg-white object-contain shadow-2xl"
           />
         </button>
       )}
@@ -87,7 +87,7 @@ export function ProofImage({
             width={960}
             height={720}
             unoptimized
-            className="max-h-[70vh] w-full rounded-md border border-border bg-white object-contain"
+            className="max-h-[70vh] w-full rounded-xl border border-border bg-white object-contain"
           />
         </button>
       )}

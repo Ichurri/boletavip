@@ -52,8 +52,11 @@ export default async function AdminUsersPage({
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="text-2xl font-bold">Usuarios ({users.length})</h1>
-        <p className="mt-1 text-muted-foreground">
+        <h1 className="text-[28px] font-extrabold leading-tight tracking-tight">
+          Usuarios ({users.length})
+        </h1>
+        <span className="mt-1.5 block h-[3px] w-10 bg-gradient-to-r from-gold to-transparent" />
+        <p className="mt-2 text-muted-foreground">
           Gestioná las cuentas de la plataforma.
         </p>
       </div>

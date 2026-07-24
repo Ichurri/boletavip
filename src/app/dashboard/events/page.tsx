@@ -281,7 +281,7 @@ export default async function DashboardEventsPage({
                       ? Math.min(100, Math.round((sold / capacity) * 100))
                       : 0;
                   return (
-                    <tr key={event.id} className="hover:bg-muted/40">
+                    <tr key={event.id} className="transition-colors hover:bg-muted/40">
                       <td className="px-5 py-3">
                         <div className="flex min-w-0 items-center gap-3">
                           <div className="h-11 w-11 shrink-0 overflow-hidden rounded-lg bg-muted">

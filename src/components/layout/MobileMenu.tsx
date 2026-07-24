@@ -5,6 +5,7 @@ import { useState } from "react";
 import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
 import { buttonVariants } from "@/components/ui/Button";
+import { MenuIcon, XIcon } from "@/components/ui/icons";
 import { cn } from "@/lib/utils";
 
 interface MobileMenuUser {
@@ -38,21 +39,11 @@ export function MobileMenu({ user }: { user: MobileMenuUser | null }) {
         className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-border text-foreground transition-colors hover:bg-muted"
         onClick={() => setOpen((current) => !current)}
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          className="h-4 w-4"
-        >
-          {open ? (
-            <path d="M6 6l12 12M18 6L6 18" />
-          ) : (
-            <path d="M4 6h16M4 12h16M4 18h16" />
-          )}
-        </svg>
+        {open ? (
+          <XIcon className="h-4 w-4" />
+        ) : (
+          <MenuIcon className="h-4 w-4" />
+        )}
       </button>
 
       {open && (

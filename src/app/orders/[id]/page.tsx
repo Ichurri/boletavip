@@ -159,7 +159,7 @@ export default async function OrderDetailPage({ params }: PageProps) {
                       alt="QR de pago del organizador"
                       width={260}
                       height={260}
-                      className="h-auto max-w-full rounded-md border border-border bg-qr-frame p-2"
+                      className="h-auto max-w-full rounded-xl border border-border bg-qr-frame p-2"
                     />
                   ) : (
                     <p className="text-sm text-muted-foreground">
@@ -273,7 +273,7 @@ export default async function OrderDetailPage({ params }: PageProps) {
                     href={`/api/orders/${order.id}/proof`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="block overflow-hidden rounded-md border border-border"
+                    className="block overflow-hidden rounded-xl border border-border"
                   >
                     <Image
                       src={`/api/orders/${order.id}/proof`}

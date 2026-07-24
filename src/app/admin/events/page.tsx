@@ -29,8 +29,11 @@ export default async function AdminEventsPage() {
   return (
     <div className="flex flex-col gap-8">
       <div>
-        <h1 className="text-2xl font-bold">Gestión de eventos</h1>
-        <p className="mt-1 text-muted-foreground">
+        <h1 className="text-[28px] font-extrabold leading-tight tracking-tight">
+          Gestión de eventos
+        </h1>
+        <span className="mt-1.5 block h-[3px] w-10 bg-gradient-to-r from-gold to-transparent" />
+        <p className="mt-2 text-muted-foreground">
           Aprobá o rechazá los eventos enviados por los organizadores.
         </p>
       </div>
@@ -92,7 +95,7 @@ export default async function AdminEventsPage() {
                   </thead>
                   <tbody className="divide-y divide-border-soft">
                     {pending.map((event) => (
-                      <tr key={event.id} className="hover:bg-muted/40">
+                      <tr key={event.id} className="transition-colors hover:bg-muted/40">
                         <td className="whitespace-nowrap px-5 py-3 font-semibold">
                           {event.title}
                         </td>
@@ -193,7 +196,7 @@ export default async function AdminEventsPage() {
                     {rest.map((event) => {
                       const statusInfo = EVENT_STATUS_LABELS[event.status];
                       return (
-                        <tr key={event.id} className="hover:bg-muted/40">
+                        <tr key={event.id} className="transition-colors hover:bg-muted/40">
                           <td className="whitespace-nowrap px-5 py-3 font-semibold">
                             {event.title}
                           </td>

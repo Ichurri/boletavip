@@ -178,7 +178,7 @@ export default async function AdminEventDetailPage({ params }: PageProps) {
                   alt="QR de pago del organizador"
                   width={260}
                   height={260}
-                  className="mx-auto h-auto max-w-full rounded-md border border-border bg-qr-frame p-2"
+                  className="mx-auto h-auto max-w-full rounded-xl border border-border bg-qr-frame p-2"
                 />
               ) : (
                 <p className="text-sm text-muted-foreground">

@@ -55,10 +55,10 @@ export function ImageUpload({
             alt={label}
             width={120}
             height={68}
-            className="h-[68px] w-[120px] rounded-md border border-border object-cover"
+            className="h-[68px] w-[120px] rounded-xl border border-border object-cover"
           />
         ) : (
-          <div className="flex h-[68px] w-[120px] items-center justify-center rounded-md border border-dashed border-border text-muted-foreground">
+          <div className="flex h-[68px] w-[120px] items-center justify-center rounded-xl border border-dashed border-border text-muted-foreground">
             <ImageIcon className="h-6 w-6" />
           </div>
         )}
